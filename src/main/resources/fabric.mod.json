@@ -1,22 +1,22 @@
 {
 	"schemaVersion": 1,
-	"id": "forf",
+	"id": "${mod_id}",
 	"version": "${version}",
-	"name": "forf",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "${mod_name}",
+	"description": "A Friend or Foe mod for you to play with your friends. Based on the YouTube Friend or Foe series.",
 	"authors": [
-		"Me!"
+		"ILikeFood971"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/ILikeFood971",
+		"sources": "https://github.com/ILikeFood971/forf"
 	},
-	"license": "CC0-1.0",
+	"license": "GPL-3.0",
 	"icon": "assets/forf/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-          "net.ilikefood971.Forf"
+          "net.ilikefood971.forf.Forf"
 		],
 		"client": [
 			"net.ilikefood971.ForfClient"
@@ -30,12 +30,12 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.14.21",
+		"fabricloader": ">=${fabric_loader_version}",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"another-mod": "*"
+		"voicechat": "Simple Voice Chat"
 	}
 }

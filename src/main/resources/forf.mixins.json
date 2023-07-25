@@ -1,11 +1,13 @@
 {
-	"required": true,
-	"package": "net.ilikefood971.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"mixins": [
-		"ExampleMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "package": "net.ilikefood971.forf.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "EndCityGeneratorMixin",
+    "PlayerEntityDataSaver",
+    "RecipeManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }
