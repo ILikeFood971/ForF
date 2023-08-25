@@ -1,7 +1,7 @@
 package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.ilikefood971.forf.util.IEntityDataSaver;
+import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 

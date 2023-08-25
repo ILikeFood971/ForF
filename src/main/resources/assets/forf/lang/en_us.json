@@ -1,0 +1,12 @@
+{
+  "text.config.forf-config.option.spectators": "Allow Spectators",
+  "text.config.forf-config.option.startingLives": "Starting Lives",
+  "text.config.forf-config.option.spectatorGamemode": "Spectator Gamemode",
+
+  "text.config.forf-config.enum.gameMode.spectator": "Spectator",
+  "text.config.forf-config.enum.gameMode.survival": "Survival",
+  "text.config.forf-config.enum.gameMode.creative": "Creative",
+  "text.config.forf-config.enum.gameMode.adventure": "Adventure",
+
+  "text.config.forf-config.title": "Friend or Foe Config"
+}

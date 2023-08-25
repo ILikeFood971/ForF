@@ -2,7 +2,8 @@ package net.ilikefood971.forf.event;
 
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.ilikefood971.forf.util.IEntityDataSaver;
+import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -15,7 +16,6 @@ import net.minecraft.text.Text;
 public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     
     // Remove one life from the player on death
-    @SuppressWarnings("CommentedOutCode")
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
         // Check that they are actually a player as this gets called for all entity deaths
@@ -24,14 +24,21 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
             PlayerEntity player = (PlayerEntity) entity;
             IEntityDataSaver data = (IEntityDataSaver) player;
             
-            data.removeLife();
-            player.getServer().getPlayerManager().broadcast(Text.of("Life removed!"), true);
-            // FIXME If player is down to 0 lives, ban the player
-//            if (LivesManager.getLives(player) <= 0) {
-//                ((ServerPlayerEntity) player).changeGameMode(GameMode.SPECTATOR);
-//                player.sendMessage(Text.of("You have run out of lives! You are now a spectator"));
-////                banPlayer(player);
-//            }
+            if (data.getLives() > 0) {
+                data.removeLife();
+                player.getServer().getPlayerManager().broadcast(Text.of("Life removed!"), false);
+                
+            // Check to see if the player ran out of lives
+            } else if (data.getLives() == 0) {
+                // Ban the player if spectators are not allowed
+                if (!Forf.getCONFIG().spectators()) banPlayer(player);
+                
+                // If spectators allowed, switch the players gamemode
+                ((ServerPlayerEntity) player).changeGameMode(Forf.getCONFIG().spectatorGamemode());
+                player.sendMessage(Text.of("You have run out of lives! You are now a spectator"));
+            }
+            
+           
         }
     }
 
@@ -44,6 +51,6 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
         GameProfile profile = player.getGameProfile();
         BannedPlayerList banlist = player.getServer().getPlayerManager().getUserBanList();
         
-        banlist.add(new BannedPlayerEntry(profile, null, null, null, "You ran out of lives!"));
+        banlist.add(new BannedPlayerEntry(profile, null, null, null, "You have run out of lives and spectators are not allowed!"));
     }
 }

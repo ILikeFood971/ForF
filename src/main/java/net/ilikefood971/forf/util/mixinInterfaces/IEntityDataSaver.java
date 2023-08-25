@@ -1,4 +1,4 @@
-package net.ilikefood971.forf.util;
+package net.ilikefood971.forf.util.mixinInterfaces;
 
 import net.minecraft.nbt.NbtCompound;
 
@@ -8,8 +8,4 @@ public interface IEntityDataSaver {
     
     void removeLife();
     void setLives(int lives);
-    
-    boolean setForf(boolean forfPlayer);
-    
-    boolean isForfPlayer();
 }

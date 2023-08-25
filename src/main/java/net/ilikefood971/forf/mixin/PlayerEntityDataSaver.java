@@ -1,6 +1,7 @@
 package net.ilikefood971.forf.mixin;
 
-import net.ilikefood971.forf.util.IEntityDataSaver;
+import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
+@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
 public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     
@@ -61,29 +63,7 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     @Override
     public int getLives() {
         NbtCompound nbt = this.getPersistentData();
-        
-        // Prevent non-forf-players from being included
-        if (!nbt.getBoolean("player")) return -1;
-        
         return nbt.getInt("lives");
-    }
-    
-    @Override
-    public boolean setForf(boolean forfPlayer) {
-        NbtCompound nbt = this.getPersistentData();
-        boolean before = nbt.getBoolean("player");
-        
-        if (before == forfPlayer) {
-            return false;
-        }
-        
-        nbt.putBoolean("player", forfPlayer);
-        return true;
-    }
-    
-    @Override
-    public boolean isForfPlayer() {
-        return this.getPersistentData().contains("player") && this.getPersistentData().getBoolean("player");
     }
     
 }

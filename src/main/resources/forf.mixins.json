@@ -3,9 +3,11 @@
   "package": "net.ilikefood971.forf.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "EndCityGeneratorMixin",
     "PlayerEntityDataSaver",
-    "RecipeManagerMixin"
+    "PlayerLoginMixin",
+    "restrictions.EndCityGeneratorMixin",
+    "restrictions.EvokerMixin",
+    "restrictions.RecipeManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
