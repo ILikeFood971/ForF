@@ -34,7 +34,8 @@
 		"minecraft": "~1.20.1",
 		"java": ">=17",
 		"fabric-api": "*",
-		"owo": "${owo_version}"
+		"owo": "${owo_version}",
+		"sgui": "${sgui_version}"
 	},
 	"suggests": {
 		"voicechat": "Simple Voice Chat"
