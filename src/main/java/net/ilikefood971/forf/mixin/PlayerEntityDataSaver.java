@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Friend or Foe project, licensed under the
+ * GNU General Public License v3.0
+ *
+ * Copyright (C) 2023  ILikeFood971 and contributors
+ *
+ * Friend or Foe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * Friend or Foe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package net.ilikefood971.forf.mixin;
 
 import net.ilikefood971.forf.Forf;
@@ -5,16 +25,21 @@ import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static net.ilikefood971.forf.Forf.livesObjective;
+
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
 public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
+    
+    @Shadow public abstract String getEntityName();
     
     @Unique
     private NbtCompound persistentData;
@@ -44,20 +69,18 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     
     @Override
     public void removeLife() {
-        // Don't remove life from non forf player
-        NbtCompound nbt = this.getPersistentData();
-        if (nbt.getBoolean("player")) {
-            
-            int newLives = nbt.getInt("lives");
-            newLives -= 1;
-            nbt.putInt("lives", newLives);
-        }
+        
+        int newLives = getLives();
+        newLives -= 1;
+        setLives(newLives);
     }
     
     @Override
     public void setLives(int lives) {
         NbtCompound nbt = this.getPersistentData();
         nbt.putInt("lives", lives);
+        
+        Forf.SERVER.getScoreboard().getPlayerScore(this.getEntityName(), livesObjective).setScore(lives);
     }
     
     @Override

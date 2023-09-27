@@ -18,14 +18,8 @@
  * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ilikefood971.forf.util.mixinInterfaces;
+package net.ilikefood971.forf.command;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.PlayerManager;
-
-public interface IPlayerTracker {
-    void onClicked(ItemStack itemStack);
-    
-    void updatePlayerHeadList(PlayerManager playerManager);
-    boolean isPlayerTracker();
+public class LivesCommands {
+    // TODO
 }

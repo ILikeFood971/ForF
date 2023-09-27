@@ -33,22 +33,22 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static net.ilikefood971.forf.command.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
-import static net.ilikefood971.forf.command.Util.*;
 
-public class JoinCommand {
+public class LeaveCommand {
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("forf")
                         .then(
-                                literal("join")
+                                literal("leave")
                                         .then(
                                                 argument("players", EntityArgumentType.players())
                                                         .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
-                                                        .executes(JoinCommand::run)
+                                                        .executes(LeaveCommand::run)
                                         )
-                                        .executes(JoinCommand::run)
+                                        .executes(LeaveCommand::run)
                         )
         );
     }
@@ -56,7 +56,7 @@ public class JoinCommand {
     private static int run(CommandContext<ServerCommandSource> context) {
         if (Forf.PERSISTENT_DATA.started) {
             sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
-            return JoinResult.ALREADY_STARTED.getValue();
+            return -1;
         }
         
         Collection<ServerPlayerEntity> players;
@@ -70,32 +70,15 @@ public class JoinCommand {
             String playerName = player.getEntityName();
             String playerUuid = player.getUuidAsString();
             
-            if (Forf.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-                sendFeedback(context, Text.translatable("forf.commands.message.join.alreadyAdded", playerName), false);
-                return JoinResult.ALREADY_ADDED.getValue();
+            if (!Forf.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
+                sendFeedback(context, Text.translatable("forf.commands.message.leave.alreadyLeft", playerName), false);
+                return -1;
             }
             
             
-            Forf.PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
-            sendFeedback(context, Text.translatable("forf.commands.message.join.success", playerName), true);
+            Forf.PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
+            sendFeedback(context, Text.translatable("forf.commands.message.leave.success", playerName), true);
         }
-        return JoinResult.SUCCESS.getValue();
-    }
-    
-    
-    private enum JoinResult {
-        SUCCESS(1),
-        ALREADY_ADDED(-1),
-        ALREADY_STARTED(-1);
-        
-        private final int value;
-        
-        JoinResult(int value) {
-            this.value = value;
-        }
-        
-        public int getValue() {
-            return value;
-        }
+        return 1;
     }
 }

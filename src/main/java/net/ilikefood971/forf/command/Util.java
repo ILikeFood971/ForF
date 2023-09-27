@@ -18,14 +18,19 @@
  * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ilikefood971.forf.util.mixinInterfaces;
+package net.ilikefood971.forf.command;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.PlayerManager;
+import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 
-public interface IPlayerTracker {
-    void onClicked(ItemStack itemStack);
+public class Util {
     
-    void updatePlayerHeadList(PlayerManager playerManager);
-    boolean isPlayerTracker();
+    public static void sendFeedback(CommandContext<ServerCommandSource> context, Text message, boolean broadcast) {
+        context.getSource().sendFeedback(
+                //#if MC >= 12000
+                () ->
+                //#endif
+                message, broadcast);
+    }
 }

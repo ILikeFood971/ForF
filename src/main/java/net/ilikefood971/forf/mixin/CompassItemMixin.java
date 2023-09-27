@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Friend or Foe project, licensed under the
+ * GNU General Public License v3.0
+ *
+ * Copyright (C) 2023  ILikeFood971 and contributors
+ *
+ * Friend or Foe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * Friend or Foe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package net.ilikefood971.forf.mixin;
 
 import com.mojang.brigadier.StringReader;
@@ -5,7 +25,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.ilikefood971.forf.Forf;
-import net.ilikefood971.forf.config.ForfConfig;
+import net.ilikefood971.forf.config.Config;
 import net.ilikefood971.forf.util.PlayerTrackerGui;
 import net.ilikefood971.forf.util.mixinInterfaces.IPlayerTracker;
 import net.minecraft.command.argument.TextArgumentType;
@@ -35,19 +55,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(CompassItem.class)
 public abstract class CompassItemMixin extends Item implements Vanishable, IPlayerTracker {
     
+    @SuppressWarnings("SameReturnValue")
     @Shadow
     public static boolean hasLodestone(ItemStack stack) {
         return false;
+    }
+    public CompassItemMixin(Settings settings) {
+        super(settings);
     }
     
     private final static SimpleInventory playerHeadsInventory = new SimpleInventory(27);
     private boolean isTracker;
     private String trackedPlayerName;
-    private int ticksLeftToUpdate = Forf.getCONFIG().trackerAutoUpdateDelay();
+    private int ticksLeftToUpdate = Forf.CONFIG.trackerAutoUpdateDelay();
     
-    public CompassItemMixin(Settings settings) {
-        super(settings);
-    }
     
     public void updatePlayerHeadList(PlayerManager playerManager) {
         playerHeadsInventory.clear();
@@ -87,15 +108,15 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack itemStack = user.getStackInHand(hand);
-        if (this.hasLodestone(itemStack)) {
+        if (hasLodestone(itemStack)) {
             itemStack.setNbt(getUpdatedTracker(this.trackedPlayerName, itemStack).getNbt());
             return TypedActionResult.pass(itemStack);
         }
-        // FIXME use isTracker
-        if (true && !world.isClient() && Forf.getCONFIG().playerTracker()) {
+        // FIXME use isTracker and include mixin
+        if (true && !world.isClient() && Forf.CONFIG.playerTracker()) {
             updatePlayerHeadList(world.getServer().getPlayerManager());
             
-            SimpleGui simpleGui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, Forf.SERVER.getPlayerManager().getPlayer(user.getUuid()), false, ((CompassItem)((Object) this)));
+            SimpleGui simpleGui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, Forf.SERVER.getPlayerManager().getPlayer(user.getUuid()), false, (CompassItem) (Object) (this));
             int i = 0;
             for (ItemStack itemStack1 : playerHeadsInventory.stacks) {
                 simpleGui.setSlot(i, GuiElementBuilder.from(itemStack1));
@@ -123,8 +144,7 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
     }
     
     public void onClicked(ItemStack selectedStack) {
-        String skullOwner = selectedStack.getNbt().getString("SkullOwner");
-        this.trackedPlayerName = skullOwner;
+        this.trackedPlayerName = selectedStack.getNbt().getString("SkullOwner");
         this.isTracker = true;
         this.ticksLeftToUpdate = 0;
     }
@@ -140,11 +160,10 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
         }
         this.isTracker = true;
         
-        ItemStack oldCompass = itemStack.copy();
         ItemStack newCompass = itemStack.copy();
         NbtCompound itemTag = newCompass.getOrCreateNbt().copy();
         itemTag.putBoolean("LodestoneTracked", false);
-        itemTag.putString("LodestoneDimension", target.getServerWorld().getRegistryKey().getValue().toString());
+        itemTag.putString("LodestoneDimension", target.getWorld().getRegistryKey().getValue().toString());
         NbtCompound lodestonePos = new NbtCompound();
         lodestonePos.putInt("X", target.getBlockX());
         lodestonePos.putInt("Y", target.getBlockY());
@@ -160,9 +179,9 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
     @Inject(method = "inventoryTick", at = @At("HEAD") , cancellable = true)
     public void addPlayerTracker(ItemStack stack, World world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
         if (this.isTracker && Forf.SERVER.getPlayerManager().getPlayer(this.trackedPlayerName) != null && entity instanceof PlayerEntity) {
-            if (Forf.getCONFIG().trackerUpdateType() == ForfConfig.UpdateType.AUTOMATIC && (Forf.getCONFIG().trackerAutoUpdateDelay() == 0 || ticksLeftToUpdate == 0)) {
+            if (Forf.CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC && (Forf.CONFIG.trackerAutoUpdateDelay() == 0 || ticksLeftToUpdate == 0)) {
                 ((PlayerEntity) entity).getInventory().setStack(slot, this.getUpdatedTracker(this.trackedPlayerName, stack));
-                ticksLeftToUpdate = Forf.getCONFIG().trackerAutoUpdateDelay();
+                ticksLeftToUpdate = Forf.CONFIG.trackerAutoUpdateDelay();
             }
             ticksLeftToUpdate -= 1;
             ci.cancel();

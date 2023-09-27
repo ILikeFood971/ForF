@@ -1,20 +1,36 @@
+/*
+ * This file is part of the Friend or Foe project, licensed under the
+ * GNU General Public License v3.0
+ *
+ * Copyright (C) 2023  ILikeFood971 and contributors
+ *
+ * Friend or Foe is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * Friend or Foe is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package net.ilikefood971.forf.event;
 
-import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.ilikefood971.forf.Forf;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.BannedPlayerEntry;
-import net.minecraft.server.BannedPlayerList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 @SuppressWarnings("DataFlowIssue")
 public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
-    
     // Remove one life from the player on death
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
@@ -26,31 +42,22 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
             
             if (data.getLives() > 0) {
                 data.removeLife();
-                player.getServer().getPlayerManager().broadcast(Text.of("Life removed!"), false);
+                // TODO Make real message
+                player.getServer().getPlayerManager().broadcast(Text.translatable("forf.event.death.lifeRemoved", player.getEntityName(), data.getLives()), false);
                 
             // Check to see if the player ran out of lives
-            } else if (data.getLives() == 0) {
-                // Ban the player if spectators are not allowed
-                if (!Forf.getCONFIG().spectators()) banPlayer(player);
-                
+            }
+            if (data.getLives() <= 0) {
+                // Kick the player if spectators are not allowed
+                if (!Forf.CONFIG.spectators()) {
+                    ((ServerPlayerEntity) player).networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));
+                }
                 // If spectators allowed, switch the players gamemode
-                ((ServerPlayerEntity) player).changeGameMode(Forf.getCONFIG().spectatorGamemode());
-                player.sendMessage(Text.of("You have run out of lives! You are now a spectator"));
+                ((ServerPlayerEntity) player).changeGameMode(Forf.CONFIG.spectatorGamemode());
+                player.sendMessage(Text.translatable("forf.event.death.spectator"));
             }
             
            
         }
-    }
-
-    
-    public void banPlayer(PlayerEntity player) {
-        // Only run if it is on the server side
-        if (player.getWorld().isClient()) return;
-        
-        // Get the game profile needed to ban player
-        GameProfile profile = player.getGameProfile();
-        BannedPlayerList banlist = player.getServer().getPlayerManager().getUserBanList();
-        
-        banlist.add(new BannedPlayerEntry(profile, null, null, null, "You have run out of lives and spectators are not allowed!"));
     }
 }
