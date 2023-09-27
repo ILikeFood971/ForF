@@ -32,3 +32,5 @@ Once everything has been set to what you like, save the file. While doing this, 
 This GitHub repo is based on [Fallen Breath's mod template](https://github.com/Fallen-Breath/fabric-mod-template)
 
 Forf utilizes the [sgui library](https://github.com/Patbox/sgui) for the player tracker gui
+Server Translations API is included
+Polymer is included for tracker
