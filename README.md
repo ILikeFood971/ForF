@@ -48,7 +48,7 @@ Are stored per-player. You can set how many one will start with in the config. E
 
 Feel free to [file an issue](https://github.com/ILikeFood971/ForF/issues) or [pr](https://github.com/ILikeFood971/ForF/pulls). I would be happy to fix any bugs you may encounter. 
 
-If you want you could make a [translation pr.](https://github.com/ILikeFood971/ForF/tree/1.20/src/main/resources/assets/forf/lang)
+If you want you could make a [translation pr.](https://github.com/ILikeFood971/ForF/tree/main/src/main/resources/assets/forf/lang)
 
 If you need any more help please join the [Discord Server](https://discord.gg/ypyRwVEaBT).
 
