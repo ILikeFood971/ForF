@@ -23,7 +23,6 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.ilikefood971.forf.Forf;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static net.minecraft.server.command.CommandManager.*;
-import static net.ilikefood971.forf.command.Util.*;
 
 public class JoinCommand {
     @SuppressWarnings("unused")
@@ -54,8 +52,8 @@ public class JoinCommand {
     }
     
     private static int run(CommandContext<ServerCommandSource> context) {
-        if (Forf.PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
+        if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
             return JoinResult.ALREADY_STARTED.getValue();
         }
         
@@ -70,14 +68,14 @@ public class JoinCommand {
             String playerName = player.getEntityName();
             String playerUuid = player.getUuidAsString();
             
-            if (Forf.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-                sendFeedback(context, Text.translatable("forf.commands.message.join.alreadyAdded", playerName), false);
+            if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
+                net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.join.alreadyAdded", playerName), false);
                 return JoinResult.ALREADY_ADDED.getValue();
             }
             
             
-            Forf.PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
-            sendFeedback(context, Text.translatable("forf.commands.message.join.success", playerName), true);
+            net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.join.success", playerName), true);
         }
         return JoinResult.SUCCESS.getValue();
     }

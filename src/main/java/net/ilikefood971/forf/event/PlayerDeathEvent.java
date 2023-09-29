@@ -21,15 +21,15 @@
 package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
-@SuppressWarnings("DataFlowIssue")
 public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     // Remove one life from the player on death
     @Override
@@ -42,18 +42,17 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
             
             if (data.getLives() > 0) {
                 data.removeLife();
-                // TODO Make real message
-                player.getServer().getPlayerManager().broadcast(Text.translatable("forf.event.death.lifeRemoved", player.getEntityName(), data.getLives()), false);
+                player.sendMessage(Text.translatable("forf.event.death.livesLeft", data.getLives()).formatted(Formatting.RED), false);
                 
             // Check to see if the player ran out of lives
             }
             if (data.getLives() <= 0) {
                 // Kick the player if spectators are not allowed
-                if (!Forf.CONFIG.spectators()) {
+                if (!Util.CONFIG.spectators()) {
                     ((ServerPlayerEntity) player).networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));
                 }
                 // If spectators allowed, switch the players gamemode
-                ((ServerPlayerEntity) player).changeGameMode(Forf.CONFIG.spectatorGamemode());
+                ((ServerPlayerEntity) player).changeGameMode(Util.CONFIG.spectatorGamemode());
                 player.sendMessage(Text.translatable("forf.event.death.spectator"));
             }
             

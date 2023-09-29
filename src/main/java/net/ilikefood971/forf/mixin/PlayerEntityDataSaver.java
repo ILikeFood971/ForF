@@ -20,7 +20,7 @@
 
 package net.ilikefood971.forf.mixin;
 
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.ilikefood971.forf.Forf.livesObjective;
+import static net.ilikefood971.forf.util.Util.livesObjective;
 
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
@@ -80,7 +80,7 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
         NbtCompound nbt = this.getPersistentData();
         nbt.putInt("lives", lives);
         
-        Forf.SERVER.getScoreboard().getPlayerScore(this.getEntityName(), livesObjective).setScore(lives);
+        Util.SERVER.getScoreboard().getPlayerScore(this.getEntityName(), livesObjective).setScore(lives);
     }
     
     @Override

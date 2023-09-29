@@ -20,7 +20,7 @@
 
 package net.ilikefood971.forf.mixin.restrictions;
 
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.mob.EvokerEntity;
@@ -40,7 +40,7 @@ public abstract class EvokerMixin extends SpellcastingIllagerEntity {
     @Nullable
     @Override
     public ItemEntity dropStack(ItemStack stack) {
-        if (stack.isOf(Items.TOTEM_OF_UNDYING) && !Forf.CONFIG.restrictions.totemDrops()) return null;
+        if (stack.isOf(Items.TOTEM_OF_UNDYING) && !Util.CONFIG.restrictions.totemDrops()) return null;
         return super.dropStack(stack);
     }
 }

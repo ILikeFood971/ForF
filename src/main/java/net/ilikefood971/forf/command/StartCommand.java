@@ -22,7 +22,6 @@ package net.ilikefood971.forf.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.ilikefood971.forf.Forf;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ForfManager;
@@ -34,8 +33,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import static net.ilikefood971.forf.Forf.*;
-import static net.ilikefood971.forf.command.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
 @SuppressWarnings("SameReturnValue")
@@ -54,48 +51,48 @@ public class StartCommand {
     
     private static int run(CommandContext<ServerCommandSource> context) {
         
-        if (PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
+        if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
             return -1;
         }
-        if (CONFIG.startingLives() <= 0) {
-            sendFeedback(context, Text.translatable("forf.commands.message.start.insufficientAmountLives", CONFIG.startingLives()), false);
+        if (net.ilikefood971.forf.util.Util.CONFIG.startingLives() <= 0) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.start.insufficientAmountLives", net.ilikefood971.forf.util.Util.CONFIG.startingLives()), false);
             return -1;
         }
-        if (PERSISTENT_DATA.forfPlayersUUIDs.isEmpty()) {
-            sendFeedback(context, Text.translatable("forf.commands.message.start.insufficientAmountPlayers"), false);
+        if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.isEmpty()) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.start.insufficientAmountPlayers"), false);
             return -1;
         }
-        if (CONFIG.startingLives() > 1 && PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.message.start.multiplePlayersAndLives", CONFIG.startingLives(), PERSISTENT_DATA.forfPlayersUUIDs.size()), true);
-        } else if (PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.message.start.multiplePlayers", PERSISTENT_DATA.forfPlayersUUIDs.size()), true);
-        } else if (CONFIG.startingLives() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.message.start.multipleLives", CONFIG.startingLives()), true);
+        if (net.ilikefood971.forf.util.Util.CONFIG.startingLives() > 1 && net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.start.multiplePlayersAndLives", net.ilikefood971.forf.util.Util.CONFIG.startingLives(), net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.size()), true);
+        } else if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.start.multiplePlayers", net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.size()), true);
+        } else if (net.ilikefood971.forf.util.Util.CONFIG.startingLives() > 1) {
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.start.multipleLives", net.ilikefood971.forf.util.Util.CONFIG.startingLives()), true);
         } else {
-            sendFeedback(context, Text.translatable("forf.commands.message.start.single"), true);
+            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.start.single"), true);
         }
         
         ForfManager.setupForf(context);
-        PERSISTENT_DATA.started = true;
+        net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started = true;
         
-        ServerScoreboard scoreboard = Forf.SERVER.getScoreboard();
-        scoreboard.setObjectiveSlot(0, livesObjective);
+        ServerScoreboard scoreboard = net.ilikefood971.forf.util.Util.SERVER.getScoreboard();
+        
         
         for (ServerPlayerEntity serverPlayerEntity : context.getSource().getServer().getPlayerManager().getPlayerList()) {
-            if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(serverPlayerEntity.getUuidAsString()) && !CONFIG.spectators()) {
+            if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(serverPlayerEntity.getUuidAsString()) && !net.ilikefood971.forf.util.Util.CONFIG.spectators()) {
                 serverPlayerEntity.networkHandler.disconnect(Text.translatable("forf.disconnect.noSpectators"));
-            } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(serverPlayerEntity.getUuidAsString()) && CONFIG.spectators()) {
-                serverPlayerEntity.changeGameMode(CONFIG.spectatorGamemode());
+            } else if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(serverPlayerEntity.getUuidAsString()) && net.ilikefood971.forf.util.Util.CONFIG.spectators()) {
+                serverPlayerEntity.changeGameMode(net.ilikefood971.forf.util.Util.CONFIG.spectatorGamemode());
             }
             
             serverPlayerEntity.networkHandler.sendPacket(PlayerJoinEvent.getHeaderPacket());
             
-            scoreboard.getPlayerScore(serverPlayerEntity.getEntityName(), livesObjective).setScore(((IEntityDataSaver) serverPlayerEntity).getLives());
+            scoreboard.getPlayerScore(serverPlayerEntity.getEntityName(), net.ilikefood971.forf.util.Util.livesObjective).setScore(((IEntityDataSaver) serverPlayerEntity).getLives());
         }
         
-        if (CONFIG.pvPTimer().enabled()) {
-            PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, CONFIG.pvPTimer().maxRandomOffTime() * 60);
+        if (net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().maxRandomOffTime() * 60);
             context.getSource().getServer().setPvpEnabled(false);
         }
         return 1;

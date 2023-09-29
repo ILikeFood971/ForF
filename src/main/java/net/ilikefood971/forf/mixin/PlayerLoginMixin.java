@@ -31,8 +31,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.net.SocketAddress;
 
-import static net.ilikefood971.forf.Forf.CONFIG;
-import static net.ilikefood971.forf.Forf.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerLoginMixin {

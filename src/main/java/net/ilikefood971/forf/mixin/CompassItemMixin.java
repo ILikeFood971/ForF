@@ -24,9 +24,9 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.ilikefood971.forf.Forf;
 import net.ilikefood971.forf.config.Config;
 import net.ilikefood971.forf.util.PlayerTrackerGui;
+import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IPlayerTracker;
 import net.minecraft.command.argument.TextArgumentType;
 import net.minecraft.entity.Entity;
@@ -67,7 +67,7 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
     private final static SimpleInventory playerHeadsInventory = new SimpleInventory(27);
     private boolean isTracker;
     private String trackedPlayerName;
-    private int ticksLeftToUpdate = Forf.CONFIG.trackerAutoUpdateDelay();
+    private int ticksLeftToUpdate = Util.CONFIG.trackerAutoUpdateDelay();
     
     
     public void updatePlayerHeadList(PlayerManager playerManager) {
@@ -113,10 +113,10 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
             return TypedActionResult.pass(itemStack);
         }
         // FIXME use isTracker and include mixin
-        if (true && !world.isClient() && Forf.CONFIG.playerTracker()) {
+        if (true && Util.CONFIG.playerTracker()) {
             updatePlayerHeadList(world.getServer().getPlayerManager());
             
-            SimpleGui simpleGui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, Forf.SERVER.getPlayerManager().getPlayer(user.getUuid()), false, (CompassItem) (Object) (this));
+            SimpleGui simpleGui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, Util.SERVER.getPlayerManager().getPlayer(user.getUuid()), false, (CompassItem) (Object) (this));
             int i = 0;
             for (ItemStack itemStack1 : playerHeadsInventory.stacks) {
                 simpleGui.setSlot(i, GuiElementBuilder.from(itemStack1));
@@ -132,7 +132,7 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
                 simpleGui.open();
                 
             } catch (CommandSyntaxException e) {
-                Forf.LOGGER.error(e.toString());
+                Util.LOGGER.error(e.toString());
                 return TypedActionResult.fail(itemStack);
             }
             
@@ -150,12 +150,12 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
     }
     private ItemStack getUpdatedTracker(String player1, ItemStack itemStack) {
         ServerPlayerEntity target = null;
-        for (ServerPlayerEntity player : Forf.SERVER.getPlayerManager().getPlayerList()) {
+        for (ServerPlayerEntity player : Util.SERVER.getPlayerManager().getPlayerList()) {
             if (player.getEntityName().equals(player1)) target = player;
         }
         
         if (target == null) {
-            Forf.LOGGER.info(player1 + " is offline");
+            Util.LOGGER.info(player1 + " is offline");
             return itemStack;
         }
         this.isTracker = true;
@@ -178,13 +178,13 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
     
     @Inject(method = "inventoryTick", at = @At("HEAD") , cancellable = true)
     public void addPlayerTracker(ItemStack stack, World world, Entity entity, int slot, boolean selected, CallbackInfo ci) {
-        if (this.isTracker && Forf.SERVER.getPlayerManager().getPlayer(this.trackedPlayerName) != null && entity instanceof PlayerEntity) {
-            if (Forf.CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC && (Forf.CONFIG.trackerAutoUpdateDelay() == 0 || ticksLeftToUpdate == 0)) {
+        if (this.isTracker && Util.SERVER.getPlayerManager().getPlayer(this.trackedPlayerName) != null && entity instanceof PlayerEntity) {
+            if (Util.CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC && (Util.CONFIG.trackerAutoUpdateDelay() == 0 || ticksLeftToUpdate == 0)) {
                 ((PlayerEntity) entity).getInventory().setStack(slot, this.getUpdatedTracker(this.trackedPlayerName, stack));
-                ticksLeftToUpdate = Forf.CONFIG.trackerAutoUpdateDelay();
+                ticksLeftToUpdate = Util.CONFIG.trackerAutoUpdateDelay();
             }
             ticksLeftToUpdate -= 1;
             ci.cancel();
-        } else Forf.LOGGER.info("NBT removed");
+        } else Util.LOGGER.info("NBT removed");
     }
 }

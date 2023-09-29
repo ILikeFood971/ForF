@@ -1,11 +1,11 @@
+//file:noinspection GrUnresolvedAccess
 apply plugin: 'maven-publish'
 apply plugin: 'fabric-loom'
 apply plugin: 'com.github.hierynomus.license'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
 
-version = project.mod_version
-group = project.maven_group
+
 int mcVersion = project.mcVersion
 
 preprocess {
@@ -56,31 +56,19 @@ dependencies {
     modImplementation include("eu.pb4:polymer-core:[$project.polymer_core_version]")
 }
 
-String MIXIN_CONFIG_PATH = 'forf.mixins.json'
-String LANG_DIR = 'assets/forf/lang'
-JavaVersion JAVA_COMPATIBILITY
-if (mcVersion >= 11800) {
-    JAVA_COMPATIBILITY = JavaVersion.VERSION_17
-} else if (mcVersion >= 11700) {
-    JAVA_COMPATIBILITY = JavaVersion.VERSION_16
-} else {
-    JAVA_COMPATIBILITY = JavaVersion.VERSION_1_8
-}
-
 
 loom {
-    runConfigs.all {
-        // to make sure it generates all "Minecraft Client (:subproject_name)" applications
-        ideConfigGenerated = true
-        runDir '../../run'
-        vmArgs '-Dmixin.debug.export=true'
+    accessWidenerPath = file("forf.accesswidener")
+    runs {
+        mixinAudit {
+            server()
+            vmArgs '-Dforf.mixin_audit=true'
+            ideConfigGenerated false
+        }
     }
-    splitEnvironmentSourceSets()
-
     mods {
         "forf" {
             sourceSet sourceSets.main
-            sourceSet sourceSets.client
         }
     }
 
@@ -89,9 +77,16 @@ loom {
 remapJar {
     remapperIsolation = true
 }
-
-sourceCompatibility = JAVA_COMPATIBILITY
-targetCompatibility = JAVA_COMPATIBILITY
+if (mcVersion >= 11800) {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+} else if (mcVersion >= 11700) {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+} else {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 String versionSuffix = ''
 // detect github action environment variables
@@ -108,16 +103,17 @@ archivesBaseName = project.archives_base_name + '-mc' + project.minecraft_versio
 
 
 processResources {
-    inputs.property "version", project.version
+    from "forf.accesswidener"
+
+    inputs.property "mod_id", project.mod_id
     inputs.property "name", project.mod_name
-    inputs.property "version", mod_version
+    inputs.property "version", project.version
     inputs.property "minecraft_dependency", project.minecraft_dependency
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
+        expand "version": project.mod_version,
                 "mod_id": mod_id,
                 "mod_name": mod_name,
-                "mod_version": mod_version,
                 "minecraft_version": minecraft_version,
                 "java_version": java_version,
                 "fabric_loader_version": fabric_loader_version,
@@ -128,22 +124,19 @@ processResources {
                 "server_translations_version": server_translations_version,
                 "polymer_core_version": polymer_core_version
     }
-    filesMatching(MIXIN_CONFIG_PATH) {
-        expand "compatibility_level": "JAVA_${JAVA_COMPATIBILITY.ordinal() + 1}"
-    }
 }
 
 yamlang {
     targetSourceSets = [sourceSets.main]
-    inputDir = LANG_DIR
+    inputDir = "assets/forf/lang"
 }
+
 // ensure that the encoding is set to UTF-8, no matter what the system default is
 // this fixes some edge cases with special characters not displaying correctly
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
-    it.options.release = 17
 }
 
 java {
@@ -151,9 +144,6 @@ java {
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
-
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {

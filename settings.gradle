@@ -1,3 +1,4 @@
+//file:noinspection GrUnresolvedAccess
 import groovy.json.JsonSlurper
 
 pluginManagement {

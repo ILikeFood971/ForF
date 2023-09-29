@@ -26,7 +26,7 @@ import blue.endless.jankson.JsonGrammar;
 import blue.endless.jankson.JsonObject;
 import blue.endless.jankson.api.SyntaxError;
 import net.fabricmc.loader.api.FabricLoader;
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.world.GameMode;
 
@@ -51,7 +51,8 @@ public class Config {
     
     @Comment("Should the player tracker be craft-able and usable?")
     private boolean playerTracker = true;
-    @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.\nNOTE: If you install the mod client-side, the bobbing will quit when the update is received")
+    // FIXME
+    @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.")
     private UpdateType trackerUpdateType = UpdateType.USE;
     private int trackerAutoUpdateDelay = 20;
     public enum UpdateType {
@@ -78,7 +79,7 @@ public class Config {
         private int maxRandomOffTime = 30;
         
         private void save() {
-            Forf.CONFIG.save();
+            Util.CONFIG.save();
         }
         
         public boolean enabled() {
@@ -134,7 +135,7 @@ public class Config {
         @Comment("Will only prevent elytras in generation\nIf the ship has been generated already elytra will still be there")
         private boolean elytraInEndShip = false;
         private void save() {
-            Forf.CONFIG.save();
+            Util.CONFIG.save();
         }
         public boolean totemDrops() {
             return totemDrops;
@@ -199,7 +200,7 @@ public class Config {
                 }
             }
         } catch (IllegalAccessException e) {
-            Forf.LOGGER.error(e.toString());
+            Util.LOGGER.error(e.toString());
         }
     }
     
@@ -227,7 +228,7 @@ public class Config {
             // Convert the raw object into your POJO type
             return jankson.fromJson(configJson, Config.class);
         } catch (IOException | SyntaxError e) {
-            Forf.LOGGER.error(e.toString());
+            Util.LOGGER.error(e.toString());
             return new Config(); // You could also throw a RuntimeException instead
         }
     }
@@ -250,7 +251,7 @@ public class Config {
             out.flush();
             out.close();
         } catch (IOException e) {
-            Forf.LOGGER.error(e.toString());
+            Util.LOGGER.error(e.toString());
         }
         
     }

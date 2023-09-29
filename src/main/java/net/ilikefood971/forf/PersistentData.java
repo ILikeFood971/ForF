@@ -21,6 +21,7 @@
 package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.timer.PvPTimer;
+import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -34,9 +35,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.ilikefood971.forf.Forf.MOD_ID;
+import static net.ilikefood971.forf.util.Util.MOD_ID;
 
-public class ForfPersistentDataSaverAndLoader extends PersistentState {
+public class PersistentData extends PersistentState {
     public Set<String> forfPlayersUUIDs = new HashSet<>();
     public boolean started = false;
     public int secondsLeft = 0;
@@ -53,8 +54,8 @@ public class ForfPersistentDataSaverAndLoader extends PersistentState {
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
         return nbt;
     }
-    private static ForfPersistentDataSaverAndLoader createFromNbt(NbtCompound tag) {
-        ForfPersistentDataSaverAndLoader state = new ForfPersistentDataSaverAndLoader();
+    private static PersistentData createFromNbt(NbtCompound tag) {
+        PersistentData state = new PersistentData();
         state.forfPlayersUUIDs = tag.getList("forfPlayersUUIDS", NbtList.STRING_TYPE)
                 .stream()
                 .map(NbtElement::asString)
@@ -64,13 +65,23 @@ public class ForfPersistentDataSaverAndLoader extends PersistentState {
         state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
         return state;
     }
-    
-    public static ForfPersistentDataSaverAndLoader getServerState(MinecraftServer server) {
+    //#if MC>=12020
+    private static final Type<PersistentData> type = new Type<>(
+            PersistentData::new, // If there's no 'StateSaverAndLoader' yet create one
+            PersistentData::createFromNbt, // If there is a 'StateSaverAndLoader' NBT, parse it with 'createFromNbt'
+            DataFixTypes.SAVED_DATA_SCOREBOARD // Supposed to be an 'DataFixTypes' enum, but we can just pass null
+    );
+    //#endif
+    public static PersistentData getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
         
-        ForfPersistentDataSaverAndLoader state = persistentStateManager.getOrCreate(
-                ForfPersistentDataSaverAndLoader::createFromNbt,
-                ForfPersistentDataSaverAndLoader::new,
+        PersistentData state = persistentStateManager.getOrCreate(
+                //#if MC>=12020
+                type,
+                //#else
+                //$$PersistentData::createFromNbt,
+                //$$PersistentData::new,
+                //#endif
                 MOD_ID
         );
         // If state is not marked dirty, when Minecraft closes, 'writeNbt' won't be called and therefore nothing will be saved.

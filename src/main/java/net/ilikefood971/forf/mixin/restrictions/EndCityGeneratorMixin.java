@@ -20,7 +20,7 @@
 
 package net.ilikefood971.forf.mixin.restrictions;
 
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.structure.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
@@ -45,7 +45,7 @@ public abstract class EndCityGeneratorMixin extends SimpleStructurePiece {
             target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;<init>(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)V"
     ), cancellable = true)
     protected void handleMetadataWithoutElytra(String metadata, BlockPos pos, ServerWorldAccess world, Random random, BlockBox boundingBox, CallbackInfo ci) {
-        if (!Forf.CONFIG.restrictions.elytraInEndShip()) {
+        if (!Util.CONFIG.restrictions.elytraInEndShip()) {
             ci.cancel();
         }
     }

@@ -21,17 +21,18 @@
 package net.ilikefood971.forf.timer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-import static net.ilikefood971.forf.Forf.CONFIG;
-import static net.ilikefood971.forf.Forf.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 @SuppressWarnings("UnusedReturnValue")
 public class PvPTimer implements ServerTickEvents.EndTick {
@@ -55,7 +56,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
     public void onEndTick(MinecraftServer server) {
         if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.started) return;
         if (ticksTillSecond != 0) {ticksTillSecond--; return;}
-        Forf.LOGGER.debug(secondsLeft + " seconds left with pvp " + pvPState);
+        Util.LOGGER.debug(secondsLeft + " seconds left with pvp " + pvPState);
         // Check to see if the timer has run out
         if (secondsLeft <= 0) {
             // Get the random seconds for the opposite of the current pvPState as it hasn't changed yet
@@ -63,13 +64,13 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             // Using what the random seconds are, change the timer to a random amount of seconds
             changePvpTimer(seconds);
             // Now the pvPState has changed so plan accordingly
-            Forf.LOGGER.debug("PvP has been changed with " + secondsLeft + " seconds left and pvp " + pvPState);
+            Util.LOGGER.debug("PvP has been changed with " + secondsLeft + " seconds left and pvp " + pvPState);
         } else secondsLeft--;
         ticksTillSecond = 20;
         
         if (pvPState == PvPState.OFF) return;
         // All this will be skipped if pvp is off
-        Text text = getParsedTextFromKey(getEnabledUnparsedString());
+        Text text = Util.getParsedTextFromKey(getEnabledUnparsedString());
         for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
             serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(text));
         }
@@ -87,32 +88,28 @@ public class PvPTimer implements ServerTickEvents.EndTick {
     
     public static boolean changePvpTimer(PvPState pvPState, int seconds) {
         secondsLeft = seconds;
-        MinecraftServer server = Forf.SERVER;
+        MinecraftServer server = Util.SERVER;
         if (pvPState == PvPState.OFF && PvPTimer.pvPState != pvPState) {
             for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-                serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(getParsedTextFromKey("forf.timer.actionBar.disabled")));
-                serverPlayerEntity.sendMessage(getParsedTextFromKey("forf.timer.chat.disabled"));
+                serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("forf.timer.actionBar.disabled").formatted(Formatting.DARK_GREEN)));
+                serverPlayerEntity.sendMessage(Util.getParsedTextFromKey("forf.timer.chat.disabled"));
                 server.setPvpEnabled(false);
             }
             PvPTimer.pvPState = PvPState.OFF;
             return true;
         }  else if (pvPState == PvPState.ON && PvPTimer.pvPState != pvPState) {
             for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(getParsedTextFromKey("forf.timer.title.enabled")));
-                serverPlayerEntity.sendMessage(getParsedTextFromKey("forf.timer.chat.enabled"));
+                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Util.getParsedTextFromKey("forf.timer.title.enabled")));
+                serverPlayerEntity.sendMessage(Util.getParsedTextFromKey("forf.timer.chat.enabled"));
                 server.setPvpEnabled(true);
             }
             PvPTimer.pvPState = PvPState.ON;
             return true;
         }
-        Forf.LOGGER.debug("State wasn't changed");
+        Util.LOGGER.debug("State wasn't changed");
         return false;
     }
     
-    private static Text getParsedTextFromKey(String string, Object... args) {
-        if (args.length > 0) return Text.Serializer.fromJson(Text.translatable(string, args).getString());
-        return Text.Serializer.fromJson(Text.translatable(string).getString());
-    }
     @NotNull
     private static String getEnabledUnparsedString() {
         int min;
@@ -122,8 +119,8 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         Text message;
         
         if (min > 0) {
-            message = getParsedTextFromKey("forf.actionBar.enabledMoreThanMinute", min, sec);
-        } else message = getParsedTextFromKey("forf.actionBar.enabled", sec);
+            message = Util.getParsedTextFromKey("forf.actionBar.enabledMoreThanMinute", min, sec);
+        } else message = Util.getParsedTextFromKey("forf.actionBar.enabled", sec);
         return message.getString();
     }
     
@@ -139,8 +136,8 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             maxTime = CONFIG.pvPTimer().maxRandomOffTime();
 //            pvPTimer().pvPState = PvPState.OFF;
         }
-        int seconds = Forf.SERVER.getWorld(World.OVERWORLD).random.nextBetween(minTime * 60, maxTime * 60);
-        Forf.LOGGER.debug("For pvp " + pvPState + " returning " + seconds + "s between " + minTime + "m  and " + maxTime + "m");
+        int seconds = Util.SERVER.getWorld(World.OVERWORLD).random.nextBetween(minTime * 60, maxTime * 60);
+        Util.LOGGER.debug("For pvp " + pvPState + " returning " + seconds + "s between " + minTime + "m  and " + maxTime + "m");
         return seconds;
     }
     

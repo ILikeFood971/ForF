@@ -22,22 +22,19 @@ package net.ilikefood971.forf;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.ilikefood971.forf.config.Config;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ModRegistries;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Forf implements DedicatedServerModInitializer {
 	// DONE Implement restrictions
-		// Totems (DONE, datapack)
-		// Villager Trading (DONE, PlayerUseEntity)
-		// Gapples (DONE, RecipeManagerMixin)
-		// Elytras (DONE, EndCityGeneratorMixin)
+	// Totems (DONE, datapack)
+	// Villager Trading (DONE, PlayerUseEntity)
+	// Gapples (DONE, RecipeManagerMixin)
+	// Elytras (DONE, EndCityGeneratorMixin)
 	// DONE Lives Tracker
 	// DONE PvP Timer
 	// DONE Config (Config Uses owo lib)
@@ -47,15 +44,6 @@ public class Forf implements DedicatedServerModInitializer {
 	// TODO Player Tracker
 	// TODO Queue Lobby
 	// TODO Extra Lives Quest
-		//	A system that prevents players from playing until all players are online
-//Most of the rules that are listed in the description of the forf videos
-	public static final String MOD_ID = "forf";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static final Config CONFIG = Config.loadFromFile();
-	public static ForfPersistentDataSaverAndLoader PERSISTENT_DATA;
-	public static MinecraftServer SERVER;
-	public static ScoreboardObjective livesObjective;
-	
 	@Override
 	public void onInitializeServer() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -64,17 +52,17 @@ public class Forf implements DedicatedServerModInitializer {
 		
 		
 		ServerLifecycleEvents.SERVER_STARTED.register((instance) -> {
-			SERVER = instance;
-			PERSISTENT_DATA = ForfPersistentDataSaverAndLoader.getServerState(SERVER);
+			Util.SERVER = instance;
+			Util.PERSISTENT_DATA = PersistentData.getServerState(Util.SERVER);
 			PvPTimer.serverStarted();
-			livesObjective = new ScoreboardObjective(Forf.SERVER.getScoreboard(), "lives", ScoreboardCriterion.DUMMY, Text.of("lives"), CONFIG.tablistLivesRenderType());
+			Util.livesObjective = new ScoreboardObjective(Util.SERVER.getScoreboard(), "lives", ScoreboardCriterion.DUMMY, Text.of("lives"), Util.CONFIG.tablistLivesRenderType());
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {
-			PERSISTENT_DATA.secondsLeft = PvPTimer.getSecondsLeft();
-			PERSISTENT_DATA.pvPState = PvPTimer.getPvPState();
+			Util.PERSISTENT_DATA.secondsLeft = PvPTimer.getSecondsLeft();
+			Util.PERSISTENT_DATA.pvPState = PvPTimer.getPvPState();
 		});
 		
 		ModRegistries.registerModStuff();
-		LOGGER.info(MOD_ID + " initialized");
+		Util.LOGGER.info(Util.MOD_ID + " initialized");
 	}
 }

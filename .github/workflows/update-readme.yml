@@ -3,8 +3,7 @@ name: 'Update Modrinth Description'
 on:
   push:
     branches: [ 'main' ]
-    paths:
-      "**/README.md"
+    paths: [ '**/README.md' ]
   workflow_dispatch:
 jobs:
   modrinth-desc:

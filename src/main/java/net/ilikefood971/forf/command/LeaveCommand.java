@@ -23,7 +23,6 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.ilikefood971.forf.Forf;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -33,7 +32,7 @@ import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static net.ilikefood971.forf.command.Util.sendFeedback;
+import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LeaveCommand {
@@ -54,7 +53,7 @@ public class LeaveCommand {
     }
     
     private static int run(CommandContext<ServerCommandSource> context) {
-        if (Forf.PERSISTENT_DATA.started) {
+        if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
             sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
             return -1;
         }
@@ -70,13 +69,13 @@ public class LeaveCommand {
             String playerName = player.getEntityName();
             String playerUuid = player.getUuidAsString();
             
-            if (!Forf.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
+            if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
                 sendFeedback(context, Text.translatable("forf.commands.message.leave.alreadyLeft", playerName), false);
                 return -1;
             }
             
             
-            Forf.PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
+            net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
             sendFeedback(context, Text.translatable("forf.commands.message.leave.success", playerName), true);
         }
         return 1;

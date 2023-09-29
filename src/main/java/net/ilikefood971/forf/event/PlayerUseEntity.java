@@ -21,7 +21,7 @@
 package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.ilikefood971.forf.Forf;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +37,7 @@ public class PlayerUseEntity implements UseEntityCallback {
     @Override
     public ActionResult interact(PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) {
         // Check for villager
-        if (entity instanceof MerchantEntity && !Forf.CONFIG.restrictions.villagerTrading()) {
+        if (entity instanceof MerchantEntity && !Util.CONFIG.restrictions.villagerTrading()) {
             // Return Success which will do a hand swing but will be ignored by the server, thus preventing trading
             return ActionResult.SUCCESS;
         }
