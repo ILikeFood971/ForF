@@ -38,5 +38,12 @@
 	},
 	"suggests": {
 		"voicechat": ">=${voicechat_version}"
+	},
+	"custom": {
+		"mc-publish": {
+			"dependencies": [
+				"polymer-core@${polymer_core_version}(embedded){modrinth:xGdtZczs}"
+			]
+		}
 	}
 }
