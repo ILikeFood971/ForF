@@ -5,7 +5,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/ILikeFood971/forf)](https://github.com/ILikeFood971/ForF/issues)  
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/forf?logo=modrinth&label=Modrinth%20Downloads)](https://modrinth.com/mod/forf) 
 [![CurseForge Downloads](https://img.shields.io/curseforge/dt/919008?logo=curseforge&label=CurseForge%20Downloads&link=https%3A%2F%2Fcurseforge.com%2Fminecraft%2Fmc-mods%2Fforf)](https://www.curseforge.com/minecraft/mc-mods/forf)
-[![GitHub releases](https://img.shields.io/github/downloads/ILikeFood971/forf/total?logo=github&label=GitHub%20Downloads)](https://github.com/ILikeFood971/Deodorant-Mod/releases)
+[![GitHub releases](https://img.shields.io/github/downloads/ILikeFood971/forf/total?logo=github&label=GitHub%20Downloads)](https://github.com/ILikeFood971/forf/releases)
 
 ![1.20.2](https://img.shields.io/badge/MC-1.20.2-green) ![1.20.1](https://img.shields.io/badge/MC-1.20.1-green) ![1.19.4](https://img.shields.io/badge/MC-1.19.4-green)
 
