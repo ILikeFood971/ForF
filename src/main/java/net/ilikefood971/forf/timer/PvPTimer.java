@@ -29,7 +29,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
@@ -70,7 +69,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         
         if (pvPState == PvPState.OFF) return;
         // All this will be skipped if pvp is off
-        Text text = Util.getParsedTextFromKey(getEnabledUnparsedString());
+        Text text = getEnabledActionbarText();
         for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
             serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(text));
         }
@@ -110,8 +109,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         return false;
     }
     
-    @NotNull
-    private static String getEnabledUnparsedString() {
+    private static Text getEnabledActionbarText() {
         int min;
         int sec;
         min = Math.floorDiv(secondsLeft, 60);
@@ -119,9 +117,12 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         Text message;
         
         if (min > 0) {
-            message = Util.getParsedTextFromKey("forf.actionBar.enabledMoreThanMinute", min, sec);
-        } else message = Util.getParsedTextFromKey("forf.actionBar.enabled", sec);
-        return message.getString();
+            message = Text.translatable("forf.timer.actionBar.enabledMoreThanMinute", min, sec);
+        } else message = Text.translatable("forf.timer.actionBar.enabled", sec);
+        
+        message = Text.Serializer.fromJson(message.getString());
+        
+        return message;
     }
     
     private static int getRandomSeconds(PvPState pvPState) {
@@ -130,11 +131,9 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         if (pvPState == PvPState.ON) {
             minTime = CONFIG.pvPTimer().minRandomOnTime();
             maxTime = CONFIG.pvPTimer().maxRandomOnTime();
-//            pvPTimer().pvPState = PvPState.ON;
         } else {
             minTime = CONFIG.pvPTimer().minRandomOffTime();
             maxTime = CONFIG.pvPTimer().maxRandomOffTime();
-//            pvPTimer().pvPState = PvPState.OFF;
         }
         int seconds = Util.SERVER.getWorld(World.OVERWORLD).random.nextBetween(minTime * 60, maxTime * 60);
         Util.LOGGER.debug("For pvp " + pvPState + " returning " + seconds + "s between " + minTime + "m  and " + maxTime + "m");

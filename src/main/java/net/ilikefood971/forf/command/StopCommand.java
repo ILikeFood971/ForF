@@ -23,13 +23,13 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.ilikefood971.forf.util.ForfManager;
-import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.text.Text;
 
+import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
 @SuppressWarnings("SameReturnValue")
@@ -47,16 +47,15 @@ public class StopCommand {
     
     private static int run(CommandContext<ServerCommandSource> context) {
         // Send a message that says stopping forf but only send to ops if forf has already started
-        if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.notStarted"), false);
+        if (!PERSISTENT_DATA.started) {
+            sendFeedback(context, Text.translatable("forf.notStarted"), false);
             return -1;
         }
-        net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.stop.stopping"), true);
+        sendFeedback(context, Text.translatable("forf.commands.stop.stopping"), true);
         ForfManager.stopForf(context);
         
         context.getSource().getServer().setPvpEnabled(((MinecraftDedicatedServer) context.getSource().getServer()).getProperties().pvp);
-        Util.clearListSlot();
-        
+        fakeScoreboard.clearListSlot();
         return 1;
     }
 }

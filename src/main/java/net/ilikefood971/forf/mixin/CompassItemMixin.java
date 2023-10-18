@@ -22,7 +22,6 @@ package net.ilikefood971.forf.mixin;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.ilikefood971.forf.config.Config;
 import net.ilikefood971.forf.util.PlayerTrackerGui;
@@ -117,11 +116,11 @@ public abstract class CompassItemMixin extends Item implements Vanishable, IPlay
             updatePlayerHeadList(world.getServer().getPlayerManager());
             
             SimpleGui simpleGui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, Util.SERVER.getPlayerManager().getPlayer(user.getUuid()), false, (CompassItem) (Object) (this));
-            int i = 0;
+            int i = 0;/*
             for (ItemStack itemStack1 : playerHeadsInventory.stacks) {
                 simpleGui.setSlot(i, GuiElementBuilder.from(itemStack1));
                 i++;
-            }
+            }*/
             
             
             try {

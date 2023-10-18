@@ -111,18 +111,18 @@ processResources {
     inputs.property "minecraft_dependency", project.minecraft_dependency
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.mod_version,
-                "mod_id": mod_id,
-                "mod_name": mod_name,
-                "minecraft_version": minecraft_version,
-                "java_version": java_version,
-                "fabric_loader_version": fabric_loader_version,
-                "fabric_api_version": fabric_api_version,
-                "sgui_version": sgui_version,
-                "minecraft_dependency": minecraft_dependency,
-                "voicechat_version": voicechat_version,
+        expand  "version"                    : mod_version,
+                "mod_id"                     : mod_id,
+                "mod_name"                   : mod_name,
+                "minecraft_version"          : minecraft_version,
+                "java_version"               : java_version,
+                "fabric_loader_version"      : fabric_loader_version,
+                "fabric_api_version"         : fabric_api_version,
+                "sgui_version"               : sgui_version,
+                "minecraft_dependency"       : minecraft_dependency,
+                "voicechat_version"          : voicechat_version,
                 "server_translations_version": server_translations_version,
-                "polymer_core_version": polymer_core_version
+                "polymer_core_version"       : polymer_core_version
     }
 }
 

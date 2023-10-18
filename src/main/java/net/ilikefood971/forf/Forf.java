@@ -25,25 +25,23 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ModRegistries;
 import net.ilikefood971.forf.util.Util;
-import net.minecraft.scoreboard.ScoreboardCriterion;
-import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.text.Text;
 
 public class Forf implements DedicatedServerModInitializer {
 	// DONE Implement restrictions
-	// Totems (DONE, datapack)
-	// Villager Trading (DONE, PlayerUseEntity)
-	// Gapples (DONE, RecipeManagerMixin)
-	// Elytras (DONE, EndCityGeneratorMixin)
+		// Totems (DONE, datapack)
+		// Villager Trading (DONE, PlayerUseEntity)
+		// Gapples (DONE, RecipeManagerMixin)
+		// Elytras (DONE, EndCityGeneratorMixin)
 	// DONE Lives Tracker
 	// DONE PvP Timer
 	// DONE Config (Config Uses owo lib)
 	// DONE Tablist Header
-	// DONE Convert Datapack to Mod part
-	// TODO Lives Manipulation with commands
+	// DONE Lives Manipulation with commands
 	// TODO Player Tracker
 	// TODO Queue Lobby
 	// TODO Extra Lives Quest
+	// TODO Screenshots
+	// TODO Add a config option to allow more than starting lives with the give/set commands
 	@Override
 	public void onInitializeServer() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -55,7 +53,6 @@ public class Forf implements DedicatedServerModInitializer {
 			Util.SERVER = instance;
 			Util.PERSISTENT_DATA = PersistentData.getServerState(Util.SERVER);
 			PvPTimer.serverStarted();
-			Util.livesObjective = new ScoreboardObjective(Util.SERVER.getScoreboard(), "lives", ScoreboardCriterion.DUMMY, Text.of("lives"), Util.CONFIG.tablistLivesRenderType());
 		});
 		ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {
 			Util.PERSISTENT_DATA.secondsLeft = PvPTimer.getSecondsLeft();

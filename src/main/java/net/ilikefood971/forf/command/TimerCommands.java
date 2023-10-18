@@ -28,6 +28,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class TimerCommands {
@@ -45,29 +46,28 @@ public class TimerCommands {
                                                         )
                                                         .executes(TimerCommands::turnPvpOn)
                                         )
-                                         .then(
-                                                 literal("off")
-                                                         .then(
-                                                                 argument("minutes", IntegerArgumentType.integer(1))
-                                                                         .executes(TimerCommands::turnPvpOff)
-                                                         )
-                                                         .executes(TimerCommands::turnPvpOff)
-                                         )
-                                        
+                                        .then(
+                                                literal("off")
+                                                        .then(
+                                                                argument("minutes", IntegerArgumentType.integer(1))
+                                                                        .executes(TimerCommands::turnPvpOff)
+                                                        )
+                                                        .executes(TimerCommands::turnPvpOff)
+                                        )
+                                        .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
                         )
-                        .requires((serverCommandSource -> serverCommandSource.hasPermissionLevel(3)))
         );
     }
     
     private static int turnPvpOn(CommandContext<ServerCommandSource> context) {
         if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.timer.disabledAndNotStarted"), false);
+            sendFeedback(context, Text.translatable("forf.commands.timer.disabledAndNotStarted"), false);
             return -1;
         } else if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.notStarted"), false);
+            sendFeedback(context, Text.translatable("forf.notStarted"), false);
             return -1;
         } else if (!net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.timer.disabled"), false);
+            sendFeedback(context, Text.translatable("forf.commands.timer.disabled"), false);
             return -1;
         }
         
@@ -77,15 +77,16 @@ public class TimerCommands {
             return PvPTimer.changePvpTimer(PvPTimer.PvPState.ON) ? 1 : -1;
         }
     }
+    
     private static int turnPvpOff(CommandContext<ServerCommandSource> context) {
         if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.timer.disabledAndNotStarted"), false);
+            sendFeedback(context, Text.translatable("forf.commands.timer.disabledAndNotStarted"), false);
             return -1;
         } else if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.notStarted"), false);
+            sendFeedback(context, Text.translatable("forf.notStarted"), false);
             return -1;
         } else if (!net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.timer.disabled"), false);
+            sendFeedback(context, Text.translatable("forf.commands.timer.disabled"), false);
             return -1;
         }
         

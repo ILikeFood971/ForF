@@ -20,6 +20,106 @@
 
 package net.ilikefood971.forf.command;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
+import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+
+import static net.ilikefood971.forf.util.Util.*;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
+
 public class LivesCommands {
-    // TODO
+    @SuppressWarnings("unused")
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
+        dispatcher.register(
+                literal("forf")
+                        .then(
+                                literal("lives")
+                                        .then(
+                                                literal("set")
+                                                        .then(
+                                                                argument("players", EntityArgumentType.players())
+                                                                        .then(
+                                                                                argument("lives", IntegerArgumentType.integer(0))
+                                                                                        .executes(LivesCommands::setPlayersLives)
+                                                                        )
+                                                        )
+                                                        .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+                                        )
+                                        .then(
+                                                literal("give")
+                                                        .then(
+                                                                argument("recipient", EntityArgumentType.player())
+                                                                        .then(
+                                                                                argument("amount", IntegerArgumentType.integer(1))
+                                                                                        .executes(LivesCommands::givePlayerLives)
+                                                                        )
+                                                        )
+                                        )
+                        )
+        );
+    }
+    
+    private static int setPlayersLives(CommandContext<ServerCommandSource> context) {
+        if (!PERSISTENT_DATA.started) {
+            sendFeedback(context, Text.translatable("forf.notStarted"), false);
+            return -1;
+        }
+        int lives = IntegerArgumentType.getInteger(context, "lives");
+        try {
+            for (ServerPlayerEntity player : EntityArgumentType.getPlayers(context, "players")) {
+                if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
+                    sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid", player.getEntityName()), false);
+                    continue;
+                }
+                ((IEntityDataSaver) player).setLives(lives);
+                sendFeedback(context, Text.translatable("forf.commands.lives.success", player.getEntityName(), lives), true);
+            }
+            
+        } catch (CommandSyntaxException e) {
+            LOGGER.error(e.toString());
+            return -1;
+        }
+        return 1;
+    }
+    
+    private static int givePlayerLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if (!PERSISTENT_DATA.started) {
+            sendFeedback(context, Text.translatable("forf.notStarted"), false);
+            return -1;
+        }
+        
+        int amount = IntegerArgumentType.getInteger(context, "amount");
+        
+        ServerPlayerEntity executor = context.getSource().getPlayerOrThrow();
+        if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(executor.getUuidAsString())) {
+            sendFeedback(context, Text.translatable("forf.commands.lives.notPlayer"), false);
+            return -1;
+        }
+        
+        ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "recipient");
+        if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
+            sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid"), false);
+            return -1;
+        }
+        int currentLives = ((IEntityDataSaver) executor).getLives();
+        if (currentLives - amount <= 0) {
+            sendFeedback(context, Text.translatable("forf.commands.lives.notEnoughLives"), false);
+            return -1;
+        }
+        
+        ((IEntityDataSaver) player).setLives(currentLives + amount);
+        ((IEntityDataSaver) executor).setLives(currentLives - amount);
+        sendFeedback(context, Text.translatable("forf.commands.lives.give", player.getEntityName(), amount), true);
+        
+        return 1;
+    }
 }

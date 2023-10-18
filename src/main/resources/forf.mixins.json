@@ -5,6 +5,7 @@
   "mixins": [
     "PlayerEntityDataSaver",
     "PlayerLoginMixin",
+    "PlayerManagerMixin",
     "restrictions.EndCityGeneratorMixin",
     "restrictions.EvokerMixin",
     "restrictions.RecipeManagerMixin"

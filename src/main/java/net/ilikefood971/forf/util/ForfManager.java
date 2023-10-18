@@ -21,13 +21,13 @@
 package net.ilikefood971.forf.util;
 
 import com.mojang.brigadier.context.CommandContext;
+import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.datafixer.Schemas;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -41,21 +41,23 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.ilikefood971.forf.util.Util.*;
+
 public class ForfManager {
     
     public static void setupForf(CommandContext<ServerCommandSource> context) {
-        Set<UUID> uuids = net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.stream()
+        Set<UUID> uuids = PERSISTENT_DATA.forfPlayersUUIDs.stream()
                 .map(UUID::fromString).collect(Collectors.toSet());
         PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
         
         for (UUID uuid : uuids) {
             ServerPlayerEntity player = playerManager.getPlayer(uuid);
             if (player != null) {
-                ((IEntityDataSaver) player).setLives(net.ilikefood971.forf.util.Util.CONFIG.startingLives());
+                ((IEntityDataSaver) player).setLives(CONFIG.startingLives());
                 player.changeGameMode(GameMode.DEFAULT);
             } else {
                 try {
-                    Path pathToPlayerSaveData = net.ilikefood971.forf.util.Util.SERVER.getSavePath(WorldSavePath.PLAYERDATA);
+                    Path pathToPlayerSaveData = SERVER.getSavePath(WorldSavePath.PLAYERDATA);
                     File playerSaveFile = pathToPlayerSaveData.resolve(uuid.toString() + ".dat").toFile();
                     
                     NbtCompound unfixedNbt = NbtIo.readCompressed(playerSaveFile);
@@ -63,7 +65,7 @@ public class ForfManager {
                     NbtCompound nbt = DataFixTypes.PLAYER.update(Schemas.getFixer(), unfixedNbt, dataVersion);
                     
                     if (nbt.getCompound("forf.data") == null) nbt.put("forf.data", new NbtCompound());
-                    nbt.getCompound("forf.data").putInt("lives", net.ilikefood971.forf.util.Util.CONFIG.startingLives());
+                    nbt.getCompound("forf.data").putInt("lives", CONFIG.startingLives());
                     
                     File file = File.createTempFile(uuid + "-", ".dat", pathToPlayerSaveData.toFile());
                     NbtIo.writeCompressed(nbt, file);
@@ -72,7 +74,7 @@ public class ForfManager {
                     Util.backupAndReplace(newDataFile, file, oldDataFile);
                     
                 } catch (IOException e) {
-                    net.ilikefood971.forf.util.Util.LOGGER.info(e.toString());
+                    LOGGER.info(e.toString());
                 }
             }
             
@@ -80,12 +82,10 @@ public class ForfManager {
     }
     public static void stopForf(CommandContext<ServerCommandSource> context) {
         // Remove the Header from the tablist
-        for (ServerPlayerEntity player : context.getSource().getServer().getPlayerManager().getPlayerList()) {
-            player.networkHandler.sendPacket(new PlayerListHeaderS2CPacket(null, null));
-        }
+        SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
         
         // Set all lives to 0
-        Set<String> playersUUIDsAsString = net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs;
+        Set<String> playersUUIDsAsString = PERSISTENT_DATA.forfPlayersUUIDs;
         PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
         List<String> tempRemove = new ArrayList<>();
         
@@ -100,8 +100,8 @@ public class ForfManager {
         tempRemove.forEach(playersUUIDsAsString::remove);
         
         
-        net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.clear();
-        net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started = false;
+        PERSISTENT_DATA.forfPlayersUUIDs.clear();
+        PERSISTENT_DATA.started = false;
     }
     
 }

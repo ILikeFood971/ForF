@@ -23,10 +23,6 @@ package net.ilikefood971.forf.util;
 import com.mojang.brigadier.context.CommandContext;
 import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
-//#if MC>=12020
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-//#endif
-import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -41,7 +37,7 @@ public class Util {
     public static final Config CONFIG = Config.loadFromFile();
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
-    public static ScoreboardObjective livesObjective;
+    public static FakeScoreboard fakeScoreboard = new FakeScoreboard();
     
     public static void sendFeedback(CommandContext<ServerCommandSource> context, Text message, boolean broadcast) {
         context.getSource().sendFeedback(
@@ -49,25 +45,6 @@ public class Util {
                 () ->
                 //#endif
                 message, broadcast);
-    }
-    
-    public static void setListSlot() {
-        SERVER.getScoreboard().setObjectiveSlot(
-                //#if MC>=12020
-                ScoreboardDisplaySlot.LIST
-                //#else
-                //$$ 0
-                //#endif
-                , livesObjective);
-    }
-    public static void clearListSlot() {
-        SERVER.getScoreboard().setObjectiveSlot(
-                //#if MC>=12020
-                ScoreboardDisplaySlot.LIST
-                //#else
-                //$$ 0
-                //#endif
-                , null);
     }
     
     public static Text getParsedTextFromKey(String string, Object... args) {

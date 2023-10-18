@@ -70,13 +70,13 @@ public class LeaveCommand {
             String playerUuid = player.getUuidAsString();
             
             if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-                sendFeedback(context, Text.translatable("forf.commands.message.leave.alreadyLeft", playerName), false);
+                sendFeedback(context, Text.translatable("forf.commands.leave.alreadyLeft", playerName), false);
                 return -1;
             }
             
             
             net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
-            sendFeedback(context, Text.translatable("forf.commands.message.leave.success", playerName), true);
+            sendFeedback(context, Text.translatable("forf.commands.leave.success", playerName), true);
         }
         return 1;
     }

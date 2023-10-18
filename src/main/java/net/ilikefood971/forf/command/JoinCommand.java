@@ -23,15 +23,17 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class JoinCommand {
@@ -46,54 +48,58 @@ public class JoinCommand {
                                                         .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
                                                         .executes(JoinCommand::run)
                                         )
-                                        .executes(JoinCommand::run)
+                                        .executes(JoinCommand::runSolo)
                         )
         );
     }
     
     private static int run(CommandContext<ServerCommandSource> context) {
-        if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
-            return JoinResult.ALREADY_STARTED.getValue();
+        if (PERSISTENT_DATA.started) {
+            sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
+            return -1;
         }
         
         Collection<ServerPlayerEntity> players;
         try {
             players = EntityArgumentType.getPlayers(context, "players");
         } catch (IllegalArgumentException | CommandSyntaxException e) {
-            players = new ArrayList<>();
-            players.add(context.getSource().getPlayer());
+            Util.LOGGER.error(e.toString());
+            return -1;
         }
         for (ServerPlayerEntity player : players) {
             String playerName = player.getEntityName();
             String playerUuid = player.getUuidAsString();
             
-            if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-                net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.join.alreadyAdded", playerName), false);
-                return JoinResult.ALREADY_ADDED.getValue();
+            if (PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
+                if (players.size() == 1) sendFeedback(context, Text.translatable("forf.commands.join.alreadyAdded", playerName), false);
+                continue;
             }
             
             
-            net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
-            net.ilikefood971.forf.util.Util.sendFeedback(context, Text.translatable("forf.commands.message.join.success", playerName), true);
+            PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
+            sendFeedback(context, Text.translatable("forf.commands.join.success", playerName), true);
         }
-        return JoinResult.SUCCESS.getValue();
+        return 1;
     }
-    
-    
-    private enum JoinResult {
-        SUCCESS(1),
-        ALREADY_ADDED(-1),
-        ALREADY_STARTED(-1);
-        
-        private final int value;
-        
-        JoinResult(int value) {
-            this.value = value;
+    private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if (PERSISTENT_DATA.started) {
+            sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
+            return -1;
         }
         
-        public int getValue() {
-            return value;
+        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+        
+        String playerName = player.getEntityName();
+        String playerUuid = player.getUuidAsString();
+        
+        if (PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
+            sendFeedback(context, Text.translatable("forf.commands.join.alreadyAdded", playerName), false);
+            return -1;
         }
+        
+        
+        PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
+        sendFeedback(context, Text.translatable("forf.commands.join.success", playerName), true);
+        return 1;
     }
 }
