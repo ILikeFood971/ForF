@@ -20,10 +20,16 @@
 
 package net.ilikefood971.forf.mixin;
 
+import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.world.GameMode;
+import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -77,10 +83,31 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     @Override
     public void setLives(int lives) {
         NbtCompound nbt = this.getPersistentData();
+        int oldLives = nbt.getInt("lives");
+        
+        // Optimize a bit and check to see if they're the same
+        if (oldLives == lives) return;
+        
         nbt.putInt("lives", lives);
         
         ScoreboardPlayerScore score = fakeScoreboard.getPlayerScore(this.getEntityName(), fakeScoreboard.livesObjective);
         score.setScore(lives);
+        
+        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+        // Check to see if the player ran out of lives
+        if (lives <= 0) {
+            
+            // Kick the player if spectators are not allowed
+            if (!Util.CONFIG.spectators()) {
+                player.networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));
+            } else {
+                // If spectators allowed, switch the players gamemode
+                player.changeGameMode(Util.CONFIG.spectatorGamemode());
+                player.sendMessage(Text.translatable("forf.event.death.spectator"));
+            }
+        } else if (oldLives == 0) {
+            player.changeGameMode(GameMode.DEFAULT);
+        }
     }
     
     @Override

@@ -21,7 +21,6 @@
 package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -40,23 +39,11 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
             PlayerEntity player = (PlayerEntity) entity;
             IEntityDataSaver data = (IEntityDataSaver) player;
             
+            // Remove the life
             if (data.getLives() > 0) {
                 data.removeLife();
                 player.sendMessage(Text.translatable("forf.event.death.livesLeft", data.getLives()).formatted(Formatting.RED), false);
-                
-            // Check to see if the player ran out of lives
             }
-            if (data.getLives() <= 0) {
-                // Kick the player if spectators are not allowed
-                if (!Util.CONFIG.spectators()) {
-                    ((ServerPlayerEntity) player).networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));
-                }
-                // If spectators allowed, switch the players gamemode
-                ((ServerPlayerEntity) player).changeGameMode(Util.CONFIG.spectatorGamemode());
-                player.sendMessage(Text.translatable("forf.event.death.spectator"));
-            }
-            
-           
         }
     }
 }

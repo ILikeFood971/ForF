@@ -43,7 +43,6 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         String uUID = handler.getPlayer().getUuidAsString();
         // If forf hasn't stated, let them in
         if (!PERSISTENT_DATA.started) {
-            ((IEntityDataSaver) handler.getPlayer()).setLives(0);
             return;
         }
         // If they are a player above 0 lives let them in

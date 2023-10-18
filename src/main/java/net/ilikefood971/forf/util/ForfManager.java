@@ -33,7 +33,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.GameMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +53,6 @@ public class ForfManager {
             ServerPlayerEntity player = playerManager.getPlayer(uuid);
             if (player != null) {
                 ((IEntityDataSaver) player).setLives(CONFIG.startingLives());
-                player.changeGameMode(GameMode.DEFAULT);
             } else {
                 try {
                     Path pathToPlayerSaveData = SERVER.getSavePath(WorldSavePath.PLAYERDATA);

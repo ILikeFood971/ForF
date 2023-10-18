@@ -23,6 +23,7 @@
   "forf.timer.actionBar.disabled": "PvP disabled",
   "forf.timer.chat.enabled": "[{\"text\":\"PvP is now \",\"color\":\"yellow\"},{\"text\":\"ON\",\"color\":\"green\",\"bold\":true}]",
   "forf.timer.title.enabled": "[{\"text\":\"⚠\",\"color\":\"yellow\"},{\"text\":\" PvP is ON \",\"color\":\"red\"},{\"text\":\"⚠\",\"color\":\"yellow\"}]",
+  "forf.mixin.ScoreboardCommand.noList": "You cannot set the list slot objective because Friend or Foe is using it to display lives!",
   "forf.notStarted": "Friend or Foe hasn't started yet!",
   "forf.alreadyStarted": "Friend or Foe has already started!",
   "forf.disconnect.noSpectators": "You must be a Friend or Foe member to join because spectators aren't allowed!",

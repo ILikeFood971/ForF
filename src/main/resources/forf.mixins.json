@@ -6,6 +6,7 @@
     "PlayerEntityDataSaver",
     "PlayerLoginMixin",
     "PlayerManagerMixin",
+    "ScoreboardCommandMixin",
     "restrictions.EndCityGeneratorMixin",
     "restrictions.EvokerMixin",
     "restrictions.RecipeManagerMixin"
