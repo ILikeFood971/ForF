@@ -80,8 +80,8 @@ public class LivesCommands {
                     sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid", player.getEntityName()), false);
                     continue;
                 }
-                ((IEntityDataSaver) player).setLives(lives);
-                sendFeedback(context, Text.translatable("forf.commands.lives.success", player.getEntityName(), lives), true);
+                IEntityDataSaver playerSaver = (IEntityDataSaver) player;
+                sendFeedback(context, Text.translatable("forf.commands.lives.success", player.getEntityName(), playerSaver.setLives(lives)), true);
             }
             
         } catch (CommandSyntaxException e) {
@@ -100,8 +100,8 @@ public class LivesCommands {
         ServerPlayerEntity executor = context.getSource().getPlayerOrThrow();
         ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "recipient");
 
-        int amount = IntegerArgumentType.getInteger(context, "amount");
-        int currentLives = ((IEntityDataSaver) executor).getLives();
+        int newLives = IntegerArgumentType.getInteger(context, "amount");
+        int executorCurrentLives = ((IEntityDataSaver) executor).getLives();
 
         if (executor.equals(player)) {
             sendFeedback(context, Text.translatable("forf.commands.lives.notYourself"), false);
@@ -112,14 +112,16 @@ public class LivesCommands {
         } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
             sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid"), false);
             return -1;
-        } else if (currentLives - amount <= 0) {
+        } else if (executorCurrentLives - newLives <= 0) {
             sendFeedback(context, Text.translatable("forf.commands.lives.notEnoughLives"), false);
             return -1;
         }
-        
-        ((IEntityDataSaver) player).setLives(currentLives + amount);
-        ((IEntityDataSaver) executor).setLives(currentLives - amount);
-        sendFeedback(context, Text.translatable("forf.commands.lives.give", player.getEntityName(), amount), true);
+        int targetPlayerOldLives = ((IEntityDataSaver) player).getLives();
+        // Store the amount that actually gets added
+        newLives = ((IEntityDataSaver) player).setLives(targetPlayerOldLives + newLives) - targetPlayerOldLives;
+        // Now they only lose the amount that was actually gained
+        ((IEntityDataSaver) executor).setLives(executorCurrentLives - (newLives));
+        sendFeedback(context, Text.translatable("forf.commands.lives.give", player.getEntityName(), newLives), true);
         
         return 1;
     }

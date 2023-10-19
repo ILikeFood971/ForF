@@ -37,11 +37,11 @@ public class Forf implements DedicatedServerModInitializer {
 	// DONE Config (Config Uses owo lib)
 	// DONE Tablist Header
 	// DONE Lives Manipulation with commands
+	// DONE Screenshots
+	// DONE Add a config option to allow more than starting lives with the give/set commands
 	// TODO Player Tracker
 	// TODO Queue Lobby
 	// TODO Extra Lives Quest
-	// TODO Screenshots
-	// TODO Add a config option to allow more than starting lives with the give/set commands
 	@Override
 	public void onInitializeServer() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
