@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.fakeScoreboard;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
@@ -74,14 +75,20 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     
     @Override
     public void removeLife() {
-        
         int newLives = getLives();
         newLives -= 1;
         setLives(newLives);
     }
     
     @Override
-    public void setLives(int lives) {
+    public int setLives(int lives) {
+        if (!CONFIG.overfill()) {
+            // Prevent the player from going over if overfill is disabled
+            lives = Math.min(lives, CONFIG.startingLives());
+        }
+        // Prevent the player from having negative lives
+        lives = Math.max(lives, 0);
+
         NbtCompound nbt = this.getPersistentData();
         int oldLives = nbt.getInt("lives");
         
@@ -91,7 +98,7 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
         if (oldLives == lives) {
             // Update the score because if you start forf and the player already has previous nbt, the score won't update
             fakeScoreboard.updateScore(score);
-            return;
+            return oldLives;
         }
         nbt.putInt("lives", lives);
 
@@ -99,8 +106,7 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
         
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         // Check to see if the player ran out of lives
-        if (lives <= 0 && Util.PERSISTENT_DATA.started) {
-            
+        if (lives == 0 && Util.PERSISTENT_DATA.started) {
             // Kick the player if spectators are not allowed
             if (!Util.CONFIG.spectators()) {
                 player.networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));
@@ -112,6 +118,7 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
         } else if (oldLives == 0) {
             player.changeGameMode(GameMode.DEFAULT);
         }
+        return lives;
     }
     
     @Override

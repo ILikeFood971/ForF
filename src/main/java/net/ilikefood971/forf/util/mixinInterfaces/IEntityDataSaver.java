@@ -27,5 +27,5 @@ public interface IEntityDataSaver {
     int getLives();
     
     void removeLife();
-    void setLives(int lives);
+    int setLives(int lives);
 }

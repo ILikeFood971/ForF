@@ -42,7 +42,11 @@ public class Config {
     @Comment("Whether non forf or forf players that ran out of lives can join")
     private boolean spectators = false;
     private GameMode spectatorGamemode = GameMode.SPECTATOR;
+    @Comment("When you start forf, how many lives should everyone start with")
     private int startingLives = 10;
+
+    @Comment("Should players be able to go over the starting lives")
+    private boolean overfill = false;
     
     @Comment("The text to put at in the header of the tablist. Leave blank to remove")
     private String tablistHeader = "{\"text\":\"Friend or Foe\",\"color\":\"yellow\",\"bold\":true}";
@@ -283,6 +287,16 @@ public class Config {
     
     public void startingLives(int startingLives) {
         this.startingLives = startingLives;
+        this.save();
+    }
+
+    public boolean overfill() {
+        this.updateConfig();
+        return overfill;
+    }
+
+    public void overfill(boolean overfill) {
+        this.overfill = overfill;
         this.save();
     }
     
