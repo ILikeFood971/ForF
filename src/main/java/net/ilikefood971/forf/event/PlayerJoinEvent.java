@@ -25,8 +25,10 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
+import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.util.Util.*;
@@ -41,19 +43,27 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         // Because the PlayerLoginMixin has already run, we can be sure that either forf hasn't started, they are an allowed player, or spectators are allowed
         // What we don't know is whether they are out of lives
         String uUID = handler.getPlayer().getUuidAsString();
+        ServerPlayerEntity player = handler.getPlayer();
+        IEntityDataSaver dataSaverPlayer = (IEntityDataSaver) player;
+        int lives = dataSaverPlayer.getLives();
         // If forf hasn't stated, let them in
         if (!PERSISTENT_DATA.started) {
             return;
         }
+        // If we get here, then we know started is true
         // If they are a player above 0 lives let them in
-        if (PERSISTENT_DATA.started && ((IEntityDataSaver) handler.getPlayer()).getLives() > 0) {
+        else if (lives > 0) {
+            // Check to see if the scores are synced and update if not
+            ScoreboardPlayerScore playerScore = fakeScoreboard.getPlayerScore(player.getEntityName(), fakeScoreboard.livesObjective);
+            playerScore.setScore(lives);
             return;
         }
         // If spectators are allowed, and we know it's started from the above if statement not returning
         // Then check to see if they are a player, and they're 0 or fewer lives
-        if (CONFIG.spectators() && (!PERSISTENT_DATA.forfPlayersUUIDs.contains(uUID) || ((IEntityDataSaver) handler.getPlayer()).getLives() <= 0)) {
-            // If so then make them spectator gamemode
-            handler.getPlayer().changeGameMode(CONFIG.spectatorGamemode());
+        if (CONFIG.spectators() && (!PERSISTENT_DATA.forfPlayersUUIDs.contains(uUID) || lives <= 0)) {
+            // If so then make them spectator gamemode and set them to 0 lives
+            player.changeGameMode(CONFIG.spectatorGamemode());
+            dataSaverPlayer.setLives(0);
             return;
         }
         // At this point we know that it's started, and they can't spectate

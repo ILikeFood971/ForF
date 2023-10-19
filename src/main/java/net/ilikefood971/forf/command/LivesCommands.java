@@ -97,21 +97,22 @@ public class LivesCommands {
             return -1;
         }
         
-        int amount = IntegerArgumentType.getInteger(context, "amount");
-        
         ServerPlayerEntity executor = context.getSource().getPlayerOrThrow();
-        if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(executor.getUuidAsString())) {
+        ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "recipient");
+
+        int amount = IntegerArgumentType.getInteger(context, "amount");
+        int currentLives = ((IEntityDataSaver) executor).getLives();
+
+        if (executor.equals(player)) {
+            sendFeedback(context, Text.translatable("forf.commands.lives.notYourself"), false);
+            return -1;
+        } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(executor.getUuidAsString())) {
             sendFeedback(context, Text.translatable("forf.commands.lives.notPlayer"), false);
             return -1;
-        }
-        
-        ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "recipient");
-        if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
+        } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
             sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid"), false);
             return -1;
-        }
-        int currentLives = ((IEntityDataSaver) executor).getLives();
-        if (currentLives - amount <= 0) {
+        } else if (currentLives - amount <= 0) {
             sendFeedback(context, Text.translatable("forf.commands.lives.notEnoughLives"), false);
             return -1;
         }

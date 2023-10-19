@@ -14,6 +14,7 @@
   "forf.commands.leave.success": "Removed %s from Friend or Foe",
   "forf.commands.lives.playerNotValid": "%s is not a Friend or Foe member so you cannot change their lives!",
   "forf.commands.lives.notPlayer": "You are not a Friend or Foe member so you cannot give another player lives!",
+  "forf.commands.lives.notYourself": "You can't give yourself a life!",
   "forf.commands.lives.notEnoughLives": "You do not have enough lives to give!",
   "forf.commands.lives.success": "Set %s to %s lives",
   "forf.commands.lives.give": "Gave %s %s lives",

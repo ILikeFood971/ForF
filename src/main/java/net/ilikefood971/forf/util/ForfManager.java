@@ -79,14 +79,16 @@ public class ForfManager {
         }
     }
     public static void stopForf(CommandContext<ServerCommandSource> context) {
+        PERSISTENT_DATA.started = false;
+
         // Remove the Header from the tablist
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
-        
+
         // Set all lives to 0
         Set<String> playersUUIDsAsString = PERSISTENT_DATA.forfPlayersUUIDs;
         PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
         List<String> tempRemove = new ArrayList<>();
-        
+
         // For every online player changing lives is easy
         for (String uuid : playersUUIDsAsString) {
             PlayerEntity player = playerManager.getPlayer(UUID.fromString(uuid));
@@ -96,10 +98,9 @@ public class ForfManager {
             }
         }
         tempRemove.forEach(playersUUIDsAsString::remove);
-        
-        
+
+
         PERSISTENT_DATA.forfPlayersUUIDs.clear();
-        PERSISTENT_DATA.started = false;
     }
     
 }

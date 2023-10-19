@@ -36,16 +36,12 @@ import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerLoginMixin {
-    
-    
-    
-    
     @Inject(method = "checkCanJoin", at = @At("HEAD"), cancellable = true)
     public void checkCanJoin(SocketAddress address, GameProfile profile, CallbackInfoReturnable<Text> cir) {
         // When a player joins, make sure that they are allowed to join from the config
         if (PERSISTENT_DATA.started && !PERSISTENT_DATA.forfPlayersUUIDs.contains(profile.getId().toString()) && !CONFIG.spectators()) {
             cir.setReturnValue(Text.translatable("forf.disconnect.noSpectators"));
         }
-        // Returning null allows a join
+        // Returning nothing allows the other method checks to run
     }
 }

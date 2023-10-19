@@ -21,6 +21,7 @@
 package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.timer.PvPTimer;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -52,6 +53,7 @@ public class PersistentData extends PersistentState {
         nbt.putBoolean("started", started);
         nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
+        nbt.put("PlayerScores", Util.fakeScoreboard.toNbt());
         return nbt;
     }
     private static PersistentData createFromNbt(NbtCompound tag) {
@@ -63,13 +65,14 @@ public class PersistentData extends PersistentState {
         state.started = tag.getBoolean("started");
         state.secondsLeft = tag.getInt("secondsLeft");
         state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
+        Util.fakeScoreboard.readNbt(tag.getList("PlayerScores", NbtElement.COMPOUND_TYPE));
         return state;
     }
     //#if MC>=12020
     private static final Type<PersistentData> type = new Type<>(
             PersistentData::new, // If there's no 'StateSaverAndLoader' yet create one
             PersistentData::createFromNbt, // If there is a 'StateSaverAndLoader' NBT, parse it with 'createFromNbt'
-            DataFixTypes.SAVED_DATA_SCOREBOARD // Supposed to be an 'DataFixTypes' enum, but we can just pass null
+            DataFixTypes.SAVED_DATA_SCOREBOARD // Supposed to be an 'DataFixTypes' enum
     );
     //#endif
     public static PersistentData getServerState(MinecraftServer server) {

@@ -20,20 +20,27 @@
 
 package net.ilikefood971.forf.util;
 
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardPlayerUpdateS2CPacket;
 import net.minecraft.scoreboard.*;
 import net.minecraft.text.Text;
 
 public class FakeScoreboard extends Scoreboard {
-    
     public ScoreboardObjective livesObjective;
     
     public FakeScoreboard() {
         super();
         this.livesObjective = this.addObjective("lives", ScoreboardCriterion.DUMMY, Text.of("lives"), Util.CONFIG.tablistLivesRenderType());
     }
-    
+
+    public NbtList toNbt() {
+        return super.toNbt();
+    }
+    public void readNbt(NbtList list) {
+        super.readNbt(list);
+    }
+
     public void setListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
                 //#if MC>=12020

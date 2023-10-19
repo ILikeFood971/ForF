@@ -28,8 +28,6 @@ import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -45,7 +43,9 @@ import static net.ilikefood971.forf.util.Util.fakeScoreboard;
 public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     
     @Shadow public abstract String getEntityName();
-    
+
+    @Shadow public abstract String getUuidAsString();
+
     @Unique
     private NbtCompound persistentData;
     
@@ -85,17 +85,21 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
         NbtCompound nbt = this.getPersistentData();
         int oldLives = nbt.getInt("lives");
         
-        // Optimize a bit and check to see if they're the same
-        if (oldLives == lives) return;
-        
-        nbt.putInt("lives", lives);
-        
         ScoreboardPlayerScore score = fakeScoreboard.getPlayerScore(this.getEntityName(), fakeScoreboard.livesObjective);
+
+        // Optimize a bit and check to see if they're the same
+        if (oldLives == lives) {
+            // Update the score because if you start forf and the player already has previous nbt, the score won't update
+            fakeScoreboard.updateScore(score);
+            return;
+        }
+        nbt.putInt("lives", lives);
+
         score.setScore(lives);
         
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         // Check to see if the player ran out of lives
-        if (lives <= 0) {
+        if (lives <= 0 && Util.PERSISTENT_DATA.started) {
             
             // Kick the player if spectators are not allowed
             if (!Util.CONFIG.spectators()) {
@@ -112,8 +116,9 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     
     @Override
     public int getLives() {
-        NbtCompound nbt = this.getPersistentData();
-        return nbt.getInt("lives");
+        if (Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(this.getUuidAsString())) {
+            NbtCompound nbt = this.getPersistentData();
+            return nbt.getInt("lives");
+        } else return 0;
     }
-    
 }

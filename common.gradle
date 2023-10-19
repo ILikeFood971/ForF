@@ -1,19 +1,14 @@
 //file:noinspection GrUnresolvedAccess
 apply plugin: 'maven-publish'
-apply plugin: 'fabric-loom'
 apply plugin: 'com.github.hierynomus.license'
+apply plugin: 'fabric-loom'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
-
 
 int mcVersion = project.mcVersion
 
 preprocess {
     tabIndentation = true
-}
-
-base {
-    archivesName = project.archives_base_name
 }
 
 repositories {
@@ -34,7 +29,7 @@ configurations {
 
 
 dependencies {
-    // To change the versions see the gradle.properties file
+	// loom
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
@@ -56,36 +51,38 @@ dependencies {
     modImplementation include("eu.pb4:polymer-core:[$project.polymer_core_version]")
 }
 
+String MIXIN_CONFIG_PATH = 'forf.mixins.json'
+String LANG_DIR = 'assets/forf/lang'
+JavaVersion JAVA_COMPATIBILITY
+if (mcVersion >= 11800) {
+    JAVA_COMPATIBILITY = JavaVersion.VERSION_17
+} else if (mcVersion >= 11700) {
+    JAVA_COMPATIBILITY = JavaVersion.VERSION_16
+} else {
+    JAVA_COMPATIBILITY = JavaVersion.VERSION_1_8
+}
 
 loom {
     accessWidenerPath = file("forf.accesswidener")
-    runs {
-        mixinAudit {
-            server()
-            vmArgs '-Dforf.mixin_audit=true'
-            ideConfigGenerated false
-        }
+    runConfigs.configureEach {
+        // to make sure it generates all "Minecraft Client (:subproject_name)" applications
+        ideConfigGenerated = false
+        runDir '../../run'
+        vmArgs '-Dmixin.debug.export=true'
     }
-    mods {
-        "forf" {
-            sourceSet sourceSets.main
-        }
-    }
+	// [FEATURE] MIXIN_AUDITOR
+	runs {
+		serverMixinAudit {
+			server()
+			vmArgs '-DmixinAuditor.audit=true', '-XX:+AllowEnhancedClassRedefinition'
+			ideConfigGenerated true
+		}
+	}
 
 }
 
 remapJar {
     remapperIsolation = true
-}
-if (mcVersion >= 11800) {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-} else if (mcVersion >= 11700) {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
-} else {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 String versionSuffix = ''
@@ -97,38 +94,57 @@ if (System.getenv("BUILD_RELEASE") != "true") {
 }
 String fullModVersion = project.mod_version + versionSuffix
 
-version = 'v' + fullModVersion
 group = project.maven_group
-archivesBaseName = project.archives_base_name + '-mc' + project.minecraft_version
+if (System.getenv("JITPACK") == "true") {
+    // move mc version into archivesBaseName, so jitpack will be able to organize archives from multiple subprojects correctly
+    base.archivesName = project.archives_base_name + '-mc' + project.minecraft_version
+    version = 'v' + fullModVersion
+} else {
+    base.archivesName = project.archives_base_name
+    version = 'mc' + project.minecraft_version + '-v' + fullModVersion
+}
 
-
+// See https://youtrack.jetbrains.com/issue/IDEA-296490
+// if IDEA complains about "Cannot resolve resource filtering of MatchingCopyAction" and you want to know why
 processResources {
     from "forf.accesswidener"
 
-    inputs.property "mod_id", project.mod_id
-    inputs.property "name", project.mod_name
-    inputs.property "version", project.version
-    inputs.property "minecraft_dependency", project.minecraft_dependency
+    inputs.property "version", mod_version
+    inputs.property "mod_id", mod_id
+    inputs.property "mod_name", mod_name
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "java_version", java_version
+    inputs.property "fabric_loader_version", fabric_loader_version
+    inputs.property "fabric_api_version", fabric_api_version
+    inputs.property "sgui_version", sgui_version
+    inputs.property "minecraft_dependency", minecraft_dependency
+    inputs.property "voicechat_version", voicechat_version
+    inputs.property "server_translations_version", server_translations_version
+    inputs.property "polymer_core_version", polymer_core_version
 
     filesMatching("fabric.mod.json") {
         expand  "version"                    : mod_version,
                 "mod_id"                     : mod_id,
                 "mod_name"                   : mod_name,
-                "minecraft_version"          : minecraft_version,
-                "java_version"               : java_version,
+                "minecraft_version"          : project.minecraft_version,
+                "java_version"               : project.java_version,
                 "fabric_loader_version"      : fabric_loader_version,
-                "fabric_api_version"         : fabric_api_version,
-                "sgui_version"               : sgui_version,
-                "minecraft_dependency"       : minecraft_dependency,
+                "fabric_api_version"         : project.fabric_api_version,
+                "sgui_version"               : project.sgui_version,
+                "minecraft_dependency"       : project.minecraft_dependency,
                 "voicechat_version"          : voicechat_version,
-                "server_translations_version": server_translations_version,
-                "polymer_core_version"       : polymer_core_version
+                "server_translations_version": project.server_translations_version,
+                "polymer_core_version"       : project.polymer_core_version
+    }
+    filesMatching(MIXIN_CONFIG_PATH) {
+        filter { s -> s.replace('{{COMPATIBILITY_LEVEL}}', "JAVA_${JAVA_COMPATIBILITY.ordinal() + 1}") }
     }
 }
 
+// https://github.com/Fallen-Breath/yamlang
 yamlang {
     targetSourceSets = [sourceSets.main]
-    inputDir = "assets/forf/lang"
+    inputDir = LANG_DIR
 }
 
 // ensure that the encoding is set to UTF-8, no matter what the system default is
@@ -140,6 +156,9 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+    sourceCompatibility = JAVA_COMPATIBILITY
+    targetCompatibility = JAVA_COMPATIBILITY
+
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
     // If you remove this line, sources will not be generated.
@@ -151,6 +170,8 @@ jar {
         rename { "${it}_${project.archives_base_name}" }
     }
 }
+
+// https://github.com/hierynomus/license-gradle-plugin
 license {
     // use "gradle licenseFormat" to apply license headers
     header = rootProject.file('HEADER.txt')
@@ -191,6 +212,8 @@ testClasses.dependsOn licenseFormatTest
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            artifactId base.archivesName.get()
+
             from components.java
         }
     }
