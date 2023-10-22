@@ -25,15 +25,22 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.ilikefood971.forf.command.*;
 import net.ilikefood971.forf.event.*;
 import net.ilikefood971.forf.timer.PvPTimer;
+import net.ilikefood971.forf.tracker.PlayerTrackerItem;
+import net.minecraft.item.ItemGroups;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.util.Identifier;
 
 public class ModRegistries {
     public static void registerModStuff() {
         registerCommands();
         registerEvents();
+        registerItems();
     }
     
     private static void registerCommands() {
@@ -54,7 +61,10 @@ public class ModRegistries {
         PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent();
         ServerPlayConnectionEvents.INIT.register(playerJoinEvent);
         ServerPlayConnectionEvents.JOIN.register(playerJoinEvent);
-        ServerTickEvents.END_WORLD_TICK.register(new ServerTickEvent());
         ServerTickEvents.END_SERVER_TICK.register(new PvPTimer());
+    }
+    private static void registerItems() {
+        Registry.register(Registries.ITEM, new Identifier(Util.MOD_ID, "player_tracker"), PlayerTrackerItem.PLAYER_TRACKER);
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> entries.add(PlayerTrackerItem.PLAYER_TRACKER));
     }
 }

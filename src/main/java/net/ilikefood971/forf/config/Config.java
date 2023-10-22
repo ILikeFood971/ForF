@@ -55,10 +55,11 @@ public class Config {
     
     @Comment("Should the player tracker be craft-able and usable?")
     private boolean playerTracker = true;
-    // FIXME
     @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.")
     private UpdateType trackerUpdateType = UpdateType.USE;
     private int trackerAutoUpdateDelay = 20;
+    @Comment("The amount of time that the tracker lasts for before expiring")
+    private int trackerExpirationMinutes = 60;
     public enum UpdateType {
         AUTOMATIC,
         USE
@@ -348,6 +349,14 @@ public class Config {
     public void trackerAutoUpdateDelay(int trackerAutoUpdateDelay) {
         this.trackerAutoUpdateDelay = trackerAutoUpdateDelay;
         this.save();
+    }
+    public void trackerExpirationMinutes(int trackerExpirationMinutes) {
+        this.trackerExpirationMinutes = trackerExpirationMinutes;
+        this.save();
+    }
+    public int trackerExpirationMinutes() {
+        this.updateConfig();
+        return trackerExpirationMinutes;
     }
     
     public PvPTimer pvPTimer() {

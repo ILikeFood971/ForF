@@ -28,7 +28,7 @@ import net.ilikefood971.forf.util.Util;
 
 public class Forf implements DedicatedServerModInitializer {
 	// DONE Implement restrictions
-		// Totems (DONE, datapack)
+		// Totems (DONE)
 		// Villager Trading (DONE, PlayerUseEntity)
 		// Gapples (DONE, RecipeManagerMixin)
 		// Elytras (DONE, EndCityGeneratorMixin)
@@ -40,6 +40,7 @@ public class Forf implements DedicatedServerModInitializer {
 	// DONE Screenshots
 	// DONE Add a config option to allow more than starting lives with the give/set commands
 	// TODO Player Tracker
+	// TODO f3 + a reload chunks
 	// TODO Queue Lobby
 	// TODO Extra Lives Quest
 	@Override

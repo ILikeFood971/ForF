@@ -27,6 +27,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -47,6 +48,7 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
 
     @Shadow public abstract String getUuidAsString();
 
+    @Shadow protected BlockPos lastNetherPortalPosition;
     @Unique
     private NbtCompound persistentData;
     
@@ -127,5 +129,10 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
             NbtCompound nbt = this.getPersistentData();
             return nbt.getInt("lives");
         } else return 0;
+    }
+
+    // For the player tracker
+    public BlockPos getLastNetherPortalLocation() {
+        return this.lastNetherPortalPosition;
     }
 }
