@@ -14,7 +14,8 @@ This fabric mod allows you to recreate almost everything in the Friend or Foe Yo
 ## What is included
 
 - A config that allows you to customize much of what is added
-- A new player tracker item \(unfinished\)
+- A new player tracker item
+  - Expires automatically after configured time
 - Lives system that will decrease a life until player runs out
   - Customize amount of lives
     - Configure starting amounts as well as commands to change any player's lives
@@ -52,7 +53,6 @@ Format is as follows:
 
 ## Missing features
 
-- Tracking Compass - Expected in v1.0.0 update
 - Extra lives quests - Not currently planned. You can do this manually with the `/forf lives set` command
 - Explosion debuffs - I have no idea how much of a debuff this is and how it's implemented in the official forf server as it isn't on the rules site. If anyone has any numbers/information, please file an issue and I could probably implement this fairly easily
 - Spawn Structure - I don't have the actual structure as well as it would take a lot of work to place it in the world. Just use [litematica](https://www.curseforge.com/minecraft/mc-mods/litematica) or creative mode if you need this
