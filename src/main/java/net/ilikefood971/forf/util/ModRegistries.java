@@ -28,7 +28,10 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.ilikefood971.forf.command.*;
-import net.ilikefood971.forf.event.*;
+import net.ilikefood971.forf.event.PlayerDeathEvent;
+import net.ilikefood971.forf.event.PlayerDeathEventCopyFrom;
+import net.ilikefood971.forf.event.PlayerJoinEvent;
+import net.ilikefood971.forf.event.PlayerUseEntity;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.tracker.PlayerTrackerItem;
 import net.minecraft.item.ItemGroups;
@@ -65,6 +68,5 @@ public class ModRegistries {
     }
     private static void registerItems() {
         Registry.register(Registries.ITEM, new Identifier(Util.MOD_ID, "player_tracker"), PlayerTrackerItem.PLAYER_TRACKER);
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> entries.add(PlayerTrackerItem.PLAYER_TRACKER));
     }
 }

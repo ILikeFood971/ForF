@@ -265,30 +265,15 @@ public class Config {
         this.updateConfig();
         return spectators;
     }
-    
-    public void spectators(boolean spectators) {
-        this.spectators = spectators;
-        this.save();
-    }
-    
+
     public GameMode spectatorGamemode() {
         this.updateConfig();
         return spectatorGamemode;
     }
-    
-    public void spectatorGamemode(GameMode spectatorGamemode) {
-        this.spectatorGamemode = spectatorGamemode;
-        this.save();
-    }
-    
+
     public int startingLives() {
         this.updateConfig();
         return startingLives;
-    }
-    
-    public void startingLives(int startingLives) {
-        this.startingLives = startingLives;
-        this.save();
     }
 
     public boolean overfill() {
@@ -296,64 +281,31 @@ public class Config {
         return overfill;
     }
 
-    public void overfill(boolean overfill) {
-        this.overfill = overfill;
-        this.save();
-    }
-    
     public String tablistHeader() {
         this.updateConfig();
         return tablistHeader;
     }
-    
-    public void tablistHeader(String tablistHeader) {
-        this.tablistHeader = tablistHeader;
-        this.save();
-    }
-    
+
     public ScoreboardCriterion.RenderType tablistLivesRenderType() {
         this.updateConfig();
         return tablistLivesRenderType;
     }
-    
-    public void tablistLivesRenderType(ScoreboardCriterion.RenderType tablistLivesRenderType) {
-        this.tablistLivesRenderType = tablistLivesRenderType;
-        this.save();
-    }
-    
+
     public boolean playerTracker() {
         this.updateConfig();
         return playerTracker;
     }
-    
-    public void playerTracker(boolean playerTracker) {
-        this.playerTracker = playerTracker;
-        this.save();
-    }
-    
+
     public UpdateType trackerUpdateType() {
         this.updateConfig();
         return trackerUpdateType;
     }
-    
-    public void trackerUpdateType(UpdateType trackerUpdateType) {
-        this.trackerUpdateType = trackerUpdateType;
-        this.save();
-    }
-    
+
     public int trackerAutoUpdateDelay() {
         this.updateConfig();
         return trackerAutoUpdateDelay;
     }
-    
-    public void trackerAutoUpdateDelay(int trackerAutoUpdateDelay) {
-        this.trackerAutoUpdateDelay = trackerAutoUpdateDelay;
-        this.save();
-    }
-    public void trackerExpirationMinutes(int trackerExpirationMinutes) {
-        this.trackerExpirationMinutes = trackerExpirationMinutes;
-        this.save();
-    }
+
     public int trackerExpirationMinutes() {
         this.updateConfig();
         return trackerExpirationMinutes;
@@ -363,12 +315,7 @@ public class Config {
         this.updateConfig();
         return pvPTimer;
     }
-    
-    public void pvPTimer(PvPTimer pvPTimer) {
-        this.pvPTimer = pvPTimer;
-        this.save();
-    }
-    
+
     public Restrictions restrictions() {
         this.updateConfig();
         return restrictions;

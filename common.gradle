@@ -42,12 +42,7 @@ dependencies {
 
     // Server side libraries
     modImplementation include("eu.pb4:sgui:[$project.sgui_version]")
-
-    if (mcVersion < 12000) {
-        modImplementation include("fr.catcore:server-translations-api:[$project.server_translations_version]")
-    } else {
-        modImplementation include("xyz.nucleoid:server-translations-api:[$project.server_translations_version]")
-    }
+    modImplementation include("xyz.nucleoid:server-translations-api:[$project.server_translations_version]")
     modImplementation include("eu.pb4:polymer-core:[$project.polymer_core_version]")
 }
 

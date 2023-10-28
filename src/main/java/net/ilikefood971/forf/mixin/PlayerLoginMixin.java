@@ -21,7 +21,6 @@
 package net.ilikefood971.forf.mixin;
 
 import com.mojang.authlib.GameProfile;
-
 import net.minecraft.server.PlayerManager;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;

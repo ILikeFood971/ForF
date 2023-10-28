@@ -53,10 +53,12 @@ Format is as follows:
 ## Missing features
 
 - Tracking Compass - Expected in v1.0.0 update
-- Extra lives quests - Not currently planned.
+- Extra lives quests - Not currently planned. You can do this manually with the `/forf lives set` command
 - Explosion debuffs - I have no idea how much of a debuff this is and how it's implemented in the official forf server as it isn't on the rules site. If anyone has any numbers/information, please file an issue and I could probably implement this fairly easily
-- Spawn Structure - I don't have the actual structure as well as it would take a lot of work to place it in the world. Just use [litematica](https://www.curseforge.com/minecraft/mc-mods/litematica) or creative mode if you need this.
-- Forge and Plugin ports - If enough people request a port, then I **may** port this mod for other platforms. Not currently planned. 
+- Spawn Structure - I don't have the actual structure as well as it would take a lot of work to place it in the world. Just use [litematica](https://www.curseforge.com/minecraft/mc-mods/litematica) or creative mode if you need this
+- No Reloading Chunks - Not possible without a client mod
+- Forge and Plugin ports - If enough people request a port, then I **may** port this mod for other platforms. Not currently planned
+- A system to prevent players from logging on without all the forf players online (Stop people from grinding like it is in the real series) - May be added in the future
 
 ## Getting support and contributing
 
@@ -74,3 +76,5 @@ This GitHub repo is based on [Fallen Breath's mod template](https://github.com/F
 Forf utilizes the [sgui library](https://github.com/Patbox/sgui) for the player tracker gui  
 Server Translations API is included  
 Polymer is included for tracker
+
+[Jankson JSON parser](https://github.com/falkreon/Jankson) is used for config

@@ -25,6 +25,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.ilikefood971.forf.config.Config;
 import net.ilikefood971.forf.util.PlayerTrackerGui;
 import net.ilikefood971.forf.util.Util;
+import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -52,7 +53,6 @@ import java.util.UUID;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
 
-// TODO Portals
 public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
     public PlayerTrackerItem(Settings settings) {
         super(settings);
@@ -62,7 +62,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
 
     public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new FabricItemSettings().maxCount(1));
     private final MutableText defaultName;
-    private int tickTillNext = 20;
+    private static int tickTillNext = 20;
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
@@ -90,9 +90,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             gui.open();
 
         } else {
-            if (itemStack.getNbt().getBoolean("isTracking")) {
-                updateTracker(itemStack, user.getWorld());
-            }
+            updateTracker(itemStack, user.getWorld());
         }
         return TypedActionResult.success(itemStack);
     }
@@ -138,23 +136,47 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
                 stack.setCount(0);
                 return;
             }
-
-
-            if (tickTillNext == 0 && CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC) {
+            // If it's not in the hand then update it
+            boolean isInHand = entity.isPlayer() && (((ServerPlayerEntity) entity).getMainHandStack().equals(stack) || ((ServerPlayerEntity) entity).getOffHandStack().equals(stack));
+            if (!isInHand || tickTillNext == 0 && CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC) {
                 updateTracker(stack, world);
             }
             tickTillNext--;
         }
     }
-    private void updateTracker(ItemStack stack, World world) {
+    public static void updateTracker(ItemStack stack, World world) {
+        if (!(stack.getItem() instanceof PlayerTrackerItem)) return;
         NbtCompound nbt = stack.getNbt();
         ServerPlayerEntity trackedPlayer = world.getServer().getPlayerManager().getPlayer(NbtHelper.toUuid(nbt.get("TrackedPlayer")));
-        BlockPos blockPos = trackedPlayer.getBlockPos();/*
-        if (!(trackedPlayer.getWorld().getRegistryKey() == world.getRegistryKey())) {
-            blockPos = trackedPlayer.lastport
-        }*/
+        World targetWorld;
+        if (trackedPlayer != null) {
+            targetWorld = trackedPlayer.getWorld();
+        } else {
+            if (nbt.contains("LodestonePos")) {
+                nbt.remove("LodestonePos");
+            }
+            if (nbt.contains("LodestoneDimension")) {
+                nbt.remove("LodestoneDimension");
+            }
+            tickTillNext = CONFIG.trackerAutoUpdateDelay();
+            return;
+        }
+        BlockPos blockPos = null;
+        // Checks if the player holding the tracker isn't in the same dimension as the target
+        if (targetWorld.getRegistryKey() != world.getRegistryKey()) {
+            // If the neither of them is in the end
+            if (targetWorld.getRegistryKey() != World.END && world.getRegistryKey() != World.END) {
+                // Set the block pos to the nether portal that they used
+                blockPos = ((IGetPortalPos) trackedPlayer).getLastNetherPortalLocation();
+            } else {
+                // If one is in the end, set the world to target world and make the compass spin randomly
+                world = targetWorld;
+            }
+        } else {
+            blockPos = trackedPlayer.getBlockPos();
+        }
 
-        nbt.put("LodestonePos", NbtHelper.fromBlockPos(blockPos));
+        if (blockPos != null) nbt.put("LodestonePos", NbtHelper.fromBlockPos(blockPos));
         nbt.putBoolean("LodestoneTracked", true);
         nbt.putString("LodestoneDimension", world.getRegistryKey().getValue().toString());
         tickTillNext = CONFIG.trackerAutoUpdateDelay();

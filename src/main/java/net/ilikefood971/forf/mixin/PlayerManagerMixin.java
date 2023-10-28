@@ -24,9 +24,6 @@ import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardPlayerUpdateS2CPacket;
-//#if MC >= 12020
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-//#endif
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.PlayerManager;
@@ -35,6 +32,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+//#if MC >= 12020
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
+//#endif
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {

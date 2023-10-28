@@ -23,9 +23,6 @@ package net.ilikefood971.forf.mixin;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.util.Util;
-//#if MC >= 12020
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-//#endif
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.command.ScoreboardCommand;
 import net.minecraft.server.command.ServerCommandSource;
@@ -35,6 +32,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#if MC >= 12020
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
+//#endif
 
 @Mixin(ScoreboardCommand.class)
 public abstract class ScoreboardCommandMixin {

@@ -25,12 +25,8 @@ import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import net.ilikefood971.forf.tracker.PlayerTrackerItem;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -52,7 +48,7 @@ public class PlayerTrackerGui extends SimpleGui {
     public PlayerTrackerGui(ScreenHandlerType<?> type, ServerPlayerEntity player, ItemStack playerTracker) {
         super(type, player, false);
         this.playerTracker = playerTracker;
-        this.getPlayerHeadsIntoInventory(player);
+        this.getPlayerHeadsAndPutIntoInventory(player);
     }
     
     @Override
@@ -64,10 +60,9 @@ public class PlayerTrackerGui extends SimpleGui {
         return false;
     }
 
-    private void getPlayerHeadsIntoInventory(ServerPlayerEntity excludedPlayer) {
+    private void getPlayerHeadsAndPutIntoInventory(ServerPlayerEntity excludedPlayer) {
         List<ServerPlayerEntity> playerList = Util.SERVER.getPlayerManager().getPlayerList();
         playerList.remove(excludedPlayer);
-        SimpleInventory playerHeadsInventory = new SimpleInventory(playerList.size());
 
         for (ServerPlayerEntity player : playerList) {
 

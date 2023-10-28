@@ -20,12 +20,16 @@
 
 package net.ilikefood971.forf.mixin;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.ilikefood971.forf.tracker.PlayerTrackerItem;
 import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
+import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
@@ -40,9 +44,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.fakeScoreboard;
 
+/**
+ * Used for storing NBT data to the player as well as
+ * adding some things required for the tracker to function
+ */
+
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
-public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
+public abstract class EntityMixin implements IEntityDataSaver, IGetPortalPos, ServerEntityWorldChangeEvents.AfterPlayerChange {
     
     @Shadow public abstract String getEntityName();
 
@@ -132,7 +141,14 @@ public abstract class PlayerEntityDataSaver implements IEntityDataSaver {
     }
 
     // For the player tracker
+    @Override
     public BlockPos getLastNetherPortalLocation() {
         return this.lastNetherPortalPosition;
+    }
+
+    @Override
+    public void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
+        if (player.getMainHandStack().isOf(PlayerTrackerItem.PLAYER_TRACKER)) PlayerTrackerItem.updateTracker(player.getMainHandStack(), destination);
+        if (player.getOffHandStack().isOf(PlayerTrackerItem.PLAYER_TRACKER)) PlayerTrackerItem.updateTracker(player.getOffHandStack(), destination);
     }
 }
