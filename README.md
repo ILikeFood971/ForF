@@ -13,6 +13,8 @@ This fabric mod allows you to recreate almost everything in the Friend or Foe Yo
 
 ## What is included
 
+- Only required on the server
+  - Players do not need to install on their clients
 - A config that allows you to customize much of what is added
 - A new player tracker item
   - Expires automatically after configured time
@@ -50,6 +52,14 @@ Are stored per-player. You can set how many one will start with in the config. E
 Format is as follows:  
 `/forf lives set <players> <amount>` - You must be an op level 3 or higher to run this command. This will set the players' lives to exactly the amount you set. (Useful for manual extra lives quest.)   
 `/forf lives give <player> <amount>` - Any player can run this command to give their lives to another player. This is useful for deals and such. (Like how SB737 gives a life to ClownPierce)
+
+### Player Tracker
+
+The player tracker can be crafted using 4 diamonds, 2 emeralds, 2 eyes of ender, and 1 compass. It uses [this recipe.](https://gyazo.com/444fa8fc199afff4d1af3c8dd641fab4) By default, it will expire after 1 hour. It will track any player of your choice by right clicking to open a selection GUI. After selecting a player it will update to the tracked players location when you right click or when it is in another slot in your hotbar. (If I made it constantly update when in your hand it would bob and would be annoying. If you still wish for it to update in your hand, you can do so in the config.) If the tracked player goes offline, the compass will spin randomly. The player tracker works fully server-side by using the Polymer library.
+
+#### Portals
+
+If the player you are tracking is in another dimension that is either the overworld or the nether, it will point towards their last player. If only you or the tracked player is in the end, the compass will spin randomly instead of pointing towards the end portal. 
 
 ## Missing features
 
