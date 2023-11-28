@@ -22,7 +22,6 @@ package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.Util;
-import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -72,7 +71,7 @@ public class PersistentData extends PersistentState {
     private static final Type<PersistentData> type = new Type<>(
             PersistentData::new, // If there's no 'StateSaverAndLoader' yet create one
             PersistentData::createFromNbt, // If there is a 'StateSaverAndLoader' NBT, parse it with 'createFromNbt'
-            DataFixTypes.SAVED_DATA_SCOREBOARD // Supposed to be an 'DataFixTypes' enum
+            null // Supposed to be an 'DataFixTypes' enum
     );
     //#endif
     public static PersistentData getServerState(MinecraftServer server) {

@@ -104,6 +104,7 @@ public abstract class EntityMixin implements IEntityDataSaver, IGetPortalPos, Se
         int oldLives = nbt.getInt("lives");
         
         ScoreboardPlayerScore score = fakeScoreboard.getPlayerScore(this.getEntityName(), fakeScoreboard.livesObjective);
+        score.setScore(lives);
 
         // Optimize a bit and check to see if they're the same
         if (oldLives == lives) {
@@ -113,8 +114,7 @@ public abstract class EntityMixin implements IEntityDataSaver, IGetPortalPos, Se
         }
         nbt.putInt("lives", lives);
 
-        score.setScore(lives);
-        
+
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         // Check to see if the player ran out of lives
         if (lives == 0 && Util.PERSISTENT_DATA.started) {
