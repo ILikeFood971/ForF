@@ -66,7 +66,7 @@ public class PlayerTrackerGui extends SimpleGui {
 
         for (ServerPlayerEntity player : playerList) {
 
-            String playerName = player.getEntityName();
+            String playerName = player.getGameProfile().getName();
 
             Text lore = Text.translatable("forf.tracker.lore").formatted(Formatting.YELLOW);
             Text name = Text.literal(playerName).formatted(Formatting.RED);

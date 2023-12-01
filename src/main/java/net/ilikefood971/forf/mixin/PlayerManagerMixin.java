@@ -23,9 +23,7 @@ package net.ilikefood971.forf.mixin;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScoreboardPlayerUpdateS2CPacket;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
-import net.minecraft.scoreboard.ServerScoreboard;
+import net.minecraft.scoreboard.*;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,27 +31,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-//#if MC >= 12020
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-//#endif
-
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {
     @Inject(method = "sendScoreboard", at = @At("RETURN"))
     protected void sendScoreboardWithLivesList(ServerScoreboard scoreboard, ServerPlayerEntity player, CallbackInfo ci) {
         player.networkHandler.sendPacket(new ScoreboardObjectiveUpdateS2CPacket(Util.fakeScoreboard.livesObjective, 0));
-        for (ScoreboardPlayerScore scoreboardPlayerScore : Util.fakeScoreboard.getAllPlayerScores(Util.fakeScoreboard.livesObjective)) {
-            player.networkHandler.sendPacket(new ScoreboardPlayerUpdateS2CPacket(
-                            ServerScoreboard.UpdateMode.CHANGE,
-                            Util.fakeScoreboard.livesObjective.getName(),
-                            scoreboardPlayerScore.getPlayerName(),
-                            scoreboardPlayerScore.getScore()
-                    )
-            );
-        }
+        Util.forEachValueInLivesObjective(scoreboardEntry ->
+            player.networkHandler.sendPacket(Util.getScoreboardUpdatePacket(scoreboardEntry)
+        ));
         if (Util.PERSISTENT_DATA.started) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
-                    //#if MC >= 12020
+                    //#if MC >= 12002
                     ScoreboardDisplaySlot.LIST
                     //#else
                     //$$ 0

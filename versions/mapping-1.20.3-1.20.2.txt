@@ -1,0 +1,1 @@
+net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket net.minecraft.network.packet.s2c.play.ScoreboardPlayerUpdateS2CPacket

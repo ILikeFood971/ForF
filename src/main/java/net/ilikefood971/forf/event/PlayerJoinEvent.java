@@ -22,10 +22,10 @@ package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -54,8 +54,7 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         // If they are a player above 0 lives let them in
         else if (lives > 0) {
             // Check to see if the scores are synced and update if not
-            ScoreboardPlayerScore playerScore = fakeScoreboard.getPlayerScore(player.getEntityName(), fakeScoreboard.livesObjective);
-            playerScore.setScore(lives);
+            Util.setScore(player, lives);
             return;
         }
         // If spectators are allowed, and we know it's started from the above if statement not returning
@@ -80,19 +79,12 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
     public void onPlayReady(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         // Check to see if Friend or Foe has started
         if (PERSISTENT_DATA.started) {
-           /* LOGGER.info("updating score");
-            ScoreboardPlayerScore score = new ScoreboardPlayerScore(fakeScoreboard, fakeScoreboard.livesObjective, handler.getPlayer().getEntityName());
-            LOGGER.info("old score: {}", score.getScore());
-            score.setScore(((IEntityDataSaver) handler.getPlayer()).getLives());
-            LOGGER.info("new score: {}", score.getScore());
-            fakeScoreboard.updateScore(score);*/
-            
             sender.sendPacket(getHeaderPacket());
         }
     }
     
     public static Packet<?> getHeaderPacket() {
-        return new PlayerListHeaderS2CPacket(Text.Serializer.fromJson(CONFIG.tablistHeader()), Text.literal(""));
+        return new PlayerListHeaderS2CPacket(Text.Serialization.fromJson(CONFIG.tablistHeader()), Text.literal(""));
     }
     public static Packet<?> getEmptyHeaderPacket() {
         return new PlayerListHeaderS2CPacket(Text.literal(""), Text.literal(""));

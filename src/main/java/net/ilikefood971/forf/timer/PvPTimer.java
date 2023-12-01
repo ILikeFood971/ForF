@@ -28,10 +28,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.world.World;
 
-import static net.ilikefood971.forf.util.Util.CONFIG;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public class PvPTimer implements ServerTickEvents.EndTick {
@@ -53,8 +51,15 @@ public class PvPTimer implements ServerTickEvents.EndTick {
     
     @Override
     public void onEndTick(MinecraftServer server) {
-        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.started) return;
-        if (ticksTillSecond != 0) {ticksTillSecond--; return;}
+        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.started
+                //#if MC >= 12003
+                || !SERVER.getTickManager().shouldTick()
+                //#endif
+        ) return;
+        if (ticksTillSecond != 0) {
+            ticksTillSecond--;
+            return;
+        }
         Util.LOGGER.debug(secondsLeft + " seconds left with pvp " + pvPState);
         // Check to see if the timer has run out
         if (secondsLeft <= 0) {
@@ -120,7 +125,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             message = Text.translatable("forf.timer.actionBar.enabledMoreThanMinute", min, sec);
         } else message = Text.translatable("forf.timer.actionBar.enabled", sec);
         
-        message = Text.Serializer.fromJson(message.getString());
+        message = Text.Serialization.fromJson(message.getString());
         
         return message;
     }
@@ -135,7 +140,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             minTime = CONFIG.pvPTimer().minRandomOffTime();
             maxTime = CONFIG.pvPTimer().maxRandomOffTime();
         }
-        int seconds = Util.SERVER.getWorld(World.OVERWORLD).random.nextBetween(minTime * 60, maxTime * 60);
+        int seconds = Util.SERVER.getOverworld().random.nextBetween(minTime * 60, maxTime * 60);
         Util.LOGGER.debug("For pvp " + pvPState + " returning " + seconds + "s between " + minTime + "m  and " + maxTime + "m");
         return seconds;
     }

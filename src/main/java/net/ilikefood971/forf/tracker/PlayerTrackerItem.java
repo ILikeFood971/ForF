@@ -117,9 +117,9 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
         nbt.putLong("Expiration", Instant.now().plus(Duration.ofMinutes(CONFIG.trackerExpirationMinutes())).toEpochMilli());
 
         MutableText text1 = Text.translatable("item.forf.player_tracker").append(": ").formatted(Formatting.LIGHT_PURPLE);
-        MutableText text2 = Text.literal(target.getEntityName()).formatted(Formatting.RED, Formatting.BOLD);
+        MutableText text2 = Text.literal(target.getGameProfile().getName()).formatted(Formatting.RED, Formatting.BOLD);
         playerTracker.setCustomName(removeItalics(text1).append(removeItalics(text2)));
-        gui.getPlayer().sendMessage(Text.translatable("forf.tracker.tracking", target.getEntityName(), CONFIG.trackerExpirationMinutes()).formatted(Formatting.YELLOW),   false);
+        gui.getPlayer().sendMessage(Text.translatable("forf.tracker.tracking", target.getGameProfile().getName(), CONFIG.trackerExpirationMinutes()).formatted(Formatting.YELLOW),   false);
 
         updateTracker(playerTracker, gui.getPlayer().getWorld());
     }

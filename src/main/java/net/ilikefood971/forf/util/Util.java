@@ -23,11 +23,24 @@ package net.ilikefood971.forf.util;
 import com.mojang.brigadier.context.CommandContext;
 import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+//#if MC >= 12003
+import net.minecraft.scoreboard.ScoreAccess;
+import net.minecraft.scoreboard.ScoreboardEntry;
+//#else
+//$$import net.minecraft.scoreboard.ScoreboardPlayerScore;
+//$$import net.minecraft.scoreboard.ServerScoreboard;
+//#endif
+
+import java.util.function.Consumer;
 
 public class Util {
     
@@ -38,6 +51,8 @@ public class Util {
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
     public static FakeScoreboard fakeScoreboard = new FakeScoreboard();
+
+    // Version Utils
     
     public static void sendFeedback(CommandContext<ServerCommandSource> context, Text message, boolean broadcast) {
         context.getSource().sendFeedback(
@@ -48,7 +63,59 @@ public class Util {
     }
     
     public static Text getParsedTextFromKey(String string, Object... args) {
-        if (args.length > 0) return Text.Serializer.fromJson(Text.translatable(string, args).getString());
-        return Text.Serializer.fromJson(Text.translatable(string).getString());
+        if (args.length > 0) return Text.Serialization.fromJson(Text.translatable(string, args).getString());
+        return Text.Serialization.fromJson(Text.translatable(string).getString());
+    }
+
+    public static void setScore(ServerPlayerEntity player, int lives) {
+        //#if MC >= 12003
+        ScoreAccess scoreAccess = fakeScoreboard.getOrCreateScore(player, fakeScoreboard.livesObjective);
+        scoreAccess.setScore(lives);
+        //#else
+        //$$ScoreboardPlayerScore playerScore = fakeScoreboard.getPlayerScore(player.getEntityName(), fakeScoreboard.livesObjective);
+        //$$playerScore.setScore(lives);
+        //#endif
+    }
+    public static void forEachValueInLivesObjective(Consumer<
+            //#if MC >= 12003
+            ScoreboardEntry
+            //#else
+            //$$ScoreboardPlayerScore
+            //#endif
+            > action) {
+        for (
+                //#if MC >= 12003
+                ScoreboardEntry
+                //#else
+                //$$ScoreboardPlayerScore
+                //#endif
+                        entry : fakeScoreboard.getScoreboardEntries(fakeScoreboard.livesObjective)) {
+            action.accept(entry);
+        }
+    }
+
+    public static Packet<?> getScoreboardUpdatePacket(
+            //#if MC >= 12003
+            ScoreboardEntry
+            //#else
+            //$$ScoreboardPlayerScore
+            //#endif
+                    score) {
+        //#if MC >= 12003
+        return new ScoreboardScoreUpdateS2CPacket(
+                score.owner(),
+                Util.fakeScoreboard.livesObjective.getName(),
+                score.value(),
+                Util.fakeScoreboard.livesObjective.getDisplayName(),
+                null
+        );
+        //#else
+        //$$return new ScoreboardPlayerUpdateS2CPacket(
+        //$$        ServerScoreboard.UpdateMode.CHANGE,
+        //$$        Util.fakeScoreboard.livesObjective.getName(),
+        //$$        score.getPlayerName(),
+        //$$        score.getScore()
+        //$$);
+        //#endif
     }
 }

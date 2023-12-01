@@ -77,11 +77,11 @@ public class LivesCommands {
         try {
             for (ServerPlayerEntity player : EntityArgumentType.getPlayers(context, "players")) {
                 if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
-                    sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid", player.getEntityName()), false);
+                    sendFeedback(context, Text.translatable("forf.commands.lives.playerNotValid", player.getGameProfile().getName()), false);
                     continue;
                 }
                 IEntityDataSaver playerSaver = (IEntityDataSaver) player;
-                sendFeedback(context, Text.translatable("forf.commands.lives.success", player.getEntityName(), playerSaver.setLives(lives)), true);
+                sendFeedback(context, Text.translatable("forf.commands.lives.success", player.getGameProfile().getName(), playerSaver.setLives(lives)), true);
             }
             
         } catch (CommandSyntaxException e) {
@@ -121,7 +121,7 @@ public class LivesCommands {
         newLives = ((IEntityDataSaver) player).setLives(targetPlayerOldLives + newLives) - targetPlayerOldLives;
         // Now they only lose the amount that was actually gained
         ((IEntityDataSaver) executor).setLives(executorCurrentLives - (newLives));
-        sendFeedback(context, Text.translatable("forf.commands.lives.give", player.getEntityName(), newLives), true);
+        sendFeedback(context, Text.translatable("forf.commands.lives.give", player.getGameProfile().getName(), newLives), true);
         
         return 1;
     }

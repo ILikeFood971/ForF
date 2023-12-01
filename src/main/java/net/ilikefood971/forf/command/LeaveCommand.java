@@ -66,7 +66,7 @@ public class LeaveCommand {
             players.add(context.getSource().getPlayer());
         }
         for (ServerPlayerEntity player : players) {
-            String playerName = player.getEntityName();
+            String playerName = player.getGameProfile().getName();
             String playerUuid = player.getUuidAsString();
             
             if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {

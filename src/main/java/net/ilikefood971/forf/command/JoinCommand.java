@@ -67,7 +67,7 @@ public class JoinCommand {
             return -1;
         }
         for (ServerPlayerEntity player : players) {
-            String playerName = player.getEntityName();
+            String playerName = player.getGameProfile().getName();
             String playerUuid = player.getUuidAsString();
             
             if (PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
@@ -89,7 +89,7 @@ public class JoinCommand {
         
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         
-        String playerName = player.getEntityName();
+        String playerName = player.getGameProfile().getName();
         String playerUuid = player.getUuidAsString();
         
         if (PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {

@@ -27,7 +27,6 @@ import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -42,7 +41,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
-import static net.ilikefood971.forf.util.Util.fakeScoreboard;
 
 /**
  * Used for storing NBT data to the player as well as
@@ -53,8 +51,6 @@ import static net.ilikefood971.forf.util.Util.fakeScoreboard;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityDataSaver, IGetPortalPos, ServerEntityWorldChangeEvents.AfterPlayerChange {
     
-    @Shadow public abstract String getEntityName();
-
     @Shadow public abstract String getUuidAsString();
 
     @Shadow protected BlockPos lastNetherPortalPosition;
@@ -102,20 +98,19 @@ public abstract class EntityMixin implements IEntityDataSaver, IGetPortalPos, Se
 
         NbtCompound nbt = this.getPersistentData();
         int oldLives = nbt.getInt("lives");
-        
-        ScoreboardPlayerScore score = fakeScoreboard.getPlayerScore(this.getEntityName(), fakeScoreboard.livesObjective);
-        score.setScore(lives);
+
+        @SuppressWarnings("DataFlowIssue") ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
+
+        Util.setScore(player, lives);
 
         // Optimize a bit and check to see if they're the same
         if (oldLives == lives) {
             // Update the score because if you start forf and the player already has previous nbt, the score won't update
-            fakeScoreboard.updateScore(score);
             return oldLives;
         }
         nbt.putInt("lives", lives);
 
 
-        ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
         // Check to see if the player ran out of lives
         if (lives == 0 && Util.PERSISTENT_DATA.started) {
             // Kick the player if spectators are not allowed

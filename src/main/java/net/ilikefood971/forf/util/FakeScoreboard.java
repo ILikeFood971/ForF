@@ -22,7 +22,7 @@ package net.ilikefood971.forf.util;
 
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScoreboardPlayerUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
 import net.minecraft.scoreboard.*;
 import net.minecraft.text.Text;
 
@@ -31,7 +31,16 @@ public class FakeScoreboard extends Scoreboard {
     
     public FakeScoreboard() {
         super();
-        this.livesObjective = this.addObjective("lives", ScoreboardCriterion.DUMMY, Text.of("lives"), Util.CONFIG.tablistLivesRenderType());
+        this.livesObjective = this.addObjective(
+                "lives",
+                ScoreboardCriterion.DUMMY,
+                Text.of("lives"),
+                Util.CONFIG.tablistLivesRenderType()
+                //#if MC >= 12003
+                , false,
+                null
+                //#endif
+                );
     }
 
     public NbtList toNbt() {
@@ -43,7 +52,7 @@ public class FakeScoreboard extends Scoreboard {
 
     public void setListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                //#if MC>=12020
+                //#if MC>=12002
                 ScoreboardDisplaySlot.LIST
                 //#else
                 //$$ 0
@@ -54,7 +63,7 @@ public class FakeScoreboard extends Scoreboard {
     
     public void clearListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                //#if MC>= 12020
+                //#if MC>= 12002
                 ScoreboardDisplaySlot.LIST
                 //#else
                 //$$ 0
@@ -65,12 +74,36 @@ public class FakeScoreboard extends Scoreboard {
     
     
     @Override
-    public void updateScore(ScoreboardPlayerScore score) {
-        super.updateScore(score);
+    public void updateScore(
+            //#if MC >= 12003
+            ScoreHolder scoreHolder,
+            ScoreboardObjective objective,
+            //#endif
+            ScoreboardScore score
+    ) {
+        super.updateScore(
+                //#if MC >= 12003
+                scoreHolder,
+                objective,
+                //#endif
+                score);
         Util.SERVER
                 .getPlayerManager()
                 .sendToAll(
-                        new ScoreboardPlayerUpdateS2CPacket(ServerScoreboard.UpdateMode.CHANGE, score.getObjective().getName(), score.getPlayerName(), score.getScore())
+                        new ScoreboardScoreUpdateS2CPacket(
+                                //#if MC >= 12003
+                                scoreHolder.getNameForScoreboard(),
+                                objective.getName(),
+                                score.getScore(),
+                                objective.getDisplayName(),
+                                null
+                                //#else
+                                //$$ServerScoreboard.UpdateMode.CHANGE,
+                                //$$score.getObjective().getName(),
+                                //$$score.getPlayerName(),
+                                //$$score.getScore()
+                                //#endif
+                        )
                 );
         Util.LOGGER.debug("Scoreboard Update Packet sent");
     }

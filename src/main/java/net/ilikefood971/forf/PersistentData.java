@@ -29,7 +29,6 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.World;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -67,7 +66,7 @@ public class PersistentData extends PersistentState {
         Util.fakeScoreboard.readNbt(tag.getList("PlayerScores", NbtElement.COMPOUND_TYPE));
         return state;
     }
-    //#if MC>=12020
+    //#if MC>=12002
     private static final Type<PersistentData> type = new Type<>(
             PersistentData::new, // If there's no 'StateSaverAndLoader' yet create one
             PersistentData::createFromNbt, // If there is a 'StateSaverAndLoader' NBT, parse it with 'createFromNbt'
@@ -75,10 +74,10 @@ public class PersistentData extends PersistentState {
     );
     //#endif
     public static PersistentData getServerState(MinecraftServer server) {
-        PersistentStateManager persistentStateManager = server.getWorld(World.OVERWORLD).getPersistentStateManager();
+        PersistentStateManager persistentStateManager = server.getOverworld().getPersistentStateManager();
         
         PersistentData state = persistentStateManager.getOrCreate(
-                //#if MC>=12020
+                //#if MC>=12002
                 type,
                 //#else
                 //$$PersistentData::createFromNbt,

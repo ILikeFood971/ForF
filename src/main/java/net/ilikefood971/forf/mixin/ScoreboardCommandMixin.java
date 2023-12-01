@@ -32,7 +32,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-//#if MC >= 12020
+
+//#if MC >= 12002
 import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 //#endif
 
@@ -45,7 +46,7 @@ public abstract class ScoreboardCommandMixin {
     
     @Inject(method = "executeSetDisplay", at = @At("HEAD"))
     private static void setDisplayExceptToList(ServerCommandSource source,
-                                               //#if MC >= 12020
+                                               //#if MC >= 12002
                                                ScoreboardDisplaySlot
                                                //#else
                                                //$$ int
@@ -53,7 +54,7 @@ public abstract class ScoreboardCommandMixin {
                                                        slot, ScoreboardObjective objective, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
         // If we don't have this mixin, you can have weird behavior where the packet gets sent, so it is in the list for a time, but then on a rejoin/restart it goes back to the livesObjective
         if (Util.PERSISTENT_DATA.started && slot
-                //#if MC >= 12020
+                //#if MC >= 12002
                 .equals(ScoreboardDisplaySlot.LIST)
                 //#else
                 //$$ == 0

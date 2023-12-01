@@ -28,6 +28,7 @@ import net.minecraft.datafixer.Schemas;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtTagSizeTracker;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -59,20 +60,29 @@ public class ForfManager {
             } else {
                 try {
                     Path pathToPlayerSaveData = SERVER.getSavePath(WorldSavePath.PLAYERDATA);
-                    File playerSaveFile = pathToPlayerSaveData.resolve(uuid.toString() + ".dat").toFile();
+                    Path playerSavePath = pathToPlayerSaveData.resolve(uuid.toString() + ".dat");
                     
-                    NbtCompound unfixedNbt = NbtIo.readCompressed(playerSaveFile);
+                    NbtCompound unfixedNbt = NbtIo.readCompressed(
+                            //#if MC >= 12003
+                            playerSavePath, NbtTagSizeTracker.ofUnlimitedBytes()
+                            //#else
+                            //$$playerSavePath.toFile()
+                            //#endif
+                    );
                     int dataVersion = unfixedNbt.contains("DataVersion", 3) ? unfixedNbt.getInt("DataVersion") : -1;
                     NbtCompound nbt = DataFixTypes.PLAYER.update(Schemas.getFixer(), unfixedNbt, dataVersion);
                     
                     if (nbt.getCompound("forf.data") == null) nbt.put("forf.data", new NbtCompound());
                     nbt.getCompound("forf.data").putInt("lives", CONFIG.startingLives());
                     
-                    File file = File.createTempFile(uuid + "-", ".dat", pathToPlayerSaveData.toFile());
-                    NbtIo.writeCompressed(nbt, file);
+                    NbtIo.writeCompressed(nbt, playerSavePath
+                            //#if MC < 12003
+                            //$$.toFile()
+                            //#endif
+                    );
                     File newDataFile = new File(pathToPlayerSaveData.toFile(), uuid + ".dat");
                     File oldDataFile = new File(pathToPlayerSaveData.toFile(), uuid + ".dat_old");
-                    Util.backupAndReplace(newDataFile, file, oldDataFile);
+                    Util.backupAndReplace(newDataFile.toPath(), playerSavePath, oldDataFile.toPath());
                     
                 } catch (IOException e) {
                     LOGGER.info(e.toString());
