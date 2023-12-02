@@ -135,7 +135,7 @@ public class Config {
     
     public static class Restrictions {
         private boolean totemDrops = false;
-        private boolean villagerTrading = true;
+        private boolean villagerTrading = false;
         private boolean goldenAppleCrafting = false;
         @Comment("Will only prevent elytras in generation\nIf the ship has been generated already elytra will still be there")
         private boolean elytraInEndShip = false;
