@@ -25,7 +25,6 @@ import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -39,6 +38,10 @@ import net.minecraft.scoreboard.ScoreboardEntry;
 //#else
 //$$import net.minecraft.scoreboard.ScoreboardPlayerScore;
 //$$import net.minecraft.scoreboard.ServerScoreboard;
+//#endif
+
+//#if MC >= 12002
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 //#endif
 
 import java.util.function.Consumer;
@@ -122,7 +125,7 @@ public class Util {
 
     @SuppressWarnings("SameReturnValue")
     public static ScoreboardDisplaySlot getScoreboardListSlot() {
-        //#if MC >= 12003
+        //#if MC >= 12002
         return ScoreboardDisplaySlot.LIST;
         //#else
         //$$ return 0;
@@ -130,7 +133,7 @@ public class Util {
     }
 
     public static boolean isListSlot(ScoreboardDisplaySlot slot) {
-        //#if MC >= 12003
+        //#if MC >= 12002
         return slot.equals(ScoreboardDisplaySlot.LIST);
         //#else
         //$$ return slot == 0;
