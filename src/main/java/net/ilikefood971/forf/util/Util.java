@@ -25,6 +25,7 @@ import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -50,7 +51,7 @@ public class Util {
     public static final Config CONFIG = Config.loadFromFile();
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
-    public static FakeScoreboard fakeScoreboard = new FakeScoreboard();
+    public static final FakeScoreboard fakeScoreboard = new FakeScoreboard();
 
     // Version Utils
     
@@ -116,6 +117,23 @@ public class Util {
         //$$        score.getPlayerName(),
         //$$        score.getScore()
         //$$);
+        //#endif
+    }
+
+    @SuppressWarnings("SameReturnValue")
+    public static ScoreboardDisplaySlot getScoreboardListSlot() {
+        //#if MC >= 12003
+        return ScoreboardDisplaySlot.LIST;
+        //#else
+        //$$ return 0;
+        //#endif
+    }
+
+    public static boolean isListSlot(ScoreboardDisplaySlot slot) {
+        //#if MC >= 12003
+        return slot.equals(ScoreboardDisplaySlot.LIST);
+        //#else
+        //$$ return slot == 0;
         //#endif
     }
 }

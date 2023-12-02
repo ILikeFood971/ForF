@@ -52,23 +52,13 @@ public class FakeScoreboard extends Scoreboard {
 
     public void setListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                //#if MC>=12002
-                ScoreboardDisplaySlot.LIST
-                //#else
-                //$$ 0
-                //#endif
-                , Util.fakeScoreboard.livesObjective
+                Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective
         ));
     }
     
     public void clearListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                //#if MC>= 12002
-                ScoreboardDisplaySlot.LIST
-                //#else
-                //$$ 0
-                //#endif
-                , null
+                Util.getScoreboardListSlot(), null
         ));
     }
     

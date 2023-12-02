@@ -43,23 +43,16 @@ public abstract class ScoreboardCommandMixin {
     private static final SimpleCommandExceptionType CANNOT_SET_LIST_SLOT_WITH_FORF = new SimpleCommandExceptionType(
             Text.translatable("forf.mixin.ScoreboardCommand.noList")
     );
-    
+
     @Inject(method = "executeSetDisplay", at = @At("HEAD"))
     private static void setDisplayExceptToList(ServerCommandSource source,
-                                               //#if MC >= 12002
-                                               ScoreboardDisplaySlot
-                                               //#else
-                                               //$$ int
-                                               //#endif
-                                                       slot, ScoreboardObjective objective, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        // If we don't have this mixin, you can have weird behavior where the packet gets sent, so it is in the list for a time, but then on a rejoin/restart it goes back to the livesObjective
-        if (Util.PERSISTENT_DATA.started && slot
-                //#if MC >= 12002
-                .equals(ScoreboardDisplaySlot.LIST)
-                //#else
-                //$$ == 0
-                //#endif
-        ) {
+                                               ScoreboardDisplaySlot slot,
+                                               ScoreboardObjective objective,
+                                               CallbackInfoReturnable<Integer> cir
+    ) throws CommandSyntaxException {
+        // If we don't have this mixin, you can have weird behavior where the packet gets sent,
+        // so it is in the list for a time, but then on a rejoin/restart it goes back to the livesObjective
+        if (Util.PERSISTENT_DATA.started && Util.isListSlot(slot)) {
             throw CANNOT_SET_LIST_SLOT_WITH_FORF.create();
         }
     }

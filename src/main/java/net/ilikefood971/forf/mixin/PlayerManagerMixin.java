@@ -41,12 +41,7 @@ public abstract class PlayerManagerMixin {
         ));
         if (Util.PERSISTENT_DATA.started) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
-                    //#if MC >= 12002
-                    ScoreboardDisplaySlot.LIST
-                    //#else
-                    //$$ 0
-                    //#endif
-                    , Util.fakeScoreboard.livesObjective));
+                    Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective));
         }
     }
 }
