@@ -20,10 +20,10 @@
 
 package net.ilikefood971.forf.tracker;
 
+import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.ilikefood971.forf.config.Config;
-import net.ilikefood971.forf.util.PlayerTrackerGui;
 import net.ilikefood971.forf.util.Util;
 import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.client.item.TooltipContext;
@@ -37,7 +37,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -49,30 +48,23 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.SERVER;
 
 public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
     public PlayerTrackerItem(Settings settings) {
         super(settings);
-        MutableText temp = Text.translatable("item.forf.player_tracker").formatted(Formatting.GREEN);
-        this.defaultName = removeItalics(temp);
     }
 
     public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new FabricItemSettings().maxCount(1));
-    private final MutableText defaultName;
     private static int tickTillNext = 20;
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
         return Items.COMPASS;
-    }
-
-    @Override
-    public ItemStack getPolymerItemStack(ItemStack itemStack, TooltipContext context, @Nullable ServerPlayerEntity player) {
-        if (!itemStack.hasCustomName()) itemStack.setCustomName(defaultName);
-        return PolymerItem.super.getPolymerItemStack(itemStack, context, player);
     }
 
     // Regular use on the server side
@@ -85,7 +77,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             assert user instanceof ServerPlayerEntity;
             PlayerTrackerGui gui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, ((ServerPlayerEntity) user), itemStack);
 
-            Text guiTitle = Text.translatable("forf.tracker.guiTitle").formatted(Formatting.RED, Formatting.BOLD);
+            Text guiTitle = Text.translatable("forf.tracker.guiTitle");
             gui.setTitle(guiTitle);
             gui.open();
 
@@ -102,12 +94,43 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        tooltip.add(Text.translatable("forf.tracker.tooltip").formatted(Formatting.GRAY));
+        if (stack.getOrCreateNbt().getBoolean("isTracking")) {
+            assert stack.getNbt() != null;
+            UUID targetUUID = stack.getNbt().getUuid("TrackedPlayer");
+            String targetName = getTargetName(targetUUID);
+
+            tooltip.set(0, Text.translatable("forf.tracker.trackingTooltip", Text.literal(targetName).formatted(
+                    Formatting.RED, Formatting.BOLD
+            )));
+        } else {
+            if (!stack.hasCustomName()) tooltip.set(0, Text.translatable("item.forf.player_tracker").formatted(Formatting.GREEN));
+            tooltip.add(Text.translatable("forf.tracker.tooltip"));
+        }
+    }
+
+    private static String getTargetName(UUID targetUUID) {
+        ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(targetUUID);
+        String targetName;
+        if (player != null) {
+            targetName = player.getGameProfile().getName();
+        } else {
+            GameProfile offlineProfile = Util.getOfflineProfile(targetUUID);
+            if (offlineProfile == null) {
+                targetName = "Not Found";
+            } else {
+                targetName = offlineProfile.getName();
+            }
+        }
+        return targetName;
     }
 
     public void onGuiClick(ItemStack selectedStack, PlayerTrackerGui gui) {
         ItemStack playerTracker = gui.getPlayerTracker();
-        ServerPlayerEntity target = Util.SERVER.getPlayerManager().getPlayer(selectedStack.getName().getString());
+        ServerPlayerEntity target = SERVER.getPlayerManager().getPlayer(selectedStack.getName().getString());
+        if (target == null) {
+            gui.getPlayer().sendMessage(Text.translatable("forf.tracker.playerNotFound"), false);
+            return;
+        }
         // Get the skull owner and put that into the player tracker's NBT
         UUID targetUUID = target.getUuid();
         NbtCompound nbt = playerTracker.getOrCreateNbt();
@@ -115,11 +138,13 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
         // Mark the player tracker as tracking and put in the expiration time
         nbt.putBoolean("isTracking", true);
         nbt.putLong("Expiration", Instant.now().plus(Duration.ofMinutes(CONFIG.trackerExpirationMinutes())).toEpochMilli());
-
-        MutableText text1 = Text.translatable("item.forf.player_tracker").append(": ").formatted(Formatting.LIGHT_PURPLE);
-        MutableText text2 = Text.literal(target.getGameProfile().getName()).formatted(Formatting.RED, Formatting.BOLD);
-        playerTracker.setCustomName(removeItalics(text1).append(removeItalics(text2)));
-        gui.getPlayer().sendMessage(Text.translatable("forf.tracker.tracking", target.getGameProfile().getName(), CONFIG.trackerExpirationMinutes()).formatted(Formatting.YELLOW),   false);
+        
+        gui.getPlayer().sendMessage(Text.translatable("forf.tracker.tracking",
+                        Text.literal(target.getGameProfile().getName()).formatted(Formatting.YELLOW),
+                        Text.literal(String.valueOf(CONFIG.trackerExpirationMinutes())).formatted(Formatting.YELLOW)
+                ),
+                false
+        );
 
         updateTracker(playerTracker, gui.getPlayer().getWorld());
     }
@@ -132,8 +157,12 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
 
         if (stack.getOrCreateNbt().getBoolean("isTracking")) {
             NbtCompound nbt = stack.getNbt();
-            if (nbt.getLong("Expiration") <= Instant.now().toEpochMilli()) {
+            assert nbt != null;
+
+            long expiration = nbt.contains("Expiration") ? nbt.getLong("Expiration") : Instant.now().toEpochMilli();
+            if (expiration <= Instant.now().toEpochMilli()) {
                 stack.setCount(0);
+                entity.sendMessage(Text.translatable("forf.tracker.expired", getTargetName(stack.getNbt().getUuid("TrackedPlayer"))));
                 return;
             }
             // If it's not in the hand then update it
@@ -146,15 +175,12 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
     }
     public static void updateTracker(ItemStack stack, World world) {
         if (!(stack.getItem() instanceof PlayerTrackerItem)) return;
-        NbtCompound nbt = stack.getNbt();
-        ServerPlayerEntity trackedPlayer = world.getServer().getPlayerManager().getPlayer(NbtHelper.toUuid(nbt.get("TrackedPlayer")));
+        NbtCompound nbt = stack.getOrCreateNbt();
+        ServerPlayerEntity trackedPlayer = SERVER.getPlayerManager().getPlayer(NbtHelper.toUuid(Objects.requireNonNull(nbt.get("TrackedPlayer"))));
         World targetWorld;
         if (trackedPlayer != null) {
             targetWorld = trackedPlayer.getWorld();
         } else {
-            if (nbt.contains("LodestonePos")) {
-                nbt.remove("LodestonePos");
-            }
             if (nbt.contains("LodestoneDimension")) {
                 nbt.remove("LodestoneDimension");
             }
@@ -177,12 +203,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
         }
 
         if (blockPos != null) nbt.put("LodestonePos", NbtHelper.fromBlockPos(blockPos));
-        nbt.putBoolean("LodestoneTracked", true);
         nbt.putString("LodestoneDimension", world.getRegistryKey().getValue().toString());
         tickTillNext = CONFIG.trackerAutoUpdateDelay();
-    }
-
-    private static MutableText removeItalics(Text text) {
-        return text.copy().setStyle(text.getStyle().withItalic(false));
     }
 }

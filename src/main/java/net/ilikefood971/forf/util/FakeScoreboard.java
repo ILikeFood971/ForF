@@ -27,7 +27,7 @@ import net.minecraft.scoreboard.*;
 import net.minecraft.text.Text;
 
 public class FakeScoreboard extends Scoreboard {
-    public ScoreboardObjective livesObjective;
+    public final ScoreboardObjective livesObjective;
     
     public FakeScoreboard() {
         super();

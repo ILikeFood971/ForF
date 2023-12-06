@@ -18,15 +18,17 @@
  * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ilikefood971.forf.util;
+package net.ilikefood971.forf.tracker;
 
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.ilikefood971.forf.tracker.PlayerTrackerItem;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -68,10 +70,12 @@ public class PlayerTrackerGui extends SimpleGui {
 
             String playerName = player.getGameProfile().getName();
 
-            Text lore = Text.translatable("forf.tracker.lore").formatted(Formatting.YELLOW);
+            Text lore = Text.translatable("forf.tracker.lore");
             Text name = Text.literal(playerName).formatted(Formatting.RED);
 
-            GuiElementBuilder skullBuilder = new GuiElementBuilder().setSkullOwner(player.getGameProfile(), Util.SERVER);
+            GuiElementBuilder skullBuilder = new GuiElementBuilder();
+            skullBuilder.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), player.getGameProfile()));
+            
             skullBuilder.setItem(Items.PLAYER_HEAD);
             skullBuilder.addLoreLine(lore);
             skullBuilder.setName(name);

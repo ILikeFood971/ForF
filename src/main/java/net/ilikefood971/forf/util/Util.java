@@ -20,6 +20,8 @@
 
 package net.ilikefood971.forf.util;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
 import com.mojang.brigadier.context.CommandContext;
 import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
@@ -41,9 +43,11 @@ import net.minecraft.scoreboard.ScoreboardEntry;
 //#endif
 
 //#if MC >= 12002
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 //#endif
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Util {
@@ -64,11 +68,6 @@ public class Util {
                 () ->
                 //#endif
                 message, broadcast);
-    }
-    
-    public static Text getParsedTextFromKey(String string, Object... args) {
-        if (args.length > 0) return Text.Serialization.fromJson(Text.translatable(string, args).getString());
-        return Text.Serialization.fromJson(Text.translatable(string).getString());
     }
 
     public static void setScore(ServerPlayerEntity player, int lives) {
@@ -137,6 +136,19 @@ public class Util {
         return slot.equals(ScoreboardDisplaySlot.LIST);
         //#else
         //$$ return slot == 0;
+        //#endif
+    }
+    
+    public static GameProfile getOfflineProfile(UUID uuid) {
+        //#if MC >= 12002
+        ProfileResult profileResult = SERVER.getSessionService().fetchProfile(uuid, false);
+        if (profileResult == null) {
+            throw new ProfileNotFoundException("Player Not Found - " + uuid);
+        } else {
+            return profileResult.profile();
+        }
+        //#else
+        //$$ return SERVER.getSessionService().fillProfileProperties(new GameProfile(uuid, null), false);
         //#endif
     }
 }

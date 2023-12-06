@@ -29,6 +29,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+
 import static net.ilikefood971.forf.util.Util.*;
 
 @SuppressWarnings("UnusedReturnValue")
@@ -95,16 +96,16 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         MinecraftServer server = Util.SERVER;
         if (pvPState == PvPState.OFF && PvPTimer.pvPState != pvPState) {
             for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-                serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("forf.timer.actionBar.disabled").formatted(Formatting.DARK_GREEN)));
-                serverPlayerEntity.sendMessage(Util.getParsedTextFromKey("forf.timer.chat.disabled"));
+                serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("forf.timer.actionBar.disabled")));
+                serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.disabled"));
                 server.setPvpEnabled(false);
             }
             PvPTimer.pvPState = PvPState.OFF;
             return true;
         }  else if (pvPState == PvPState.ON && PvPTimer.pvPState != pvPState) {
             for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Util.getParsedTextFromKey("forf.timer.title.enabled")));
-                serverPlayerEntity.sendMessage(Util.getParsedTextFromKey("forf.timer.chat.enabled"));
+                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("forf.timer.title.enabled")));
+                serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.enabled"));
                 server.setPvpEnabled(true);
             }
             PvPTimer.pvPState = PvPState.ON;
@@ -121,11 +122,12 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         sec = secondsLeft % 60;
         Text message;
         
-        if (min > 0) {
-            message = Text.translatable("forf.timer.actionBar.enabledMoreThanMinute", min, sec);
-        } else message = Text.translatable("forf.timer.actionBar.enabled", sec);
+        Text minText = Text.literal(String.valueOf(min)).formatted(Formatting.BOLD, Formatting.DARK_RED); // If you don't do it this way, any args aren't formatted for some reason
+        Text secText = Text.literal(String.valueOf(sec)).formatted(Formatting.BOLD, Formatting.DARK_RED);
         
-        message = Text.Serialization.fromJson(message.getString());
+        if (min > 0) {
+            message = Text.translatable("forf.timer.actionBar.enabledMoreThanMinute", minText, secText);
+        } else message = Text.translatable("forf.timer.actionBar.enabled", secText);
         
         return message;
     }

@@ -24,7 +24,6 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -34,15 +33,16 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     @Override
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
         // Check that they are actually a player as this gets called for all entity deaths
-        if (entity instanceof ServerPlayerEntity) {
-            // Cast the entity to player for later use
-            PlayerEntity player = (PlayerEntity) entity;
-            IEntityDataSaver data = (IEntityDataSaver) player;
+        if (entity instanceof ServerPlayerEntity player) {
+            IEntityDataSaver data = ((IEntityDataSaver) player);
             
             // Remove the life
             if (data.getLives() > 0) {
                 data.removeLife();
-                player.sendMessage(Text.translatable("forf.event.death.livesLeft", data.getLives()).formatted(Formatting.RED), false);
+                player.sendMessage(Text.translatable("forf.event.death.livesLeft",
+                        Text.literal(String.valueOf(data.getLives()))).formatted(Formatting.RED),
+                        false
+                );
             }
         }
     }

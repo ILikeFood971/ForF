@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package net.ilikefood971.forf.config;
 
 import blue.endless.jankson.Comment;
@@ -33,14 +32,14 @@ import net.minecraft.world.GameMode;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
 public class Config {
     @Comment("Whether non forf or forf players that ran out of lives can join")
     private boolean spectators = false;
+    @Comment("If spectators are allowed, what gamemode should they be in?")
     private GameMode spectatorGamemode = GameMode.SPECTATOR;
     @Comment("When you start forf, how many lives should everyone start with")
     private int startingLives = 10;
@@ -57,6 +56,7 @@ public class Config {
     private boolean playerTracker = true;
     @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.")
     private UpdateType trackerUpdateType = UpdateType.USE;
+    @Comment("If the update type is AUTOMATIC, how many ticks should there be in between updates")
     private int trackerAutoUpdateDelay = 20;
     @Comment("The amount of time that the tracker lasts for before expiring")
     private int trackerExpirationMinutes = 60;
@@ -64,7 +64,7 @@ public class Config {
         AUTOMATIC,
         USE
     }
-    
+    @Comment("Timer that automatically turns PvP on and off")
     private PvPTimer pvPTimer = new PvPTimer();
     
     @Comment("Restrictions to prevent op things for this play-style")
@@ -83,131 +83,52 @@ public class Config {
         @Comment("The maximum time until the PvP Timer turns on again")
         private int maxRandomOffTime = 30;
         
-        private void save() {
-            Util.CONFIG.save();
-        }
-        
         public boolean enabled() {
             return enabled;
-        }
-        
-        public void enabled(boolean enabled) {
-            this.enabled = enabled;
-            this.save();
         }
         
         public int minRandomOnTime() {
             return minRandomOnTime;
         }
         
-        public void minRandomOnTime(int minRandomOnTime) {
-            this.minRandomOnTime = minRandomOnTime;
-            this.save();
-        }
-        
         public int maxRandomOnTime() {
             return maxRandomOnTime;
-        }
-        
-        public void maxRandomOnTime(int maxRandomOnTime) {
-            this.maxRandomOnTime = maxRandomOnTime;
-            this.save();
         }
         
         public int minRandomOffTime() {
             return minRandomOffTime;
         }
         
-        public void minRandomOffTime(int minRandomOffTime) {
-            this.minRandomOffTime = minRandomOffTime;
-            this.save();
-        }
-        
         public int maxRandomOffTime() {
             return maxRandomOffTime;
         }
-        
-        public void maxRandomOffTime(int maxRandomOffTime) {
-            this.maxRandomOffTime = maxRandomOffTime;
-            this.save();
-        }
     }
     
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     public static class Restrictions {
         private boolean totemDrops = false;
         private boolean villagerTrading = false;
         private boolean goldenAppleCrafting = false;
         @Comment("Will only prevent elytras in generation\nIf the ship has been generated already elytra will still be there")
         private boolean elytraInEndShip = false;
-        private void save() {
-            Util.CONFIG.save();
-        }
         public boolean totemDrops() {
             return totemDrops;
-        }
-        
-        public void totemDrops(boolean totemDrops) {
-            this.totemDrops = totemDrops;
-            this.save();
         }
         
         public boolean villagerTrading() {
             return villagerTrading;
         }
         
-        public void villagerTrading(boolean villagerTrading) {
-            this.villagerTrading = villagerTrading;
-            this.save();
-        }
-        
         public boolean goldenAppleCrafting() {
             return goldenAppleCrafting;
-        }
-        
-        public void goldenAppleCrafting(boolean goldenAppleCrafting) {
-            this.goldenAppleCrafting = goldenAppleCrafting;
-            this.save();
         }
         
         public boolean elytraInEndShip() {
             return elytraInEndShip;
         }
-        
-        public void elytraInEndShip(boolean elytraInEndShip) {
-            this.elytraInEndShip = elytraInEndShip;
-            this.save();
-        }
     }
     
     // Methods for Config
-    
-    private void updateConfig() {
-        Config newConfig = loadFromFile();
-        copyAllFields(this, newConfig);
-    }
-    
-    private <T> void copyAllFields(T old, T newObject) {
-        try {
-            Class<?> clazz = old.getClass();
-            for (Field field : clazz.getDeclaredFields()) {
-                field.setAccessible(true);
-                
-                // Check to see if the field is a nested class that isn't an enum.
-                if (field.getType().isNestmateOf(clazz) && !field.getType().isEnum()) {
-                    // If it's a nested class, perform this all over again on the nested class
-                    // I know it's recursive, but I don't think it will cause issues
-                    copyAllFields(field.get(old), field.get(newObject));
-                    continue;
-                }
-                if (!field.get(old).equals(field.get(newObject))) {
-                    // Set the old field to the new field
-                    field.set(old, field.get(newObject));
-                }
-            }
-        } catch (IllegalAccessException e) {
-            Util.LOGGER.error(e.toString());
-        }
-    }
     
     public static Config loadFromFile() {
         if (!Files.exists(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5"))) {
@@ -238,7 +159,7 @@ public class Config {
         }
     }
     
-    
+    // This only ever gets used to create the config
     private void save() {
         Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
         File configFile = resolve.toFile();
@@ -261,63 +182,53 @@ public class Config {
         
     }
     
+    // Getters
+
     public boolean spectators() {
-        this.updateConfig();
         return spectators;
     }
 
     public GameMode spectatorGamemode() {
-        this.updateConfig();
         return spectatorGamemode;
     }
 
     public int startingLives() {
-        this.updateConfig();
         return startingLives;
     }
 
     public boolean overfill() {
-        this.updateConfig();
         return overfill;
     }
 
     public String tablistHeader() {
-        this.updateConfig();
         return tablistHeader;
     }
 
     public ScoreboardCriterion.RenderType tablistLivesRenderType() {
-        this.updateConfig();
         return tablistLivesRenderType;
     }
 
     public boolean playerTracker() {
-        this.updateConfig();
         return playerTracker;
     }
 
     public UpdateType trackerUpdateType() {
-        this.updateConfig();
         return trackerUpdateType;
     }
 
     public int trackerAutoUpdateDelay() {
-        this.updateConfig();
         return trackerAutoUpdateDelay;
     }
 
     public int trackerExpirationMinutes() {
-        this.updateConfig();
         return trackerExpirationMinutes;
     }
     
     public PvPTimer pvPTimer() {
-        this.updateConfig();
         return pvPTimer;
     }
 
     public Restrictions restrictions() {
-        this.updateConfig();
         return restrictions;
     }
 }

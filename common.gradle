@@ -1,5 +1,4 @@
 //file:noinspection GrUnresolvedAccess
-apply plugin: 'maven-publish'
 apply plugin: 'com.github.hierynomus.license'
 apply plugin: 'fabric-loom'
 apply plugin: 'com.replaymod.preprocess'
@@ -17,8 +16,8 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
-    maven { url 'https://maven.wispforest.io' }
-    maven { url 'https://maven.nucleoid.xyz' }
+    maven { url 'https://maven.wispforest.io' } // Polymer, Server translations, sgui
+    maven { url 'https://maven.nucleoid.xyz' } // Cardinal Components
     mavenCentral()
 }
 
@@ -38,15 +37,14 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     // Config Json handler
-    api(include("blue.endless:jankson:1.2.3"))
+    api include("blue.endless:jankson:${project.jankson_version}")
 
     // Server side libraries
-    modImplementation include("eu.pb4:sgui:[$project.sgui_version]")
-    modImplementation include("xyz.nucleoid:server-translations-api:[$project.server_translations_version]")
-    modImplementation include("eu.pb4:polymer-core:[$project.polymer_core_version]")
+    modImplementation include("eu.pb4:sgui:${project.sgui_version}")
+    modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translations_version}")
+    modImplementation include("eu.pb4:polymer-core:${project.polymer_core_version}")
 }
 
-String MIXIN_CONFIG_PATH = 'forf.mixins.json'
 String LANG_DIR = 'assets/forf/lang'
 JavaVersion JAVA_COMPATIBILITY
 if (mcVersion >= 11800) {
@@ -131,9 +129,6 @@ processResources {
                 "server_translations_version": project.server_translations_version,
                 "polymer_core_version"       : project.polymer_core_version
     }
-    filesMatching(MIXIN_CONFIG_PATH) {
-        filter { s -> s.replace('{{COMPATIBILITY_LEVEL}}', "JAVA_${JAVA_COMPATIBILITY.ordinal() + 1}") }
-    }
 }
 
 // https://github.com/Fallen-Breath/yamlang
@@ -201,23 +196,3 @@ license {
 
 classes.dependsOn licenseFormatMain
 testClasses.dependsOn licenseFormatTest
-
-
-// configure the maven publication
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
-
-            from components.java
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
-}

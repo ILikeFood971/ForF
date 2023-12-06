@@ -1,7 +1,5 @@
 plugins {
 	id 'fabric-loom' version '1.4.1' apply false
-	id 'maven-publish'
-
 	id 'com.github.hierynomus.license' version '0.16.1' apply false
 
 	// https://github.com/ReplayMod/preprocessor
