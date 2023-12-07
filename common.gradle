@@ -1,4 +1,5 @@
 //file:noinspection GrUnresolvedAccess
+//file:noinspection GroovyAssignabilityCheck
 apply plugin: 'com.github.hierynomus.license'
 apply plugin: 'fabric-loom'
 apply plugin: 'com.replaymod.preprocess'

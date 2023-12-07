@@ -60,16 +60,8 @@ public class TimerCommands {
     }
     
     private static int turnPvpOn(CommandContext<ServerCommandSource> context) {
-        if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            sendFeedback(context, Text.translatable("forf.commands.timer.disabledAndNotStarted"), false);
-            return -1;
-        } else if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.notStarted"), false);
-            return -1;
-        } else if (!net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            sendFeedback(context, Text.translatable("forf.commands.timer.disabled"), false);
-            return -1;
-        }
+        int x = checkCanRun(context);
+        if (x != 0) return x;
         
         try {
             return PvPTimer.changePvpTimer(PvPTimer.PvPState.ON, context.getArgument("minutes", int.class) * 60) ? 1 : -1;
@@ -79,6 +71,18 @@ public class TimerCommands {
     }
     
     private static int turnPvpOff(CommandContext<ServerCommandSource> context) {
+        int x = checkCanRun(context);
+        if (x != 0) return x;
+        
+        
+        try {
+            return PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, context.getArgument("minutes", int.class) * 60) ? 1 : -1;
+        } catch (IllegalArgumentException e) {
+            return PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF) ? 1 : -1;
+        }
+    }
+    
+    private static int checkCanRun(CommandContext<ServerCommandSource> context) {
         if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
             sendFeedback(context, Text.translatable("forf.commands.timer.disabledAndNotStarted"), false);
             return -1;
@@ -89,12 +93,6 @@ public class TimerCommands {
             sendFeedback(context, Text.translatable("forf.commands.timer.disabled"), false);
             return -1;
         }
-        
-        
-        try {
-            return PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, context.getArgument("minutes", int.class) * 60) ? 1 : -1;
-        } catch (IllegalArgumentException e) {
-            return PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF) ? 1 : -1;
-        }
+        return 0;
     }
 }

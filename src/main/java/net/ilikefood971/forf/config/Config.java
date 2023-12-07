@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
+@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted", "CanBeFinal"})
 public class Config {
     @Comment("Whether non forf or forf players that ran out of lives can join")
     private boolean spectators = false;
@@ -70,6 +70,7 @@ public class Config {
     @Comment("Restrictions to prevent op things for this play-style")
     public Restrictions restrictions = new Restrictions();
     
+    @SuppressWarnings("CanBeFinal")
     public static class PvPTimer {
         @Comment("Use this to disable the PvP Timer completely")
         private boolean enabled = true;
@@ -104,7 +105,7 @@ public class Config {
         }
     }
     
-    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "CanBeFinal"})
     public static class Restrictions {
         private boolean totemDrops = false;
         private boolean villagerTrading = false;

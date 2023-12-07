@@ -54,7 +54,7 @@ Format is as follows:
 
 ### Player Tracker
 
-The player tracker can be crafted using 4 diamonds, 2 emeralds, 2 eyes of ender, and 1 compass. It uses [this recipe.](https://gyazo.com/444fa8fc199afff4d1af3c8dd641fab4) By default, it will expire after 1 hour. It will track any player of your choice by right clicking to open a selection GUI. After selecting a player it will update to the tracked players location when you right click or when it is in another slot in your hotbar. (If I made it constantly update when in your hand it would bob and would be annoying. If you still wish for it to update in your hand, you can do so in the config.) If the tracked player goes offline, the compass will spin randomly. The player tracker works fully server-side by using the Polymer library.
+The player tracker can be crafted using 4 diamonds, 2 emeralds, 2 eyes of ender, and 1 compass. It uses [this recipe.](https://gyazo.com/444fa8fc199afff4d1af3c8dd641fab4) By default, it will expire after 1 hour. It will track any player of your choice by right-clicking to open a selection GUI. After selecting a player it will update to the tracked players location when you right-click or when it is in another slot in your hotbar. (If I made it constantly update when in your hand it would bob and would be annoying. If you still wish for it to update in your hand, you can do so in the config.) If the tracked player goes offline, the compass will spin randomly. The player tracker works fully server-side by using the Polymer library.
 
 #### Portals
 
