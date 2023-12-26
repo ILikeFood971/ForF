@@ -28,7 +28,7 @@ import net.minecraft.datafixer.Schemas;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtTagSizeTracker;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -64,7 +64,7 @@ public class ForfManager {
                     
                     NbtCompound unfixedNbt = NbtIo.readCompressed(
                             //#if MC >= 12003
-                            playerSavePath, NbtTagSizeTracker.ofUnlimitedBytes()
+                            playerSavePath, NbtSizeTracker.ofUnlimitedBytes()
                             //#else
                             //$$playerSavePath.toFile()
                             //#endif

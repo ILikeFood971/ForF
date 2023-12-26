@@ -1,1 +1,2 @@
 net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket net.minecraft.network.packet.s2c.play.ScoreboardPlayerUpdateS2CPacket
+net.minecraft.nbt.NbtSizeTracker net.minecraft.nbt.NbtTagSizeTracker
