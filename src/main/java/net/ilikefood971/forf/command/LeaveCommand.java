@@ -23,19 +23,26 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
+import static net.ilikefood971.forf.command.Util.ALREADY_STARTED;
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LeaveCommand {
+    
+    public static final SimpleCommandExceptionType ALREADY_LEFT = new SimpleCommandExceptionType(
+            Text.translatable("forf.commands.leave.exceptions.alreadyLeft")
+    );
+    
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
         dispatcher.register(
@@ -47,37 +54,43 @@ public class LeaveCommand {
                                                         .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
                                                         .executes(LeaveCommand::run)
                                         )
-                                        .executes(LeaveCommand::run)
+                                        .executes(LeaveCommand::runSolo)
                         )
         );
     }
     
-    private static int run(CommandContext<ServerCommandSource> context) {
-        if (net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
-            return -1;
+    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if (PERSISTENT_DATA.started) {
+            throw ALREADY_STARTED.create();
         }
         
-        Collection<ServerPlayerEntity> players;
-        try {
-            players = EntityArgumentType.getPlayers(context, "players");
-        } catch (IllegalArgumentException | CommandSyntaxException e) {
-            players = new ArrayList<>();
-            players.add(context.getSource().getPlayer());
-        }
+        Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
         for (ServerPlayerEntity player : players) {
-            String playerName = player.getGameProfile().getName();
-            String playerUuid = player.getUuidAsString();
-            
-            if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-                sendFeedback(context, Text.translatable("forf.commands.leave.alreadyLeft", playerName), false);
-                return -1;
-            }
-            
-            
-            net.ilikefood971.forf.util.Util.PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
-            sendFeedback(context, Text.translatable("forf.commands.leave.success", playerName), true);
+            leavePlayer(player);
         }
+        
+        sendFeedback(context, Text.translatable("forf.commands.leave.success.multiple", players.size()), true);
         return 1;
+    }
+    private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if (PERSISTENT_DATA.started) {
+            throw ALREADY_STARTED.create();
+        }
+        
+        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+        leavePlayer(player);
+        
+        sendFeedback(context, Text.translatable("forf.commands.leave.success.solo", player.getGameProfile().getName()), true);
+        return 1;
+    }
+    
+    private static void leavePlayer(ServerPlayerEntity player) throws CommandSyntaxException {
+        
+        String playerUuid = player.getUuidAsString();
+        if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
+            throw ALREADY_LEFT.create();
+        }
+        
+        PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
     }
 }

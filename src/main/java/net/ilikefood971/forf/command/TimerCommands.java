@@ -23,15 +23,26 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import static net.ilikefood971.forf.util.Util.sendFeedback;
+
+import static net.ilikefood971.forf.command.Util.NOT_STARTED;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class TimerCommands {
+    
+    public static final SimpleCommandExceptionType DISABLED = new SimpleCommandExceptionType(
+            Text.translatable("forf.commands.timer.exceptions.disabled")
+    );
+    public static final SimpleCommandExceptionType DISABLED_AND_NOT_STARTED = new SimpleCommandExceptionType(
+            Text.translatable("forf.commands.timer.exceptions.disabledAndNotStarted")
+    );
+    
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
         dispatcher.register(
@@ -59,8 +70,8 @@ public class TimerCommands {
         );
     }
     
-    private static int turnPvpOn(CommandContext<ServerCommandSource> context) {
-        int x = checkCanRun(context);
+    private static int turnPvpOn(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        int x = checkCanRun();
         if (x != 0) return x;
         
         try {
@@ -70,8 +81,8 @@ public class TimerCommands {
         }
     }
     
-    private static int turnPvpOff(CommandContext<ServerCommandSource> context) {
-        int x = checkCanRun(context);
+    private static int turnPvpOff(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        int x = checkCanRun();
         if (x != 0) return x;
         
         
@@ -82,17 +93,14 @@ public class TimerCommands {
         }
     }
     
-    private static int checkCanRun(CommandContext<ServerCommandSource> context) {
+    private static int checkCanRun() throws CommandSyntaxException {
         if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            sendFeedback(context, Text.translatable("forf.commands.timer.disabledAndNotStarted"), false);
-            return -1;
+            throw DISABLED_AND_NOT_STARTED.create();
         } else if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.notStarted"), false);
-            return -1;
+            throw NOT_STARTED.create();
         } else if (!net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
-            sendFeedback(context, Text.translatable("forf.commands.timer.disabled"), false);
-            return -1;
+            throw DISABLED.create();
         }
-        return 0;
+        return 1;
     }
 }

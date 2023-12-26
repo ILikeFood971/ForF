@@ -70,7 +70,7 @@ public class PlayerTrackerGui extends SimpleGui {
 
             String playerName = player.getGameProfile().getName();
 
-            Text lore = Text.translatable("forf.tracker.lore");
+            Text lore = Text.translatable("forf.tracker.gui.lore");
             Text name = Text.literal(playerName).formatted(Formatting.RED);
 
             GuiElementBuilder skullBuilder = new GuiElementBuilder();

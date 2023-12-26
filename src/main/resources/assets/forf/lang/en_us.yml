@@ -1,0 +1,73 @@
+forf:
+  commands:
+    exceptions:
+      notStarted: "Friend or Foe hasn't started yet!"
+      alreadyStarted: "Friend or Foe has already started!"
+    timer:
+      exceptions:
+        disabled: "The PvP timer is not enabled in the config!"
+        disabledAndNotStarted: "The PvP timer is not enabled in the config and Friend or Foe hasn't started yet!"
+    start:
+      exceptions:
+        insufficientAmountPlayers: "You can't start Friend or Foe without any players!"
+        insufficientAmountLives: "You can't start Friend or Foe with %s lives!"
+      multiplePlayersAndLives: "Setting up Friend or Foe with %s lives and %s players"
+      multiplePlayers: "Setting up Friend or Foe with 1 life and %s players"
+      multipleLives: "Setting up Friend or Foe with %s lives and 1 player"
+      single: "Setting up Friend or Foe with 1 life and 1 player"
+    stop:
+      stopping: "Stopping Friend or Foe"
+    leave:
+      success:
+        solo: "Removed %s from Friend or Foe"
+        multiple: "Removed %s players from Friend or Foe"
+      exceptions:
+        alreadyLeft: "%s isn't added to Friend or Foe!"
+    join:
+      success:
+        solo: "Added %s to Friend or Foe"
+        multiple: "Added %s players to Friend or Foe"
+      exceptions:
+        alreadyAdded: "%s is already added to Friend or Foe!"
+    lives:
+      success: "Set %s to %s lives"
+      give: "Gave %s %s lives"
+      exceptions:
+        invalidPlayer: "%s is not a Friend or Foe member so you cannot change their lives!"
+        notPlayer: "You are not a Friend or Foe member so you cannot give another player lives!"
+        notYourself: "You can't give yourself a life!"
+        notEnoughLives: "You do not have enough lives to give!"
+        tooManyLives: "You can't gift a player lives when it will go over the allowed amount of lives!"
+  timer:
+    actionBar:
+      enabled: "§8PvP Enabled:§r §4§l%ss§r §8left§r"
+      enabledMoreThanMinute: "§8PvP Enabled:§r §4§l%sm %ss§r §8left§r"
+      disabled: "PvP disabled"
+    chat:
+      disabled: "§ePvP is now§r §c§lOFF§r"
+      enabled: "§ePvP is now§r §a§lON§r"
+    title:
+      enabled: "§e⚠§r §cPvP is ON§r §e⚠§r"
+  tracker:
+    expired: "§c%s's tracker expired§r"
+    tooltip: "§7Use this compass to track another player§r"
+    trackingTooltip: "§dPlayer Tracker:§r %s"
+    tracking: "You are now tracking %s's location! This tracker will expire in %sm"
+    playerNotFound: "§cThat player is not online!§r"
+    gui:
+      title: "§c§lTracker Target§r"
+      lore: "§eClick to track this player§r"
+
+  mixin:
+    ScoreboardCommand:
+      noList: "You cannot set the list slot objective because Friend or Foe is using it to display lives!"
+  disconnect:
+    noSpectators: "You must be a Friend or Foe member to join because spectators aren't allowed!"
+    outOfLives: "You have run out of lives and spectators aren't allowed!"
+  event:
+    death:
+      spectator: "You have run out of lives! You are now a spectator"
+      livesLeft: "Lives Left: %s"
+item:
+  forf:
+    player_tracker: "Player Tracker"

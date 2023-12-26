@@ -22,6 +22,8 @@ package net.ilikefood971.forf.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ForfManager;
@@ -31,11 +33,21 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
+
+import static net.ilikefood971.forf.command.Util.ALREADY_STARTED;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
 @SuppressWarnings("SameReturnValue")
 public class StartCommand {
+    
+    public static final SimpleCommandExceptionType INSUFFICIENT_AMOUNT_PLAYERS = new SimpleCommandExceptionType(
+            Text.translatable("forf.commands.start.exceptions.insufficientAmountPlayers")
+    );
+    public static final SimpleCommandExceptionType INSUFFICIENT_AMOUNT_LIVES = new SimpleCommandExceptionType(
+            Text.translatable("forf.commands.start.exceptions.insufficientAmountLives")
+    );
+    
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
@@ -48,19 +60,15 @@ public class StartCommand {
         );
     }
     
-    private static int run(CommandContext<ServerCommandSource> context) {
-        
+    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.alreadyStarted"), false);
-            return -1;
+            throw ALREADY_STARTED.create();
         }
         if (CONFIG.startingLives() <= 0) {
-            sendFeedback(context, Text.translatable("forf.commands.start.insufficientAmountLives", CONFIG.startingLives()), false);
-            return -1;
+            throw INSUFFICIENT_AMOUNT_LIVES.create();
         }
         if (PERSISTENT_DATA.forfPlayersUUIDs.isEmpty()) {
-            sendFeedback(context, Text.translatable("forf.commands.start.insufficientAmountPlayers"), false);
-            return -1;
+            throw INSUFFICIENT_AMOUNT_PLAYERS.create();
         }
         if (CONFIG.startingLives() > 1 && PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
             sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), PERSISTENT_DATA.forfPlayersUUIDs.size()), true);

@@ -77,7 +77,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             assert user instanceof ServerPlayerEntity;
             PlayerTrackerGui gui = new PlayerTrackerGui(ScreenHandlerType.GENERIC_9X3, ((ServerPlayerEntity) user), itemStack);
 
-            Text guiTitle = Text.translatable("forf.tracker.guiTitle");
+            Text guiTitle = Text.translatable("forf.tracker.gui.title");
             gui.setTitle(guiTitle);
             gui.open();
 
@@ -139,10 +139,11 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
         nbt.putBoolean("isTracking", true);
         nbt.putLong("Expiration", Instant.now().plus(Duration.ofMinutes(CONFIG.trackerExpirationMinutes())).toEpochMilli());
         
-        gui.getPlayer().sendMessage(Text.translatable("forf.tracker.tracking",
-                        Text.literal(target.getGameProfile().getName()).formatted(Formatting.YELLOW),
-                        Text.literal(String.valueOf(CONFIG.trackerExpirationMinutes())).formatted(Formatting.YELLOW)
-                ),
+        gui.getPlayer().sendMessage(
+                Text.translatable("forf.tracker.tracking",
+                        target.getGameProfile().getName(),
+                        String.valueOf(CONFIG.trackerExpirationMinutes())
+                ).formatted(Formatting.YELLOW),
                 false
         );
 
@@ -162,7 +163,10 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             long expiration = nbt.contains("Expiration") ? nbt.getLong("Expiration") : Instant.now().toEpochMilli();
             if (expiration <= Instant.now().toEpochMilli()) {
                 stack.setCount(0);
-                entity.sendMessage(Text.translatable("forf.tracker.expired", getTargetName(stack.getNbt().getUuid("TrackedPlayer"))));
+                
+                Text name = Text.literal(getTargetName(stack.getNbt().getUuid("TrackedPlayer"))).formatted(Formatting.RED);
+                entity.sendMessage(Text.translatable("forf.tracker.expired", name));
+                
                 return;
             }
             // If it's not in the hand then update it

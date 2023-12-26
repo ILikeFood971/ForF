@@ -6,7 +6,8 @@ plugins {
 	// https://github.com/Fallen-Breath/preprocessor
 	id 'com.replaymod.preprocess' version 'ce1aeb2b'
 	// https://github.com/Fallen-Breath/yamlang
-	id 'me.fallenbreath.yamlang' version '1.3.1' apply false
+	// https://github.com/ILikeFood971/yamlang
+	id 'me.fallenbreath.yamlang' version '7dd4765758' apply false
 }
 
 preprocess {

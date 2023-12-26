@@ -22,6 +22,7 @@ package net.ilikefood971.forf.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.ilikefood971.forf.util.ForfManager;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -29,6 +30,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.text.Text;
 
+
+import static net.ilikefood971.forf.command.Util.NOT_STARTED;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -45,16 +48,15 @@ public class StopCommand {
         );
     }
     
-    private static int run(CommandContext<ServerCommandSource> context) {
+    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         // Send a message that says stopping forf but only send to ops if forf has already started
         if (!PERSISTENT_DATA.started) {
-            sendFeedback(context, Text.translatable("forf.notStarted"), false);
-            return -1;
+            throw NOT_STARTED.create();
         }
         sendFeedback(context, Text.translatable("forf.commands.stop.stopping"), true);
         ForfManager.stopForf(context);
         
-        context.getSource().getServer().setPvpEnabled(((MinecraftDedicatedServer) context.getSource().getServer()).getProperties().pvp);
+        SERVER.setPvpEnabled(((MinecraftDedicatedServer) SERVER).getProperties().pvp);
         fakeScoreboard.clearListSlot();
         return 1;
     }

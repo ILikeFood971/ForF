@@ -21,6 +21,10 @@ pluginManagement {
 					useModule("com.github.Fallen-Breath:preprocessor:${requested.version}")
 					break
 				}
+				case "me.fallenbreath.yamlang": {
+					useModule("com.github.ILikeFood971:yamlang:${requested.version}")
+					break
+				}
 			}
 		}
 	}
