@@ -75,22 +75,22 @@ public class Util {
         ScoreAccess scoreAccess = fakeScoreboard.getOrCreateScore(player, fakeScoreboard.livesObjective);
         scoreAccess.setScore(lives);
         //#else
-        //$$ScoreboardPlayerScore playerScore = fakeScoreboard.getPlayerScore(player.getEntityName(), fakeScoreboard.livesObjective);
-        //$$playerScore.setScore(lives);
+        //$$ ScoreboardPlayerScore playerScore = fakeScoreboard.getPlayerScore(player.getEntityName(), fakeScoreboard.livesObjective);
+        //$$ playerScore.setScore(lives);
         //#endif
     }
     public static void forEachValueInLivesObjective(Consumer<
             //#if MC >= 12003
             ScoreboardEntry
             //#else
-            //$$ScoreboardPlayerScore
+            //$$ ScoreboardPlayerScore
             //#endif
             > action) {
         for (
                 //#if MC >= 12003
                 ScoreboardEntry
                 //#else
-                //$$ScoreboardPlayerScore
+                //$$ ScoreboardPlayerScore
                 //#endif
                         entry : fakeScoreboard.getScoreboardEntries(fakeScoreboard.livesObjective)) {
             action.accept(entry);
@@ -101,7 +101,7 @@ public class Util {
             //#if MC >= 12003
             ScoreboardEntry
             //#else
-            //$$ScoreboardPlayerScore
+            //$$ ScoreboardPlayerScore
             //#endif
                     score) {
         //#if MC >= 12003
@@ -113,12 +113,12 @@ public class Util {
                 null
         );
         //#else
-        //$$return new ScoreboardPlayerUpdateS2CPacket(
-        //$$        ServerScoreboard.UpdateMode.CHANGE,
-        //$$        Util.fakeScoreboard.livesObjective.getName(),
-        //$$        score.getPlayerName(),
-        //$$        score.getScore()
-        //$$);
+        //$$ return new ScoreboardPlayerUpdateS2CPacket(
+        //$$         ServerScoreboard.UpdateMode.CHANGE,
+        //$$         Util.fakeScoreboard.livesObjective.getName(),
+        //$$         score.getPlayerName(),
+        //$$         score.getScore()
+        //$$ );
         //#endif
     }
 

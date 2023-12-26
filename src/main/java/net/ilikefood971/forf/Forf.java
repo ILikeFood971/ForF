@@ -24,27 +24,27 @@ import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ModRegistries;
-import net.ilikefood971.forf.util.Util;
+
+import static net.ilikefood971.forf.util.Util.*;
 
 public class Forf implements DedicatedServerModInitializer {
-	@Override
-	public void onInitializeServer() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-		
-		
-		ServerLifecycleEvents.SERVER_STARTED.register((instance) -> {
-			Util.SERVER = instance;
-			Util.PERSISTENT_DATA = PersistentData.getServerState(Util.SERVER);
-			PvPTimer.serverStarted();
-		});
-		ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {
-			Util.PERSISTENT_DATA.secondsLeft = PvPTimer.getSecondsLeft();
-			Util.PERSISTENT_DATA.pvPState = PvPTimer.getPvPState();
-		});
-		
-		ModRegistries.registerModStuff();
-		Util.LOGGER.info(Util.MOD_ID + " initialized");
-	}
+    @Override
+    public void onInitializeServer() {
+        // This code runs as soon as Minecraft is in a mod-load-ready state.
+        // However, some things (like resources) may still be uninitialized.
+        // Proceed with mild caution.
+        
+        ServerLifecycleEvents.SERVER_STARTED.register((instance) -> {
+            SERVER = instance;
+            PERSISTENT_DATA = PersistentData.getServerState(SERVER);
+            PvPTimer.serverStarted();
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {
+            PERSISTENT_DATA.secondsLeft = PvPTimer.getSecondsLeft();
+            PERSISTENT_DATA.pvPState = PvPTimer.getPvPState();
+        });
+        
+        ModRegistries.registerModStuff();
+        LOGGER.info(MOD_ID + " initialized");
+    }
 }

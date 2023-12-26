@@ -41,7 +41,8 @@ public abstract class PlayerManagerMixin {
         ));
         if (Util.PERSISTENT_DATA.started) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
-                    Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective));
+                    Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective)
+            );
         }
     }
 }

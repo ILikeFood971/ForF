@@ -40,7 +40,7 @@ public abstract class EvokerMixin extends SpellcastingIllagerEntity {
     @Nullable
     @Override
     public ItemEntity dropStack(ItemStack stack) {
-        if (stack.isOf(Items.TOTEM_OF_UNDYING) && !Util.CONFIG.restrictions.totemDrops()) {
+        if (stack.isOf(Items.TOTEM_OF_UNDYING) && !Util.CONFIG.restrictions().totemDrops()) {
             Util.LOGGER.debug("Totem drop cancelled");
             return null;
         }

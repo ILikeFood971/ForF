@@ -36,10 +36,10 @@ import java.util.Map;
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
     // Inject to the method that registers all the base recipes
-    @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At("HEAD"/*value = "INVOKE_ASSIGN", target = "Lcom/google/common/collect/ImmutableMap;builder()Lcom/google/common/collect/ImmutableMap$Builder;"*/))
-    private void noGappleApply(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
+    @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At("HEAD"))
+    private void restrictRecipes(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
         // Check config first
-        if (!Util.CONFIG.restrictions.goldenAppleCrafting()) {
+        if (!Util.CONFIG.restrictions().goldenAppleCrafting()) {
             // Remove the golden_apple recipe from the list of recipes to be registered
             map.remove(new Identifier("minecraft:golden_apple"));
         }

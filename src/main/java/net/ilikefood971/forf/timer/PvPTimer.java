@@ -29,7 +29,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-
 import static net.ilikefood971.forf.util.Util.*;
 
 @SuppressWarnings("UnusedReturnValue")
@@ -122,7 +121,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         sec = secondsLeft % 60;
         Text message;
         
-        Text minText = Text.literal(String.valueOf(min)).formatted(Formatting.BOLD, Formatting.DARK_RED); // If you don't do it this way, any args aren't formatted for some reason
+        Text minText = Text.literal(String.valueOf(min)).formatted(Formatting.BOLD, Formatting.DARK_RED); // If you don't do it this way, the args aren't formatted
         Text secText = Text.literal(String.valueOf(sec)).formatted(Formatting.BOLD, Formatting.DARK_RED);
         
         if (min > 0) {
@@ -131,7 +130,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         
         return message;
     }
-    
+
     private static int getRandomSeconds(PvPState pvPState) {
         int minTime;
         int maxTime;

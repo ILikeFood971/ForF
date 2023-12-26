@@ -37,7 +37,8 @@ public class PlayerUseEntity implements UseEntityCallback {
     @Override
     public ActionResult interact(PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) {
         // Check for villager
-        if (entity instanceof MerchantEntity && !Util.CONFIG.restrictions.villagerTrading()) {
+        if (entity instanceof MerchantEntity && !Util.CONFIG.restrictions().villagerTrading()) {
+            Util.LOGGER.debug("Interact with villager cancelled");
             // Return Success which will do a hand swing but will be ignored by the server, thus preventing trading
             return ActionResult.SUCCESS;
         }

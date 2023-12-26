@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted", "CanBeFinal"})
+@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
 public class Config {
     @Comment("Whether non forf or forf players that ran out of lives can join")
     private boolean spectators = false;
@@ -60,17 +60,126 @@ public class Config {
     private int trackerAutoUpdateDelay = 20;
     @Comment("The amount of time that the tracker lasts for before expiring")
     private int trackerExpirationMinutes = 60;
+    @Comment("Timer that automatically turns PvP on and off")
+    private PvPTimer pvPTimer = new PvPTimer();
+    @Comment("Restrictions to prevent op things for this play-style")
+    public Restrictions restrictions = new Restrictions();
+    
+    
+    // Methods for Config
+    
+    public static Config loadFromFile() {
+        if (!Files.exists(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5"))) {
+            Config config = new Config();
+            config.save();
+            return config;
+        }
+        // Create a new Jankson instance
+        // (This can also be a static instance, defined outside the function)
+        var jankson = Jankson.builder()
+                // You can register adapters here to customize deserialization
+                //.registerTypeAdapter(...)
+                // Likewise, you can customize serializer behavior
+                //.registerSerializer(...)
+                // In most cases, the default Jankson is all you need.
+                .build();
+        // Parse the config file into a JSON Object
+        try {
+            Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
+
+            File configFile = resolve.toFile();
+            JsonObject configJson = jankson.load(configFile);
+            // Convert the raw object into your POJO type
+            return jankson.fromJson(configJson, Config.class);
+        } catch (IOException | SyntaxError e) {
+            Util.LOGGER.error(e.toString());
+            return new Config(); // You could also throw a RuntimeException instead
+        }
+    }
+
+    // This only ever gets used to create the config
+    private void save() {
+        Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
+        File configFile = resolve.toFile();
+
+        Jankson jankson = Jankson.builder().build();
+        String result = jankson
+                .toJson(this)
+                .toJson(JsonGrammar.JANKSON);
+        try {
+            var fileIsUsable = configFile.exists() || configFile.createNewFile();
+            if (!fileIsUsable) return;
+            var out = new FileOutputStream(configFile, false);
+
+            out.write(result.getBytes());
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            Util.LOGGER.error(e.toString());
+        }
+
+    }
+    
+    // Getters
+    public boolean spectators() {
+        return spectators;
+    }
+
+    public GameMode spectatorGamemode() {
+        return spectatorGamemode;
+    }
+
+    public int startingLives() {
+        return startingLives;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean overfill() {
+        return overfill;
+    }
+
+    public String tablistHeader() {
+        return tablistHeader;
+    }
+
+    public ScoreboardCriterion.RenderType tablistLivesRenderType() {
+        return tablistLivesRenderType;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean playerTracker() {
+        return playerTracker;
+    }
+
+    public UpdateType trackerUpdateType() {
+        return trackerUpdateType;
+    }
+
+    public int trackerAutoUpdateDelay() {
+        return trackerAutoUpdateDelay;
+    }
+
+    public int trackerExpirationMinutes() {
+        return trackerExpirationMinutes;
+    }
+
+    public PvPTimer pvPTimer() {
+        return pvPTimer;
+    }
+
+    public Restrictions restrictions() {
+        return restrictions;
+    }
+    
+    // Tracker Options
+    
     public enum UpdateType {
         AUTOMATIC,
         USE
     }
-    @Comment("Timer that automatically turns PvP on and off")
-    private PvPTimer pvPTimer = new PvPTimer();
     
-    @Comment("Restrictions to prevent op things for this play-style")
-    public Restrictions restrictions = new Restrictions();
+    // Nested Options
     
-    @SuppressWarnings("CanBeFinal")
     public static class PvPTimer {
         @Comment("Use this to disable the PvP Timer completely")
         private boolean enabled = true;
@@ -105,7 +214,7 @@ public class Config {
         }
     }
     
-    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal", "CanBeFinal"})
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     public static class Restrictions {
         private boolean totemDrops = false;
         private boolean villagerTrading = false;
@@ -127,109 +236,5 @@ public class Config {
         public boolean elytraInEndShip() {
             return elytraInEndShip;
         }
-    }
-    
-    // Methods for Config
-    
-    public static Config loadFromFile() {
-        if (!Files.exists(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5"))) {
-            Config config = new Config();
-            config.save();
-            return config;
-        }
-        // Create a new Jankson instance
-        // (This can also be a static instance, defined outside the function)
-        var jankson = Jankson.builder()
-                // You can register adapters here to customize deserialization
-                //.registerTypeAdapter(...)
-                // Likewise, you can customize serializer behavior
-                //.registerSerializer(...)
-                // In most cases, the default Jankson is all you need.
-                .build();
-        // Parse the config file into a JSON Object
-        try {
-            Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
-            
-            File configFile = resolve.toFile();
-            JsonObject configJson = jankson.load(configFile);
-            // Convert the raw object into your POJO type
-            return jankson.fromJson(configJson, Config.class);
-        } catch (IOException | SyntaxError e) {
-            Util.LOGGER.error(e.toString());
-            return new Config(); // You could also throw a RuntimeException instead
-        }
-    }
-    
-    // This only ever gets used to create the config
-    private void save() {
-        Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
-        File configFile = resolve.toFile();
-        
-        Jankson jankson = Jankson.builder().build();
-        String result = jankson
-                .toJson(this)
-                .toJson(JsonGrammar.JANKSON);
-        try {
-            var fileIsUsable = configFile.exists() || configFile.createNewFile();
-            if (!fileIsUsable) return;
-            var out = new FileOutputStream(configFile, false);
-            
-            out.write(result.getBytes());
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            Util.LOGGER.error(e.toString());
-        }
-        
-    }
-    
-    // Getters
-
-    public boolean spectators() {
-        return spectators;
-    }
-
-    public GameMode spectatorGamemode() {
-        return spectatorGamemode;
-    }
-
-    public int startingLives() {
-        return startingLives;
-    }
-
-    public boolean overfill() {
-        return overfill;
-    }
-
-    public String tablistHeader() {
-        return tablistHeader;
-    }
-
-    public ScoreboardCriterion.RenderType tablistLivesRenderType() {
-        return tablistLivesRenderType;
-    }
-
-    public boolean playerTracker() {
-        return playerTracker;
-    }
-
-    public UpdateType trackerUpdateType() {
-        return trackerUpdateType;
-    }
-
-    public int trackerAutoUpdateDelay() {
-        return trackerAutoUpdateDelay;
-    }
-
-    public int trackerExpirationMinutes() {
-        return trackerExpirationMinutes;
-    }
-    
-    public PvPTimer pvPTimer() {
-        return pvPTimer;
-    }
-
-    public Restrictions restrictions() {
-        return restrictions;
     }
 }
