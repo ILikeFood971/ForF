@@ -26,15 +26,20 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.timer.PvPTimer;
-import net.ilikefood971.forf.util.ForfManager;
+import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static net.ilikefood971.forf.command.Util.ALREADY_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -61,44 +66,65 @@ public class StartCommand {
     }
     
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.started) {
+        Map<UUID, Integer> playersAndLives = PERSISTENT_DATA.getPlayersAndLives();
+        
+        // Check all conditions for failure
+        if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
-        }
-        if (CONFIG.startingLives() <= 0) {
+        } else if (CONFIG.startingLives() <= 0) {
             throw INSUFFICIENT_AMOUNT_LIVES.create();
-        }
-        if (PERSISTENT_DATA.forfPlayersUUIDs.isEmpty()) {
+        } else if (playersAndLives.isEmpty()) {
             throw INSUFFICIENT_AMOUNT_PLAYERS.create();
         }
-        if (CONFIG.startingLives() > 1 && PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), PERSISTENT_DATA.forfPlayersUUIDs.size()), true);
-        } else if (PERSISTENT_DATA.forfPlayersUUIDs.size() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayers", PERSISTENT_DATA.forfPlayersUUIDs.size()), true);
+        
+        // Send feedback to the command sender
+        if (CONFIG.startingLives() > 1 && playersAndLives.size() > 1) {
+            sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), playersAndLives.size()), true);
+        } else if (playersAndLives.size() > 1) {
+            sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayers", playersAndLives.size()), true);
         } else if (CONFIG.startingLives() > 1) {
             sendFeedback(context, Text.translatable("forf.commands.start.multipleLives", CONFIG.startingLives()), true);
         } else {
             sendFeedback(context, Text.translatable("forf.commands.start.single"), true);
         }
         
-        PERSISTENT_DATA.started = true;
+        // Setup everything necessary for forf
+        setupForf(context);
+        return 1;
+    }
+    
+    public static void setupForf(CommandContext<ServerCommandSource> context) {
+        PERSISTENT_DATA.setStarted(true);
         fakeScoreboard.setListSlot();
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getHeaderPacket());
         
-        ForfManager.setupForf(context);
+        Set<UUID> uuids = PERSISTENT_DATA.getPlayersAndLives().keySet();
+        PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
         
+        // Set all lives
+        for (UUID uuid : uuids) {
+            ServerPlayerEntity player = playerManager.getPlayer(uuid);
+            if (player != null) { // Online Players
+                Lives.set(player, CONFIG.startingLives());
+            } else { // Offline Players
+                PERSISTENT_DATA.getPlayersAndLives().put(uuid, CONFIG.startingLives());
+            }
+        }
         
-        for (ServerPlayerEntity serverPlayerEntity : context.getSource().getServer().getPlayerManager().getPlayerList()) {
-            if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(serverPlayerEntity.getUuidAsString()) && !CONFIG.spectators()) {
-                serverPlayerEntity.networkHandler.disconnect(Text.translatable("forf.disconnect.noSpectators"));
-            } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(serverPlayerEntity.getUuidAsString()) && CONFIG.spectators()) {
-                serverPlayerEntity.changeGameMode(CONFIG.spectatorGamemode());
+        // Deal with all non forf players
+        for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
+            if (!Util.isForfPlayer(serverPlayerEntity)) {
+                if (!CONFIG.spectators()) {
+                    serverPlayerEntity.networkHandler.disconnect(Text.translatable("forf.disconnect.noSpectators"));
+                } else if (CONFIG.spectators()) {
+                    serverPlayerEntity.changeGameMode(CONFIG.spectatorGamemode());
+                }
             }
         }
         
         if (CONFIG.pvPTimer().enabled()) {
             PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, CONFIG.pvPTimer().maxRandomOffTime() * 60);
-            context.getSource().getServer().setPvpEnabled(false);
+            SERVER.setPvpEnabled(false); // Just in case previous forf data was left behind
         }
-        return 1;
     }
 }

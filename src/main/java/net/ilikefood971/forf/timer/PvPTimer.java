@@ -44,14 +44,15 @@ public class PvPTimer implements ServerTickEvents.EndTick {
     private static int secondsLeft;
     private static PvPState pvPState;
     private byte ticksTillSecond = 0;
+    
     public static void serverStarted() {
-        secondsLeft = PERSISTENT_DATA.secondsLeft;
-        pvPState = PERSISTENT_DATA.pvPState;
+        secondsLeft = PERSISTENT_DATA.getSecondsLeft();
+        pvPState = PERSISTENT_DATA.getPvPState();
     }
     
     @Override
     public void onEndTick(MinecraftServer server) {
-        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.started
+        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.isStarted()
                 //#if MC >= 12003
                 || !SERVER.getTickManager().shouldTick()
                 //#endif
@@ -80,38 +81,45 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         }
         
     }
-    public static boolean changePvpTimer(int seconds) {
+    public static void changePvpTimer(int seconds) {
         if (PvPTimer.pvPState == PvPState.OFF) {
-            return changePvpTimer(PvPState.ON, seconds);
+            changePvpTimer(PvPState.ON, seconds);
+            return;
         }
-        return changePvpTimer(PvPState.OFF, seconds);
+        changePvpTimer(PvPState.OFF, seconds);
     }
-    public static boolean changePvpTimer(PvPState pvPState) {
-        return changePvpTimer(pvPState, getRandomSeconds(pvPState));
+    public static void changePvpTimer(PvPState pvPState) {
+        changePvpTimer(pvPState, getRandomSeconds(pvPState));
     }
     
-    public static boolean changePvpTimer(PvPState pvPState, int seconds) {
+    public static void changePvpTimer(PvPState pvPState, int seconds) {
         secondsLeft = seconds;
-        MinecraftServer server = Util.SERVER;
-        if (pvPState == PvPState.OFF && PvPTimer.pvPState != pvPState) {
-            for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-                serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("forf.timer.actionBar.disabled")));
-                serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.disabled"));
-                server.setPvpEnabled(false);
+        
+        if (PvPTimer.pvPState != pvPState) {
+            if (pvPState == PvPState.OFF) {
+                
+                SERVER.setPvpEnabled(false);
+                PvPTimer.pvPState = PvPState.OFF;
+                
+                for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
+                    serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("forf.timer.actionBar.disabled")));
+                    serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.disabled"));
+                }
+                return;
+            } else if (pvPState == PvPState.ON) {
+                
+                SERVER.setPvpEnabled(true);
+                PvPTimer.pvPState = PvPState.ON;
+                
+                for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
+                    serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("forf.timer.title.enabled")));
+                    serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.enabled"));
+                }
+                return;
             }
-            PvPTimer.pvPState = PvPState.OFF;
-            return true;
-        }  else if (pvPState == PvPState.ON && PvPTimer.pvPState != pvPState) {
-            for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("forf.timer.title.enabled")));
-                serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.enabled"));
-                server.setPvpEnabled(true);
-            }
-            PvPTimer.pvPState = PvPState.ON;
-            return true;
         }
-        Util.LOGGER.debug("State wasn't changed");
-        return false;
+        
+        Util.LOGGER.debug("PvP state wasn't changed");
     }
     
     private static Text getEnabledActionbarText() {

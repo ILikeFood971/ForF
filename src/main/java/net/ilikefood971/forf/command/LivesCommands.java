@@ -25,7 +25,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.ilikefood971.forf.util.mixinInterfaces.IEntityDataSaver;
+import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
@@ -34,18 +35,15 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 
-import static net.ilikefood971.forf.command.Util.NOT_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class LivesCommands {
     
-    public static final SimpleCommandExceptionType INVALID_PLAYER = new SimpleCommandExceptionType(
-            Text.translatable("forf.commands.lives.exceptions.invalidPlayer")
-    );
-    public static final SimpleCommandExceptionType NOT_PLAYER = new SimpleCommandExceptionType(
-            Text.translatable("forf.commands.lives.exceptions.notPlayer")
+    public static final SimpleCommandExceptionType INVALID_EXECUTOR = new SimpleCommandExceptionType(
+            Text.translatable("forf.commands.lives.exceptions.invalidExecutor")
     );
     public static final SimpleCommandExceptionType NOT_YOURSELF = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.lives.exceptions.notYourself")
@@ -89,23 +87,25 @@ public class LivesCommands {
     }
     
     private static int setPlayersLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (!PERSISTENT_DATA.started) {
+        if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
         int lives = IntegerArgumentType.getInteger(context, "lives");
         
         for (ServerPlayerEntity player : EntityArgumentType.getPlayers(context, "players")) {
-            if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(player.getUuidAsString())) {
-                throw INVALID_PLAYER.create();
+            Lives playerLives = new Lives(player);
+            if (!Util.isForfPlayer(player)) {
+                throw new SimpleCommandExceptionType(
+                        Text.translatable("forf.commands.lives.exceptions.invalidTarget", player.getGameProfile().getName())
+                ).create();
             }
-            IEntityDataSaver playerSaver = (IEntityDataSaver) player;
-            playerSaver.setLives(lives);
+            playerLives.set(lives);
             
             sendFeedback(
                     context,
                     Text.translatable("forf.commands.lives.success",
                             player.getGameProfile().getName(),
-                            playerSaver.getLives()
+                            playerLives.get()
                     ),
                     true
             );
@@ -114,33 +114,37 @@ public class LivesCommands {
     }
     
     private static int givePlayerLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (!PERSISTENT_DATA.started) {
+        if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
         
         ServerPlayerEntity executor = context.getSource().getPlayerOrThrow();
         ServerPlayerEntity recipient = EntityArgumentType.getPlayer(context, "recipient");
 
-        int executorCurrentLives = ((IEntityDataSaver) executor).getLives();
-        int recipientCurrentLives = ((IEntityDataSaver) recipient).getLives();
+        Lives executorLives = new Lives(executor);
+        Lives recipientLives = new Lives(recipient);
+        
         int giftedLives = IntegerArgumentType.getInteger(context, "amount");
 
         // Check all the cases that aren't allowed
         if (executor.equals(recipient)) {
             throw NOT_YOURSELF.create();
-        } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(executor.getUuidAsString())) {
-            throw NOT_PLAYER.create();
-        } else if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(recipient.getUuidAsString())) {
-            throw INVALID_PLAYER.create();
-        } else if (executorCurrentLives - giftedLives <= 0) {
+        } else if (!Util.isForfPlayer(executor)) {
+            throw INVALID_EXECUTOR.create();
+        } else if (!Util.isForfPlayer(recipient)) {
+            throw new SimpleCommandExceptionType(
+                    Text.translatable("forf.commands.lives.exceptions.invalidTarget", recipient.getGameProfile().getName())
+            ).create();
+        } else if (executorLives.get() - recipientLives.get() <= 0) {
             throw NOT_ENOUGH_LIVES.create();
-        } else if (recipientCurrentLives + giftedLives > CONFIG.startingLives() && !CONFIG.overfill()) {
+        } else if (recipientLives.get() + giftedLives > CONFIG.startingLives() && !CONFIG.overfill()) {
             throw TOO_MANY_LIVES.create();
         }
         
         // Transfer the lives
-        ((IEntityDataSaver) recipient).setLives(recipientCurrentLives + giftedLives);
-        ((IEntityDataSaver) executor).setLives(executorCurrentLives - giftedLives);
+        recipientLives.increment(giftedLives);
+        executorLives.decrement(giftedLives);
+        
         sendFeedback(
                 context,
                 Text.translatable("forf.commands.lives.give", recipient.getGameProfile().getName(), giftedLives),

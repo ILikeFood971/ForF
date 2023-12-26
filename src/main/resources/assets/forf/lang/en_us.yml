@@ -10,7 +10,7 @@ forf:
     start:
       exceptions:
         insufficientAmountPlayers: "You can't start Friend or Foe without any players!"
-        insufficientAmountLives: "You can't start Friend or Foe with %s lives!"
+        insufficientAmountLives: "You can't start Friend or Foe with less than 1 life!"
       multiplePlayersAndLives: "Setting up Friend or Foe with %s lives and %s players"
       multiplePlayers: "Setting up Friend or Foe with 1 life and %s players"
       multipleLives: "Setting up Friend or Foe with %s lives and 1 player"
@@ -33,15 +33,15 @@ forf:
       success: "Set %s to %s lives"
       give: "Gave %s %s lives"
       exceptions:
-        invalidPlayer: "%s is not a Friend or Foe member so you cannot change their lives!"
-        notPlayer: "You are not a Friend or Foe member so you cannot give another player lives!"
+        invalidTarget: "%s is not a Friend or Foe member so you cannot change their lives!"
+        invalidExecutor: "You are not a Friend or Foe member so you cannot give another player lives!"
         notYourself: "You can't give yourself a life!"
         notEnoughLives: "You do not have enough lives to give!"
         tooManyLives: "You can't gift a player lives when it will go over the allowed amount of lives!"
   timer:
     actionBar:
-      enabled: "§8PvP Enabled:§r §4§l%ss§r §8left§r"
-      enabledMoreThanMinute: "§8PvP Enabled:§r §4§l%sm %ss§r §8left§r"
+      enabled: "§8PvP Enabled:§r %s§4§ls§r §8left§r"
+      enabledMoreThanMinute: "§8PvP Enabled:§r %s§4§lm§r %s§4§ls§r §8left§r"
       disabled: "PvP disabled"
     chat:
       disabled: "§ePvP is now§r §c§lOFF§r"

@@ -39,7 +39,7 @@ public abstract class PlayerManagerMixin {
         Util.forEachValueInLivesObjective(scoreboardEntry ->
             player.networkHandler.sendPacket(Util.getScoreboardUpdatePacket(scoreboardEntry)
         ));
-        if (Util.PERSISTENT_DATA.started) {
+        if (Util.PERSISTENT_DATA.isStarted()) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
                     Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective)
             );

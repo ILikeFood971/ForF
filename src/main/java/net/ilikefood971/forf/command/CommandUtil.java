@@ -23,7 +23,7 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.text.Text;
 
-public class Util {
+public class CommandUtil {
     public static final SimpleCommandExceptionType NOT_STARTED = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.exceptions.notStarted")
     );

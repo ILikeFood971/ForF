@@ -35,12 +35,16 @@ import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerLoginMixin {
-    @Inject(method = "checkCanJoin", at = @At("HEAD"), cancellable = true)
-    public void checkCanJoin(SocketAddress address, GameProfile profile, CallbackInfoReturnable<Text> cir) {
-        // When a player joins, make sure that they are allowed to join from the config
-        if (PERSISTENT_DATA.started && !PERSISTENT_DATA.forfPlayersUUIDs.contains(profile.getId().toString()) && !CONFIG.spectators()) {
-            cir.setReturnValue(Text.translatable("forf.disconnect.noSpectators"));
+    @ModifyReturnValue(method = "checkCanJoin", at = @At("RETURN"))
+    private Text checkCanJoinWithForf(Text original, @Local GameProfile profile) {
+        if (original == null) {
+            // When a player joins, make sure that they are allowed to join from the config
+            // When checking if they're a player we can't use the Util method as we don't have a ServerPlayerEntity
+            if (PERSISTENT_DATA.isStarted() && !PERSISTENT_DATA.getPlayersAndLives().containsKey(profile.getId()) && !CONFIG.spectators()) {
+                // Unfortunately we can't make this translatable on the server side because it is too early in the process
+                return Text.literal("You must be a Friend or Foe member to join because spectators aren't allowed!");
+            }
         }
-        // Returning nothing allows the other method checks to run
+        return original;
     }
 }

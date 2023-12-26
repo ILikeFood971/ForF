@@ -23,7 +23,7 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.ilikefood971.forf.util.ForfManager;
+import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -31,7 +31,7 @@ import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.text.Text;
 
 
-import static net.ilikefood971.forf.command.Util.NOT_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -50,11 +50,18 @@ public class StopCommand {
     
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         // Send a message that says stopping forf but only send to ops if forf has already started
-        if (!PERSISTENT_DATA.started) {
+        if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
         sendFeedback(context, Text.translatable("forf.commands.stop.stopping"), true);
-        ForfManager.stopForf(context);
+        
+        PERSISTENT_DATA.setStarted(false);
+        
+        // Remove the Header from the tablist
+        SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
+        
+        // Set all lives to 0
+        PERSISTENT_DATA.getPlayersAndLives().clear();
         
         SERVER.setPvpEnabled(((MinecraftDedicatedServer) SERVER).getProperties().pvp);
         fakeScoreboard.clearListSlot();

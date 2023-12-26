@@ -22,13 +22,11 @@ package net.ilikefood971.forf.util;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.ilikefood971.forf.command.*;
 import net.ilikefood971.forf.event.PlayerDeathEvent;
-import net.ilikefood971.forf.event.PlayerDeathEventCopyFrom;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.event.PlayerUseEntity;
 import net.ilikefood971.forf.timer.PvPTimer;
@@ -54,7 +52,6 @@ public class ModRegistries {
         CommandRegistrationCallback.EVENT.register(LivesCommands::register);
     }
     private static void registerEvents() {
-        ServerPlayerEvents.COPY_FROM.register(new PlayerDeathEventCopyFrom());
         ServerLivingEntityEvents.AFTER_DEATH.register(new PlayerDeathEvent());
         
         UseEntityCallback.EVENT.register(new PlayerUseEntity());

@@ -31,7 +31,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 
-import static net.ilikefood971.forf.command.Util.NOT_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class TimerCommands {
@@ -71,36 +72,34 @@ public class TimerCommands {
     }
     
     private static int turnPvpOn(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        int x = checkCanRun();
-        if (x != 0) return x;
+        checkCanRun(); // Will throw exception if it can't run
         
         try {
-            return PvPTimer.changePvpTimer(PvPTimer.PvPState.ON, context.getArgument("minutes", int.class) * 60) ? 1 : -1;
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.ON, context.getArgument("minutes", int.class) * 60);
         } catch (IllegalArgumentException e) {
-            return PvPTimer.changePvpTimer(PvPTimer.PvPState.ON) ? 1 : -1;
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.ON);
         }
+        return 1;
     }
     
     private static int turnPvpOff(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        int x = checkCanRun();
-        if (x != 0) return x;
-        
+        checkCanRun();
         
         try {
-            return PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, context.getArgument("minutes", int.class) * 60) ? 1 : -1;
-        } catch (IllegalArgumentException e) {
-            return PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF) ? 1 : -1;
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, context.getArgument("minutes", int.class) * 60);
+        } catch (IllegalArgumentException e) { // If the argument is not provided
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF);
         }
+        return 1;
     }
     
-    private static int checkCanRun() throws CommandSyntaxException {
-        if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
+    private static void checkCanRun() throws CommandSyntaxException {
+        if (!PERSISTENT_DATA.isStarted() && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
             throw DISABLED_AND_NOT_STARTED.create();
-        } else if (!net.ilikefood971.forf.util.Util.PERSISTENT_DATA.started) {
+        } else if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         } else if (!net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
             throw DISABLED.create();
         }
-        return 1;
     }
 }

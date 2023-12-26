@@ -24,6 +24,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -32,16 +33,12 @@ import net.minecraft.text.Text;
 
 import java.util.Collection;
 
-import static net.ilikefood971.forf.command.Util.ALREADY_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LeaveCommand {
-    
-    public static final SimpleCommandExceptionType ALREADY_LEFT = new SimpleCommandExceptionType(
-            Text.translatable("forf.commands.leave.exceptions.alreadyLeft")
-    );
     
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
@@ -60,7 +57,7 @@ public class LeaveCommand {
     }
     
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.started) {
+        if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         }
         
@@ -73,7 +70,7 @@ public class LeaveCommand {
         return 1;
     }
     private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.started) {
+        if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         }
         
@@ -85,12 +82,11 @@ public class LeaveCommand {
     }
     
     private static void leavePlayer(ServerPlayerEntity player) throws CommandSyntaxException {
-        
-        String playerUuid = player.getUuidAsString();
-        if (!PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-            throw ALREADY_LEFT.create();
+        if (!Util.isForfPlayer(player)) {
+            throw new SimpleCommandExceptionType(
+                    Text.translatable("forf.commands.leave.exceptions.alreadyLeft", player.getGameProfile().getName())
+            ).create();
         }
-        
-        PERSISTENT_DATA.forfPlayersUUIDs.remove(playerUuid);
+        Util.removePlayer(player);
     }
 }

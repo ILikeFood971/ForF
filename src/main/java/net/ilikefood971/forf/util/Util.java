@@ -59,6 +59,18 @@ public class Util {
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
     public static final FakeScoreboard fakeScoreboard = new FakeScoreboard();
+    
+    
+    public static void addNewPlayer(ServerPlayerEntity player) {
+        PERSISTENT_DATA.getPlayersAndLives().put(player.getUuid(), 0);
+    }
+    
+    public static void removePlayer(ServerPlayerEntity player) {
+        PERSISTENT_DATA.getPlayersAndLives().remove(player.getUuid());
+    }
+    public static boolean isForfPlayer(ServerPlayerEntity player) {
+        return PERSISTENT_DATA.getPlayersAndLives().containsKey(player.getUuid());
+    }
 
     // Version Utils
     
@@ -151,4 +163,5 @@ public class Util {
         //$$ return SERVER.getSessionService().fillProfileProperties(new GameProfile(uuid, null), false);
         //#endif
     }
+    
 }

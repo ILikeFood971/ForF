@@ -40,8 +40,8 @@ public class Forf implements DedicatedServerModInitializer {
             PvPTimer.serverStarted();
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {
-            PERSISTENT_DATA.secondsLeft = PvPTimer.getSecondsLeft();
-            PERSISTENT_DATA.pvPState = PvPTimer.getPvPState();
+            PERSISTENT_DATA.setSecondsLeft(PvPTimer.getSecondsLeft());
+            PERSISTENT_DATA.setPvPState(PvPTimer.getPvPState());
         });
         
         ModRegistries.registerModStuff();

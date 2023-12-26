@@ -24,6 +24,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -32,16 +33,12 @@ import net.minecraft.text.Text;
 
 import java.util.Collection;
 
-import static net.ilikefood971.forf.command.Util.ALREADY_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class JoinCommand {
-    
-    public static final SimpleCommandExceptionType ALREADY_ADDED = new SimpleCommandExceptionType(
-            Text.translatable("forf.commands.join.exceptions.alreadyAdded")
-    );
     
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
@@ -60,7 +57,7 @@ public class JoinCommand {
     }
     
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.started) {
+        if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         }
         
@@ -75,11 +72,14 @@ public class JoinCommand {
     
     
     private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.started) {
-            throw ALREADY_STARTED.create();
+        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+        
+        if (PERSISTENT_DATA.isStarted()) {
+            throw new SimpleCommandExceptionType(
+                    Text.translatable("forf.commands.join.exceptions.alreadyAdded", player.getGameProfile().getName())
+            ).create();
         }
         
-        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         
         joinPlayer(player);
         sendFeedback(context, Text.translatable("forf.commands.join.success.solo", player.getGameProfile().getName()), true);
@@ -88,12 +88,11 @@ public class JoinCommand {
     }
     
     private static void joinPlayer(ServerPlayerEntity player) throws CommandSyntaxException {
-        
-        String playerUuid = player.getUuidAsString();
-        if (PERSISTENT_DATA.forfPlayersUUIDs.contains(playerUuid)) {
-            throw ALREADY_ADDED.create();
+        if (Util.isForfPlayer(player)) {
+            throw new SimpleCommandExceptionType(
+                    Text.translatable("forf.commands.join.exceptions.alreadyAdded", player.getGameProfile().getName())
+            ).create();
         }
-        
-        PERSISTENT_DATA.forfPlayersUUIDs.add(playerUuid);
+        Util.addNewPlayer(player);
     }
 }

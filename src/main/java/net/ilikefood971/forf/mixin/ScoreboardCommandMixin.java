@@ -52,7 +52,7 @@ public abstract class ScoreboardCommandMixin {
     ) throws CommandSyntaxException {
         // If we don't have this mixin, you can have weird behavior where the packet gets sent,
         // so it is in the list for a time, but then on a rejoin/restart it goes back to the livesObjective
-        if (Util.PERSISTENT_DATA.started && Util.isListSlot(slot)) {
+        if (Util.PERSISTENT_DATA.isStarted() && Util.isListSlot(slot)) {
             throw CANNOT_SET_LIST_SLOT_WITH_FORF.create();
         }
     }
