@@ -30,7 +30,6 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.minecraft.server.command.CommandManager.*;

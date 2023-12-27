@@ -42,7 +42,7 @@ forf:
     actionBar:
       enabled: "§8PvP Enabled:§r %s§4§ls§r §8left§r"
       enabledMoreThanMinute: "§8PvP Enabled:§r %s§4§lm§r %s§4§ls§r §8left§r"
-      disabled: "PvP disabled"
+      disabled: "§aPvP disabled§r"
     chat:
       disabled: "§ePvP is now§r §c§lOFF§r"
       enabled: "§ePvP is now§r §a§lON§r"

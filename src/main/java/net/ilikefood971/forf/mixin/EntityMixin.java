@@ -30,11 +30,6 @@ import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-/**
- * Used for storing NBT data to the player as well as
- * adding some things required for the tracker to function
- */
-
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IGetPortalPos, ServerEntityWorldChangeEvents.AfterPlayerChange {

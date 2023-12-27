@@ -22,13 +22,16 @@ package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.Util;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static net.ilikefood971.forf.util.Util.MOD_ID;
 
