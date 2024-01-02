@@ -36,22 +36,17 @@ import java.util.UUID;
 import static net.ilikefood971.forf.util.Util.MOD_ID;
 
 public class PersistentData extends PersistentState {
+    //#if MC>=12002
+    private static final Type<PersistentData> type = new Type<>(
+            PersistentData::new, // If there's no 'PersistentData' yet create one
+            PersistentData::createFromNbt, // If there is a 'PersistentData' NBT, parse it with 'createFromNbt'
+            null // Supposed to be an 'DataFixTypes' enum
+    );
     private boolean started = false;
     private int secondsLeft = 0;
     private PvPTimer.PvPState pvPState = PvPTimer.PvPState.OFF;
     private Map<UUID, Integer> playersAndLives = new HashMap<>();
     
-    @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt.putBoolean("started", started);
-        nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
-        nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
-        nbt.put("livesMap", mapToNbt(playersAndLives));
-
-        nbt.put("PlayerScores", Util.fakeScoreboard.toNbt());
-
-        return nbt;
-    }
     private static PersistentData createFromNbt(NbtCompound tag) {
         PersistentData state = new PersistentData();
         
@@ -59,19 +54,22 @@ public class PersistentData extends PersistentState {
         state.secondsLeft = tag.getInt("secondsLeft");
         state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
         state.playersAndLives = listToMap(tag.getList("livesMap", NbtElement.COMPOUND_TYPE));
-
+        
         Util.fakeScoreboard.readNbt(tag.getList("PlayerScores", NbtElement.COMPOUND_TYPE));
-
+        
+        /*
+         * Used to migrate old data
+         * This will add the player and then lives data is added later from the EntityMixin
+         */
+        if (tag.contains("forfPlayersUUIDS")) {
+            NbtList list = tag.getList("forfPlayersUUIDS", NbtElement.STRING_TYPE);
+            for (NbtElement element : list) {
+                state.playersAndLives.put(UUID.fromString(element.asString()), 0); // Assume 0 lives but will be edited by EntityMixin
+            }
+        }
+        
         return state;
     }
-    
-    //#if MC>=12002
-    private static final Type<PersistentData> type = new Type<>(
-            PersistentData::new, // If there's no 'PersistentData' yet create one
-            PersistentData::createFromNbt, // If there is a 'PersistentData' NBT, parse it with 'createFromNbt'
-            null // Supposed to be an 'DataFixTypes' enum
-    );
-    //#endif
     
     public static PersistentData getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getOverworld().getPersistentStateManager();
@@ -90,6 +88,7 @@ public class PersistentData extends PersistentState {
         
         return state;
     }
+    //#endif
     
     /**
      * @param map the map to convert to nbt
@@ -102,21 +101,35 @@ public class PersistentData extends PersistentState {
         }
         return nbtList;
     }
+    
     private static NbtCompound playerLivesToCompound(UUID uuid, int lives) {
         NbtCompound nbtCompound = new NbtCompound();
         nbtCompound.putUuid("uuid", uuid);
         nbtCompound.putInt("lives", lives);
         return nbtCompound;
     }
-
+    
     private static Map<UUID, Integer> listToMap(NbtList list) {
         Map<UUID, Integer> map = new HashMap<>();
         for (NbtElement element : list) {
-            if (element.getType() != NbtElement.COMPOUND_TYPE) throw new RuntimeException("Found invalid nbt type when reading list!");
+            if (element.getType() != NbtElement.COMPOUND_TYPE)
+                throw new RuntimeException("Found invalid nbt type when reading list!");
             NbtCompound compound = ((NbtCompound) element);
             map.put(compound.getUuid("uuid"), compound.getInt("lives"));
         }
         return map;
+    }
+    
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt) {
+        nbt.putBoolean("started", started);
+        nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
+        nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
+        nbt.put("livesMap", mapToNbt(playersAndLives));
+        
+        nbt.put("PlayerScores", Util.fakeScoreboard.toNbt());
+        
+        return nbt;
     }
     
     public boolean isStarted() {
