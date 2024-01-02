@@ -35,14 +35,14 @@ import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class TimerCommands {
-    
+
     public static final SimpleCommandExceptionType DISABLED = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.timer.exceptions.disabled")
     );
     public static final SimpleCommandExceptionType DISABLED_AND_NOT_STARTED = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.timer.exceptions.disabledAndNotStarted")
     );
-    
+
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
         dispatcher.register(
@@ -69,10 +69,11 @@ public class TimerCommands {
                         )
         );
     }
-    
+
+    @SuppressWarnings("SameReturnValue")
     private static int turnPvpOn(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         checkCanRun(); // Will throw exception if it can't run
-        
+
         try {
             PvPTimer.changePvpTimer(PvPTimer.PvPState.ON, context.getArgument("minutes", int.class) * 60);
         } catch (IllegalArgumentException e) {
@@ -80,10 +81,11 @@ public class TimerCommands {
         }
         return 1;
     }
-    
+
+    @SuppressWarnings("SameReturnValue")
     private static int turnPvpOff(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         checkCanRun();
-        
+
         try {
             PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, context.getArgument("minutes", int.class) * 60);
         } catch (IllegalArgumentException e) { // If the argument is not provided
@@ -91,7 +93,7 @@ public class TimerCommands {
         }
         return 1;
     }
-    
+
     private static void checkCanRun() throws CommandSyntaxException {
         if (!PERSISTENT_DATA.isStarted() && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
             throw DISABLED_AND_NOT_STARTED.create();

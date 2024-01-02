@@ -37,11 +37,11 @@ import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IGetPortalPos {
-    
+
     // For the player tracker
     @Shadow
     protected BlockPos lastNetherPortalPosition;
-    
+
     // Migrate old data format to new data format
     @Deprecated
     @Inject(method = "readNbt", at = @At("HEAD"))
@@ -50,10 +50,10 @@ public abstract class EntityMixin implements IGetPortalPos {
             PERSISTENT_DATA.getPlayersAndLives().put(this.getUuid(), nbt.getCompound("forf.data").getInt("lives"));
         }
     }
-    
+
     @Shadow
     public abstract UUID getUuid();
-    
+
     @Override
     public BlockPos getLastNetherPortalLocation() {
         return this.lastNetherPortalPosition;

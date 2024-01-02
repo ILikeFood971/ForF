@@ -1,49 +1,49 @@
 {
-	"schemaVersion": 1,
-	"id": "${mod_id}",
-	"version": "${version}",
-	"name": "${mod_name}",
-	"description": "A Friend or Foe mod for you to play with your friends. Based on the YouTube Friend or Foe series.",
-	"authors": [
-		"ILikeFood971"
-	],
-	"contact": {
-		"homepage": "https://github.com/ILikeFood971",
-		"sources": "https://github.com/ILikeFood971/forf",
-		"issues": "https://github.com/ILikeFood971/forf/issues",
-		"discord": "https://discord.gg/ypyRwVEaBT",
-		"modrinth_page": "https://modrinth.com/mod/forf"
-	},
-	"license": "GPL-3.0",
-	"icon": "assets/forf/icon.png",
-	"environment": "server",
-	"entrypoints": {
-		"server": [
-          "net.ilikefood971.forf.Forf"
-		]
-	},
-	"mixins": [
-		"forf.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=${fabric_loader_version}",
-		"minecraft": "${minecraft_dependency}",
-		"java": ">=${java_version}",
-		"fabric-api": ">=${fabric_api_version}",
-		"sgui": ">=${sgui_version}",
-		"polymer-core": ">=${polymer_core_version}"
-	},
-	"recommends": {
-		"server_translations_api": ">=${server_translations_version}"
-	},
-	"suggests": {
-		"voicechat": ">=${voicechat_version}"
-	},
-	"custom": {
-		"mc-publish": {
-			"dependencies": [
-				"polymer-core@${polymer_core_version}(embedded){modrinth:xGdtZczs}"
-			]
-		}
-	}
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "A Friend or Foe mod for you to play with your friends. Based on the YouTube Friend or Foe series.",
+  "authors": [
+    "ILikeFood971"
+  ],
+  "contact": {
+    "homepage": "https://github.com/ILikeFood971",
+    "sources": "https://github.com/ILikeFood971/forf",
+    "issues": "https://github.com/ILikeFood971/forf/issues",
+    "discord": "https://discord.gg/ypyRwVEaBT",
+    "modrinth_page": "https://modrinth.com/mod/forf"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/forf/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "net.ilikefood971.forf.Forf"
+    ]
+  },
+  "mixins": [
+    "forf.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=${java_version}",
+    "fabric-api": ">=${fabric_api_version}",
+    "sgui": ">=${sgui_version}",
+    "polymer-core": ">=${polymer_core_version}"
+  },
+  "recommends": {
+    "server_translations_api": ">=${server_translations_version}"
+  },
+  "suggests": {
+    "voicechat": ">=${voicechat_version}"
+  },
+  "custom": {
+    "mc-publish": {
+      "dependencies": [
+        "polymer-core@${polymer_core_version}(embedded){modrinth:xGdtZczs}"
+      ]
+    }
+  }
 }

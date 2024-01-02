@@ -36,7 +36,7 @@ public abstract class EvokerMixin extends SpellcastingIllagerEntity {
     protected EvokerMixin(EntityType<? extends SpellcastingIllagerEntity> entityType, World world) {
         super(entityType, world);
     }
-    
+
     // TODO Mixin inheritance
     @Nullable
     @Override

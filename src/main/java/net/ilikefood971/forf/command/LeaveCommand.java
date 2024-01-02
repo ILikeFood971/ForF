@@ -39,7 +39,7 @@ import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LeaveCommand {
-    
+
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
         dispatcher.register(
@@ -55,32 +55,35 @@ public class LeaveCommand {
                         )
         );
     }
-    
+
+    @SuppressWarnings("SameReturnValue")
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         }
-        
+
         Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
         for (ServerPlayerEntity player : players) {
             leavePlayer(player);
         }
-        
+
         sendFeedback(context, Text.translatable("forf.commands.leave.success.multiple", players.size()), true);
         return 1;
     }
+
+    @SuppressWarnings("SameReturnValue")
     private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         }
-        
+
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         leavePlayer(player);
-        
+
         sendFeedback(context, Text.translatable("forf.commands.leave.success.solo", player.getGameProfile().getName()), true);
         return 1;
     }
-    
+
     private static void leavePlayer(ServerPlayerEntity player) throws CommandSyntaxException {
         if (!Util.isForfPlayer(player)) {
             throw new SimpleCommandExceptionType(

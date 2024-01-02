@@ -51,35 +51,35 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class Util {
-    
-    
+
+
     public static final String MOD_ID = "forf";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Config CONFIG = Config.loadFromFile();
+    public static final FakeScoreboard fakeScoreboard = new FakeScoreboard();
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
-    public static final FakeScoreboard fakeScoreboard = new FakeScoreboard();
-    
-    
+
     public static void addNewPlayer(ServerPlayerEntity player) {
         PERSISTENT_DATA.getPlayersAndLives().put(player.getUuid(), 0);
     }
-    
+
     public static void removePlayer(ServerPlayerEntity player) {
         PERSISTENT_DATA.getPlayersAndLives().remove(player.getUuid());
     }
+
     public static boolean isForfPlayer(ServerPlayerEntity player) {
         return PERSISTENT_DATA.getPlayersAndLives().containsKey(player.getUuid());
     }
 
     // Version Utils
-    
+
     public static void sendFeedback(CommandContext<ServerCommandSource> context, Text message, boolean broadcast) {
         context.getSource().sendFeedback(
                 //#if MC >= 12000
                 () ->
-                //#endif
-                message, broadcast);
+                        //#endif
+                        message, broadcast);
     }
 
     public static void setScore(ServerPlayerEntity player, int lives) {
@@ -91,6 +91,7 @@ public class Util {
         //$$ playerScore.setScore(lives);
         //#endif
     }
+
     public static void forEachValueInLivesObjective(Consumer<
             //#if MC >= 12003
             ScoreboardEntry
@@ -99,11 +100,11 @@ public class Util {
             //#endif
             > action) {
         for (
-                //#if MC >= 12003
+            //#if MC >= 12003
                 ScoreboardEntry
-                //#else
-                //$$ ScoreboardPlayerScore
-                //#endif
+                        //#else
+                        //$$ ScoreboardPlayerScore
+                        //#endif
                         entry : fakeScoreboard.getScoreboardEntries(fakeScoreboard.livesObjective)) {
             action.accept(entry);
         }
@@ -112,9 +113,9 @@ public class Util {
     public static Packet<?> getScoreboardUpdatePacket(
             //#if MC >= 12003
             ScoreboardEntry
-            //#else
-            //$$ ScoreboardPlayerScore
-            //#endif
+                    //#else
+                    //$$ ScoreboardPlayerScore
+                    //#endif
                     score) {
         //#if MC >= 12003
         return new ScoreboardScoreUpdateS2CPacket(
@@ -150,7 +151,7 @@ public class Util {
         //$$ return slot == 0;
         //#endif
     }
-    
+
     public static GameProfile getOfflineProfile(UUID uuid) {
         //#if MC >= 12002
         ProfileResult profileResult = SERVER.getSessionService().fetchProfile(uuid, false);
@@ -163,5 +164,5 @@ public class Util {
         //$$ return SERVER.getSessionService().fillProfileProperties(new GameProfile(uuid, null), false);
         //#endif
     }
-    
+
 }

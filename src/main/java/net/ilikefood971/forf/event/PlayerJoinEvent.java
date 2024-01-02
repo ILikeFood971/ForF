@@ -35,16 +35,24 @@ import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerPlayConnectionEvents.Join {
-    
+
+    public static Packet<?> getHeaderPacket() {
+        return new PlayerListHeaderS2CPacket(Text.Serialization.fromJson(CONFIG.tablistHeader()), Text.literal(""));
+    }
+
+    public static Packet<?> getEmptyHeaderPacket() {
+        return new PlayerListHeaderS2CPacket(Text.literal(""), Text.literal(""));
+    }
+
     @Override
     public void onPlayInit(ServerPlayNetworkHandler handler, MinecraftServer server) {
         // Returning at any point without a disconnect is a pass
-        
+
         // Because the PlayerLoginMixin has already run, we can be sure that either forf hasn't started, they are an allowed player, or spectators are allowed
         // What we don't know is whether they are out of lives
         ServerPlayerEntity player = handler.getPlayer();
         Lives lives = new Lives(player);
-        
+
         // If forf hasn't stated, let them in
         if (!PERSISTENT_DATA.isStarted()) {
             return;
@@ -73,19 +81,12 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
             handler.disconnect(Text.translatable("forf.disconnect.noSpectators"));
         }
     }
-    
+
     @Override
     public void onPlayReady(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         // Check to see if Friend or Foe has started
         if (PERSISTENT_DATA.isStarted()) {
             sender.sendPacket(getHeaderPacket());
         }
-    }
-    
-    public static Packet<?> getHeaderPacket() {
-        return new PlayerListHeaderS2CPacket(Text.Serialization.fromJson(CONFIG.tablistHeader()), Text.literal(""));
-    }
-    public static Packet<?> getEmptyHeaderPacket() {
-        return new PlayerListHeaderS2CPacket(Text.literal(""), Text.literal(""));
     }
 }

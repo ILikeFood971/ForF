@@ -43,16 +43,16 @@ public class PlayerTrackerGui extends SimpleGui {
     /**
      * Constructs a new simple container gui for the supplied player.
      *
-     * @param type                  the screen handler that the client should display
-     * @param player                the player to server this gui to
-     * @param playerTracker         the player tracker item
+     * @param type          the screen handler that the client should display
+     * @param player        the player to server this gui to
+     * @param playerTracker the player tracker item
      */
     public PlayerTrackerGui(ScreenHandlerType<?> type, ServerPlayerEntity player, ItemStack playerTracker) {
         super(type, player, false);
         this.playerTracker = playerTracker;
         this.getPlayerHeadsAndPutIntoInventory(player);
     }
-    
+
     @Override
     public boolean onClick(int index, ClickType type, SlotActionType action, GuiElementInterface element) {
         if (element != null && element.getItemStack().isOf(Items.PLAYER_HEAD)) {
@@ -75,7 +75,7 @@ public class PlayerTrackerGui extends SimpleGui {
 
             GuiElementBuilder skullBuilder = new GuiElementBuilder();
             skullBuilder.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), player.getGameProfile()));
-            
+
             skullBuilder.setItem(Items.PLAYER_HEAD);
             skullBuilder.addLoreLine(lore);
             skullBuilder.setName(name);

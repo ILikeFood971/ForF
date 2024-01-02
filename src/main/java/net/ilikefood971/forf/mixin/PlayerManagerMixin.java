@@ -37,8 +37,8 @@ public abstract class PlayerManagerMixin {
     protected void sendScoreboardWithLivesList(ServerScoreboard scoreboard, ServerPlayerEntity player, CallbackInfo ci) {
         player.networkHandler.sendPacket(new ScoreboardObjectiveUpdateS2CPacket(Util.fakeScoreboard.livesObjective, 0));
         Util.forEachValueInLivesObjective(scoreboardEntry ->
-            player.networkHandler.sendPacket(Util.getScoreboardUpdatePacket(scoreboardEntry)
-        ));
+                player.networkHandler.sendPacket(Util.getScoreboardUpdatePacket(scoreboardEntry)
+                ));
         if (Util.PERSISTENT_DATA.isStarted()) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
                     Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective)

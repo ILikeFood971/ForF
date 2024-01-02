@@ -36,27 +36,30 @@ import java.util.UUID;
 import static net.ilikefood971.forf.util.Util.MOD_ID;
 
 public class PersistentData extends PersistentState {
+
     //#if MC>=12002
     private static final Type<PersistentData> type = new Type<>(
             PersistentData::new, // If there's no 'PersistentData' yet create one
             PersistentData::createFromNbt, // If there is a 'PersistentData' NBT, parse it with 'createFromNbt'
             null // Supposed to be an 'DataFixTypes' enum
     );
+    //#endif
+
     private boolean started = false;
     private int secondsLeft = 0;
     private PvPTimer.PvPState pvPState = PvPTimer.PvPState.OFF;
     private Map<UUID, Integer> playersAndLives = new HashMap<>();
-    
+
     private static PersistentData createFromNbt(NbtCompound tag) {
         PersistentData state = new PersistentData();
-        
+
         state.started = tag.getBoolean("started");
         state.secondsLeft = tag.getInt("secondsLeft");
         state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
         state.playersAndLives = listToMap(tag.getList("livesMap", NbtElement.COMPOUND_TYPE));
-        
+
         Util.fakeScoreboard.readNbt(tag.getList("PlayerScores", NbtElement.COMPOUND_TYPE));
-        
+
         /*
          * Used to migrate old data
          * This will add the player and then lives data is added later from the EntityMixin
@@ -67,13 +70,13 @@ public class PersistentData extends PersistentState {
                 state.playersAndLives.put(UUID.fromString(element.asString()), 0); // Assume 0 lives but will be edited by EntityMixin
             }
         }
-        
+
         return state;
     }
-    
+
     public static PersistentData getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getOverworld().getPersistentStateManager();
-        
+
         PersistentData state = persistentStateManager.getOrCreate(
                 //#if MC>=12002
                 type,
@@ -85,11 +88,10 @@ public class PersistentData extends PersistentState {
         );
         // If state is not marked dirty, when Minecraft closes, 'writeNbt' won't be called and therefore nothing will be saved.
         state.markDirty();
-        
+
         return state;
     }
-    //#endif
-    
+
     /**
      * @param map the map to convert to nbt
      * @return a list of nbt compounds with the uuid and lives
@@ -101,14 +103,14 @@ public class PersistentData extends PersistentState {
         }
         return nbtList;
     }
-    
+
     private static NbtCompound playerLivesToCompound(UUID uuid, int lives) {
         NbtCompound nbtCompound = new NbtCompound();
         nbtCompound.putUuid("uuid", uuid);
         nbtCompound.putInt("lives", lives);
         return nbtCompound;
     }
-    
+
     private static Map<UUID, Integer> listToMap(NbtList list) {
         Map<UUID, Integer> map = new HashMap<>();
         for (NbtElement element : list) {
@@ -119,43 +121,43 @@ public class PersistentData extends PersistentState {
         }
         return map;
     }
-    
+
     @Override
     public NbtCompound writeNbt(NbtCompound nbt) {
         nbt.putBoolean("started", started);
         nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
         nbt.put("livesMap", mapToNbt(playersAndLives));
-        
+
         nbt.put("PlayerScores", Util.fakeScoreboard.toNbt());
-        
+
         return nbt;
     }
-    
+
     public boolean isStarted() {
         return started;
     }
-    
+
     public void setStarted(boolean started) {
         this.started = started;
     }
-    
+
     public int getSecondsLeft() {
         return secondsLeft;
     }
-    
+
     public void setSecondsLeft(int secondsLeft) {
         this.secondsLeft = secondsLeft;
     }
-    
+
     public PvPTimer.PvPState getPvPState() {
         return pvPState;
     }
-    
+
     public void setPvPState(PvPTimer.PvPState pvPState) {
         this.pvPState = pvPState;
     }
-    
+
     public Map<UUID, Integer> getPlayersAndLives() {
         return playersAndLives;
     }

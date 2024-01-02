@@ -35,12 +35,12 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
         // Check that they are actually a player as this gets called for all entity deaths
         if (entity instanceof ServerPlayerEntity player) {
             Lives lives = new Lives(player);
-            
+
             // Remove the life
             if (lives.get() > 0) {
                 lives.decrement(1);
                 player.sendMessage(Text.translatable("forf.event.death.livesLeft",
-                        Text.literal(String.valueOf(lives.get()))
+                                Text.literal(String.valueOf(lives.get()))
                         ).formatted(Formatting.RED),
                         false
                 );
