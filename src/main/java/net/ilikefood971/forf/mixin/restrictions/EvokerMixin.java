@@ -37,6 +37,7 @@ public abstract class EvokerMixin extends SpellcastingIllagerEntity {
         super(entityType, world);
     }
     
+    // TODO Mixin inheritance
     @Nullable
     @Override
     public ItemEntity dropStack(ItemStack stack) {

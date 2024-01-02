@@ -20,15 +20,13 @@
 
 package net.ilikefood971.forf.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.net.SocketAddress;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;

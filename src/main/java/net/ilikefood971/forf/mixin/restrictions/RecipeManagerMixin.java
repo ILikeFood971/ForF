@@ -35,7 +35,7 @@ import java.util.Map;
 
 @Mixin(RecipeManager.class)
 public class RecipeManagerMixin {
-    // Inject to the method that registers all the base recipes
+    // Inject to the method that registers all the base recipes. No MixinExtras inject is needed because we are simply adding to the method
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At("HEAD"))
     private void restrictRecipes(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
         // Check config first
