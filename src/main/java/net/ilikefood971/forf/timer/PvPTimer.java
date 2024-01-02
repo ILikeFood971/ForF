@@ -76,7 +76,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         if (pvPState == PvPState.OFF) return;
         // All this will be skipped if pvp is off
         Text text = getEnabledActionbarText();
-        for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
+        for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
             serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(text));
         }
         

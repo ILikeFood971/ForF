@@ -26,9 +26,8 @@ configurations {
     modRuntimeOnly.exclude group: 'net.fabricmc', module: 'fabric-loader'
 }
 
-
 dependencies {
-	// loom
+    // loom
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
@@ -43,6 +42,19 @@ dependencies {
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
     modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translations_version}")
     modImplementation include("eu.pb4:polymer-core:${project.polymer_core_version}")
+
+    // Test
+    testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.mockito:mockito-core:5.+"
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events 'passed'
+    }
 }
 
 String LANG_DIR = 'assets/forf/lang'
@@ -57,21 +69,27 @@ if (mcVersion >= 11800) {
 
 loom {
     accessWidenerPath = file("forf.accesswidener")
-    runConfigs.configureEach {
-        // to make sure it generates all "Minecraft Client (:subproject_name)" applications
-        ideConfigGenerated = false
-        runDir '../../run'
-        vmArgs '-Dmixin.debug.export=true'
-    }
-	// [FEATURE] MIXIN_AUDITOR
-	runs {
-		serverMixinAudit {
-			server()
-			vmArgs '-DmixinAuditor.audit=true', '-XX:+AllowEnhancedClassRedefinition'
-			ideConfigGenerated true
-		}
-	}
 
+    runs {
+        client {
+            ideConfigGenerated = false // Remove all the default run config for client
+        }
+
+        server {
+            server()
+            configName 'Server'
+            source sourceSets.main
+            runDir '../../run'
+            vmArgs '-XX:+AllowEnhancedClassRedefinition',
+                    '-DmixinAuditor.audit=true',
+                    '-Dmixin.debug.export=true'
+            ideConfigGenerated true
+        }
+    }
+
+    runConfigs.configureEach {
+        vmArgs '-enableassertions' // Enable assertions in the dev environment so things can be caught
+    }
 }
 
 remapJar {
@@ -90,11 +108,11 @@ String fullModVersion = project.mod_version + versionSuffix
 group = project.maven_group
 if (System.getenv("JITPACK") == "true") {
     // move mc version into archivesBaseName, so jitpack will be able to organize archives from multiple subprojects correctly
-    base.archivesName = project.archives_base_name + '-mc' + project.minecraft_version
-    version = 'v' + fullModVersion
+    base.archivesName = project.archives_base_name + '+' + project.minecraft_version
+    version = fullModVersion
 } else {
     base.archivesName = project.archives_base_name
-    version = 'mc' + project.minecraft_version + '-v' + fullModVersion
+    version = fullModVersion + '+' + project.minecraft_version
 }
 
 // See https://youtrack.jetbrains.com/issue/IDEA-296490
@@ -116,18 +134,18 @@ processResources {
     inputs.property "polymer_core_version", polymer_core_version
 
     filesMatching("fabric.mod.json") {
-        expand  "version"                    : mod_version,
-                "mod_id"                     : mod_id,
-                "mod_name"                   : mod_name,
-                "minecraft_version"          : project.minecraft_version,
-                "java_version"               : project.java_version,
-                "fabric_loader_version"      : fabric_loader_version,
-                "fabric_api_version"         : project.fabric_api_version,
-                "sgui_version"               : project.sgui_version,
-                "minecraft_dependency"       : project.minecraft_dependency,
-                "voicechat_version"          : voicechat_version,
+        expand "version": mod_version,
+                "mod_id": mod_id,
+                "mod_name": mod_name,
+                "minecraft_version": project.minecraft_version,
+                "java_version": project.java_version,
+                "fabric_loader_version": fabric_loader_version,
+                "fabric_api_version": project.fabric_api_version,
+                "sgui_version": project.sgui_version,
+                "minecraft_dependency": project.minecraft_dependency,
+                "voicechat_version": voicechat_version,
                 "server_translations_version": project.server_translations_version,
-                "polymer_core_version"       : project.polymer_core_version
+                "polymer_core_version": project.polymer_core_version
     }
 }
 

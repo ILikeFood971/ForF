@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
 public class Config {
@@ -63,33 +62,27 @@ public class Config {
     @Comment("Timer that automatically turns PvP on and off")
     private PvPTimer pvPTimer = new PvPTimer();
     @Comment("Restrictions to prevent op things for this play-style")
-    public Restrictions restrictions = new Restrictions();
+    private Restrictions restrictions = new Restrictions();
     
     
     // Methods for Config
-    
+
     public static Config loadFromFile() {
-        if (!Files.exists(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5"))) {
+        return loadFromFile(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5").toFile());
+    }
+    
+    public static Config loadFromFile(File file) {
+        if (!Files.exists(file.toPath())) {
             Config config = new Config();
-            config.save();
+            config.save(file);
             return config;
         }
         // Create a new Jankson instance
-        // (This can also be a static instance, defined outside the function)
-        var jankson = Jankson.builder()
-                // You can register adapters here to customize deserialization
-                //.registerTypeAdapter(...)
-                // Likewise, you can customize serializer behavior
-                //.registerSerializer(...)
-                // In most cases, the default Jankson is all you need.
-                .build();
+        Jankson jankson = Jankson.builder().build();
         // Parse the config file into a JSON Object
         try {
-            Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
-
-            File configFile = resolve.toFile();
-            JsonObject configJson = jankson.load(configFile);
-            // Convert the raw object into your POJO type
+            JsonObject configJson = jankson.load(file);
+            // Convert the raw object into the POJO type
             return jankson.fromJson(configJson, Config.class);
         } catch (IOException | SyntaxError e) {
             Util.LOGGER.error(e.toString());
@@ -98,18 +91,15 @@ public class Config {
     }
 
     // This only ever gets used to create the config
-    private void save() {
-        Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
-        File configFile = resolve.toFile();
-
+    private void save(File file) {
         Jankson jankson = Jankson.builder().build();
         String result = jankson
                 .toJson(this)
                 .toJson(JsonGrammar.JANKSON);
         try {
-            var fileIsUsable = configFile.exists() || configFile.createNewFile();
+            boolean fileIsUsable = file.exists() || file.createNewFile();
             if (!fileIsUsable) return;
-            var out = new FileOutputStream(configFile, false);
+            FileOutputStream out = new FileOutputStream(file, false);
 
             out.write(result.getBytes());
             out.flush();
@@ -117,7 +107,6 @@ public class Config {
         } catch (IOException e) {
             Util.LOGGER.error(e.toString());
         }
-
     }
     
     // Getters

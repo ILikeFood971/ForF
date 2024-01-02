@@ -52,7 +52,6 @@ import java.util.function.Consumer;
 
 public class Util {
     
-    
     public static final String MOD_ID = "forf";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Config CONFIG = Config.loadFromFile();
@@ -155,7 +154,7 @@ public class Util {
         //#if MC >= 12002
         ProfileResult profileResult = SERVER.getSessionService().fetchProfile(uuid, false);
         if (profileResult == null) {
-            throw new ProfileNotFoundException("Player Not Found - " + uuid);
+            throw new ProfileNotFoundException("Player Not Found: " + uuid);
         } else {
             return profileResult.profile();
         }
