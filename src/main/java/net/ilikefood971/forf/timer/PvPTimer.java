@@ -33,23 +33,54 @@ import static net.ilikefood971.forf.util.Util.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public class PvPTimer implements ServerTickEvents.EndTick {
-    private static int secondsLeft;
-    private static PvPState pvPState;
-    private byte ticksTillSecond = 0;
-
     public static int getSecondsLeft() {
         return secondsLeft;
     }
-
+    
     public static PvPState getPvPState() {
         return pvPState;
     }
-
+    
+    private static int secondsLeft;
+    private static PvPState pvPState;
+    private byte ticksTillSecond = 0;
+    
     public static void serverStarted() {
         secondsLeft = PERSISTENT_DATA.getSecondsLeft();
         pvPState = PERSISTENT_DATA.getPvPState();
     }
-
+    
+    @Override
+    public void onEndTick(MinecraftServer server) {
+        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.isStarted()
+                //#if MC >= 12003
+                || !SERVER.getTickManager().shouldTick()
+                //#endif
+        ) return;
+        if (ticksTillSecond != 0) {
+            ticksTillSecond--;
+            return;
+        }
+        Util.LOGGER.debug(secondsLeft + " seconds left with pvp " + pvPState);
+        // Check to see if the timer has run out
+        if (secondsLeft <= 0) {
+            // Get the random seconds for the opposite of the current pvPState as it hasn't changed yet
+            int seconds = getRandomSeconds(pvPState == PvPState.ON ? PvPState.OFF : PvPState.ON);
+            // Using what the random seconds are, change the timer to a random amount of seconds
+            changePvpTimer(seconds);
+            // Now the pvPState has changed so plan accordingly
+            Util.LOGGER.debug("PvP has been changed with " + secondsLeft + " seconds left and pvp " + pvPState);
+        } else secondsLeft--;
+        ticksTillSecond = 20;
+        
+        if (pvPState == PvPState.OFF) return;
+        // All this will be skipped if pvp is off
+        Text text = getEnabledActionbarText();
+        for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
+            serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(text));
+        }
+        
+    }
     public static void changePvpTimer(int seconds) {
         if (PvPTimer.pvPState == PvPState.OFF) {
             changePvpTimer(PvPState.ON, seconds);
@@ -57,30 +88,29 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         }
         changePvpTimer(PvPState.OFF, seconds);
     }
-
     public static void changePvpTimer(PvPState pvPState) {
         changePvpTimer(pvPState, getRandomSeconds(pvPState));
     }
-
+    
     public static void changePvpTimer(PvPState pvPState, int seconds) {
         secondsLeft = seconds;
-
+        
         if (PvPTimer.pvPState != pvPState) {
             if (pvPState == PvPState.OFF) {
-
+                
                 SERVER.setPvpEnabled(false);
                 PvPTimer.pvPState = PvPState.OFF;
-
+                
                 for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
                     serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("forf.timer.actionBar.disabled")));
                     serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.disabled"));
                 }
                 return;
             } else if (pvPState == PvPState.ON) {
-
+                
                 SERVER.setPvpEnabled(true);
                 PvPTimer.pvPState = PvPState.ON;
-
+                
                 for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
                     serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("forf.timer.title.enabled")));
                     serverPlayerEntity.sendMessage(Text.translatable("forf.timer.chat.enabled"));
@@ -88,24 +118,24 @@ public class PvPTimer implements ServerTickEvents.EndTick {
                 return;
             }
         }
-
+        
         Util.LOGGER.debug("PvP state wasn't changed");
     }
-
+    
     private static Text getEnabledActionbarText() {
         int min;
         int sec;
         min = Math.floorDiv(secondsLeft, 60);
         sec = secondsLeft % 60;
         Text message;
-
+        
         Text minText = Text.literal(String.valueOf(min)).formatted(Formatting.BOLD, Formatting.DARK_RED); // If you don't do it this way, the args aren't formatted
         Text secText = Text.literal(String.valueOf(sec)).formatted(Formatting.BOLD, Formatting.DARK_RED);
-
+        
         if (min > 0) {
             message = Text.translatable("forf.timer.actionBar.enabledMoreThanMinute", minText, secText);
         } else message = Text.translatable("forf.timer.actionBar.enabled", secText);
-
+        
         return message;
     }
 
@@ -123,57 +153,24 @@ public class PvPTimer implements ServerTickEvents.EndTick {
         Util.LOGGER.debug("For pvp " + pvPState + " returning " + seconds + "s between " + minTime + "m  and " + maxTime + "m");
         return seconds;
     }
-
-    @Override
-    public void onEndTick(MinecraftServer server) {
-        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.isStarted()
-                //#if MC >= 12003
-                || !SERVER.getTickManager().shouldTick()
-            //#endif
-        ) return;
-        if (ticksTillSecond != 0) {
-            ticksTillSecond--;
-            return;
-        }
-        Util.LOGGER.debug(secondsLeft + " seconds left with pvp " + pvPState);
-        // Check to see if the timer has run out
-        if (secondsLeft <= 0) {
-            // Get the random seconds for the opposite of the current pvPState as it hasn't changed yet
-            int seconds = getRandomSeconds(pvPState == PvPState.ON ? PvPState.OFF : PvPState.ON);
-            // Using what the random seconds are, change the timer to a random amount of seconds
-            changePvpTimer(seconds);
-            // Now the pvPState has changed so plan accordingly
-            Util.LOGGER.debug("PvP has been changed with " + secondsLeft + " seconds left and pvp " + pvPState);
-        } else secondsLeft--;
-        ticksTillSecond = 20;
-
-        if (pvPState == PvPState.OFF) return;
-        // All this will be skipped if pvp is off
-        Text text = getEnabledActionbarText();
-        for (ServerPlayerEntity serverPlayerEntity : server.getPlayerManager().getPlayerList()) {
-            serverPlayerEntity.networkHandler.sendPacket(new OverlayMessageS2CPacket(text));
-        }
-
-    }
-
+    
     public enum PvPState {
         ON(true),
         OFF(false);
-
+        
         private final boolean enabled;
-
+        
         PvPState(boolean enabled) {
             this.enabled = enabled;
         }
-
+        
+        public boolean getValue() {
+            return enabled;
+        }
         public static PvPState convertToBoolean(boolean b) {
             if (b) return ON;
             return OFF;
         }
-
-        public boolean getValue() {
-            return enabled;
-        }
     }
-
+    
 }

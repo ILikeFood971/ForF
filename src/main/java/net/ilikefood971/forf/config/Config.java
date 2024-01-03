@@ -33,24 +33,24 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
-@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal", "CanBeFinal"})
+@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
 public class Config {
-    @Comment("Restrictions to prevent op things for this play-style")
-    public Restrictions restrictions = new Restrictions();
     @Comment("Whether non forf or forf players that ran out of lives can join")
     private boolean spectators = false;
     @Comment("If spectators are allowed, what gamemode should they be in?")
     private GameMode spectatorGamemode = GameMode.SPECTATOR;
     @Comment("When you start forf, how many lives should everyone start with")
     private int startingLives = 10;
+
     @Comment("Should players be able to go over the starting lives")
     private boolean overfill = false;
+    
     @Comment("The text to put at in the header of the tablist. Leave blank to remove")
     private String tablistHeader = "{\"text\":\"Friend or Foe\",\"color\":\"yellow\",\"bold\":true}";
     @Comment("What render type to use when a player looks at the lives in the tablist. Options are INTEGER or HEARTS")
     private ScoreboardCriterion.RenderType tablistLivesRenderType = ScoreboardCriterion.RenderType.INTEGER;
+    
     @Comment("Should the player tracker be craft-able and usable?")
     private boolean playerTracker = true;
     @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.")
@@ -61,31 +61,28 @@ public class Config {
     private int trackerExpirationMinutes = 60;
     @Comment("Timer that automatically turns PvP on and off")
     private PvPTimer pvPTimer = new PvPTimer();
-
+    @Comment("Restrictions to prevent op things for this play-style")
+    private Restrictions restrictions = new Restrictions();
+    
+    
     // Methods for Config
 
     public static Config loadFromFile() {
-        if (!Files.exists(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5"))) {
+        return loadFromFile(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5").toFile());
+    }
+    
+    public static Config loadFromFile(File file) {
+        if (!Files.exists(file.toPath())) {
             Config config = new Config();
-            config.save();
+            config.save(file);
             return config;
         }
         // Create a new Jankson instance
-        // (This can also be a static instance, defined outside the function)
-        var jankson = Jankson.builder()
-                // You can register adapters here to customize deserialization
-                //.registerTypeAdapter(...)
-                // Likewise, you can customize serializer behavior
-                //.registerSerializer(...)
-                // In most cases, the default Jankson is all you need.
-                .build();
+        Jankson jankson = Jankson.builder().build();
         // Parse the config file into a JSON Object
         try {
-            Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
-
-            File configFile = resolve.toFile();
-            JsonObject configJson = jankson.load(configFile);
-            // Convert the raw object into your POJO type
+            JsonObject configJson = jankson.load(file);
+            // Convert the raw object into the POJO type
             return jankson.fromJson(configJson, Config.class);
         } catch (IOException | SyntaxError e) {
             Util.LOGGER.error(e.toString());
@@ -94,18 +91,15 @@ public class Config {
     }
 
     // This only ever gets used to create the config
-    private void save() {
-        Path resolve = FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5");
-        File configFile = resolve.toFile();
-
+    private void save(File file) {
         Jankson jankson = Jankson.builder().build();
         String result = jankson
                 .toJson(this)
                 .toJson(JsonGrammar.JANKSON);
         try {
-            var fileIsUsable = configFile.exists() || configFile.createNewFile();
+            boolean fileIsUsable = file.exists() || file.createNewFile();
             if (!fileIsUsable) return;
-            var out = new FileOutputStream(configFile, false);
+            FileOutputStream out = new FileOutputStream(file, false);
 
             out.write(result.getBytes());
             out.flush();
@@ -113,9 +107,8 @@ public class Config {
         } catch (IOException e) {
             Util.LOGGER.error(e.toString());
         }
-
     }
-
+    
     // Getters
     public boolean spectators() {
         return spectators;
@@ -166,16 +159,16 @@ public class Config {
     public Restrictions restrictions() {
         return restrictions;
     }
-
+    
     // Tracker Options
-
+    
     public enum UpdateType {
         AUTOMATIC,
         USE
     }
-
+    
     // Nested Options
-
+    
     public static class PvPTimer {
         @Comment("Use this to disable the PvP Timer completely")
         private boolean enabled = true;
@@ -183,33 +176,33 @@ public class Config {
         private int minRandomOnTime = 20;
         @Comment("Same as before but for the maximum amount of minutes it can be on for")
         private int maxRandomOnTime = 20;
-
+        
         @Comment("The minimum time until the PvP Timer turns on again")
         private int minRandomOffTime = 10;
         @Comment("The maximum time until the PvP Timer turns on again")
         private int maxRandomOffTime = 30;
-
+        
         public boolean enabled() {
             return enabled;
         }
-
+        
         public int minRandomOnTime() {
             return minRandomOnTime;
         }
-
+        
         public int maxRandomOnTime() {
             return maxRandomOnTime;
         }
-
+        
         public int minRandomOffTime() {
             return minRandomOffTime;
         }
-
+        
         public int maxRandomOffTime() {
             return maxRandomOffTime;
         }
     }
-
+    
     @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     public static class Restrictions {
         private boolean totemDrops = false;
@@ -217,19 +210,18 @@ public class Config {
         private boolean goldenAppleCrafting = false;
         @Comment("Will only prevent elytras in generation\nIf the ship has been generated already elytra will still be there")
         private boolean elytraInEndShip = false;
-
         public boolean totemDrops() {
             return totemDrops;
         }
-
+        
         public boolean villagerTrading() {
             return villagerTrading;
         }
-
+        
         public boolean goldenAppleCrafting() {
             return goldenAppleCrafting;
         }
-
+        
         public boolean elytraInEndShip() {
             return elytraInEndShip;
         }
