@@ -40,7 +40,7 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class LivesCommands {
-    
+
     public static final SimpleCommandExceptionType INVALID_EXECUTOR = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.lives.exceptions.invalidExecutor")
     );
@@ -53,7 +53,7 @@ public class LivesCommands {
     public static final SimpleCommandExceptionType TOO_MANY_LIVES = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.lives.exceptions.tooManyLives")
     );
-    
+
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
@@ -84,13 +84,14 @@ public class LivesCommands {
                         )
         );
     }
-    
+
+    @SuppressWarnings("SameReturnValue")
     private static int setPlayersLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
         int lives = IntegerArgumentType.getInteger(context, "lives");
-        
+
         for (ServerPlayerEntity player : EntityArgumentType.getPlayers(context, "players")) {
             Lives playerLives = new Lives(player);
             if (!Util.isForfPlayer(player)) {
@@ -99,7 +100,7 @@ public class LivesCommands {
                 ).create();
             }
             playerLives.set(lives);
-            
+
             sendFeedback(
                     context,
                     Text.translatable("forf.commands.lives.success",
@@ -111,18 +112,19 @@ public class LivesCommands {
         }
         return 1;
     }
-    
+
+    @SuppressWarnings("SameReturnValue")
     private static int givePlayerLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
-        
+
         ServerPlayerEntity executor = context.getSource().getPlayerOrThrow();
         ServerPlayerEntity recipient = EntityArgumentType.getPlayer(context, "recipient");
 
         Lives executorLives = new Lives(executor);
         Lives recipientLives = new Lives(recipient);
-        
+
         int giftedLives = IntegerArgumentType.getInteger(context, "amount");
 
         // Check all the cases that aren't allowed
@@ -139,17 +141,17 @@ public class LivesCommands {
         } else if (recipientLives.get() + giftedLives > CONFIG.startingLives() && !CONFIG.overfill()) {
             throw TOO_MANY_LIVES.create();
         }
-        
+
         // Transfer the lives
         recipientLives.increment(giftedLives);
         executorLives.decrement(giftedLives);
-        
+
         sendFeedback(
                 context,
                 Text.translatable("forf.commands.lives.give", recipient.getGameProfile().getName(), giftedLives),
                 true
         );
-        
+
         return 1;
     }
 }

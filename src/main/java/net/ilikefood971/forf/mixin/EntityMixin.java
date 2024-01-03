@@ -20,31 +20,42 @@
 
 package net.ilikefood971.forf.mixin;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
-import net.ilikefood971.forf.tracker.PlayerTrackerItem;
 import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.UUID;
+
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
-public abstract class EntityMixin implements IGetPortalPos, ServerEntityWorldChangeEvents.AfterPlayerChange {
-    
-    @Shadow protected BlockPos lastNetherPortalPosition;
-    
+public abstract class EntityMixin implements IGetPortalPos {
+
     // For the player tracker
+    @Shadow
+    protected BlockPos lastNetherPortalPosition;
+
+    // Migrate old data format to new data format
+    @Deprecated
+    @Inject(method = "readNbt", at = @At("HEAD"))
+    protected void injectReadMethod(NbtCompound nbt, CallbackInfo info) {
+        if (nbt.contains("forf.data") && PERSISTENT_DATA.getPlayersAndLives().containsKey(this.getUuid())) {
+            PERSISTENT_DATA.getPlayersAndLives().put(this.getUuid(), nbt.getCompound("forf.data").getInt("lives"));
+        }
+    }
+
+    @Shadow
+    public abstract UUID getUuid();
+
     @Override
     public BlockPos getLastNetherPortalLocation() {
         return this.lastNetherPortalPosition;
-    }
-    
-    @Override
-    public void afterChangeWorld(ServerPlayerEntity player, ServerWorld origin, ServerWorld destination) {
-        if (player.getMainHandStack().isOf(PlayerTrackerItem.PLAYER_TRACKER)) PlayerTrackerItem.updateTracker(player.getMainHandStack(), destination);
-        if (player.getOffHandStack().isOf(PlayerTrackerItem.PLAYER_TRACKER)) PlayerTrackerItem.updateTracker(player.getOffHandStack(), destination);
     }
 }

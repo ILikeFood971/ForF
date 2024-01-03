@@ -55,12 +55,62 @@ import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.SERVER;
 
 public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
+    public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new FabricItemSettings().maxCount(1));
+    private static int tickTillNext = 20;
+
     public PlayerTrackerItem(Settings settings) {
         super(settings);
     }
 
-    public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new FabricItemSettings().maxCount(1));
-    private static int tickTillNext = 20;
+    private static String getTargetName(UUID targetUUID) {
+        ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(targetUUID);
+        String targetName;
+        if (player != null) {
+            targetName = player.getGameProfile().getName();
+        } else {
+            GameProfile offlineProfile = Util.getOfflineProfile(targetUUID);
+            if (offlineProfile == null) {
+                targetName = "Not Found";
+            } else {
+                targetName = offlineProfile.getName();
+            }
+        }
+        return targetName;
+    }
+
+    public static void updateTracker(ItemStack stack, World world) {
+        if (!(stack.getItem() instanceof PlayerTrackerItem)) return;
+        NbtCompound nbt = stack.getOrCreateNbt();
+        ServerPlayerEntity trackedPlayer = SERVER.getPlayerManager().getPlayer(NbtHelper.toUuid(Objects.requireNonNull(nbt.get("TrackedPlayer"))));
+        World targetWorld;
+        if (trackedPlayer != null) {
+            targetWorld = trackedPlayer.getWorld();
+        } else {
+            if (nbt.contains("LodestoneDimension")) {
+                nbt.remove("LodestoneDimension");
+            }
+            tickTillNext = CONFIG.trackerAutoUpdateDelay();
+            return;
+        }
+        BlockPos blockPos = null;
+        // Checks if the player holding the tracker isn't in the same dimension as the target
+        if (targetWorld.getRegistryKey() != world.getRegistryKey()) {
+            // If the neither of them is in the end
+            if (targetWorld.getRegistryKey() != World.END && world.getRegistryKey() != World.END) {
+                // Set the block pos to the nether portal that they used
+                blockPos = ((IGetPortalPos) trackedPlayer).getLastNetherPortalLocation();
+            } else {
+                // If one is in the end, set the world to target world and make the compass spin randomly
+                world = targetWorld;
+            }
+        } else {
+            blockPos = trackedPlayer.getBlockPos();
+        }
+
+        if (blockPos != null) nbt.put("LodestonePos", NbtHelper.fromBlockPos(blockPos));
+        nbt.putString("LodestoneDimension", world.getRegistryKey().getValue().toString());
+        tickTillNext = CONFIG.trackerAutoUpdateDelay();
+    }
 
     @Override
     public Item getPolymerItem(ItemStack itemStack, @Nullable ServerPlayerEntity player) {
@@ -103,25 +153,10 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
                     Formatting.RED, Formatting.BOLD
             )));
         } else {
-            if (!stack.hasCustomName()) tooltip.set(0, Text.translatable("item.forf.player_tracker").formatted(Formatting.GREEN));
+            if (!stack.hasCustomName())
+                tooltip.set(0, Text.translatable("item.forf.player_tracker").formatted(Formatting.GREEN));
             tooltip.add(Text.translatable("forf.tracker.tooltip"));
         }
-    }
-
-    private static String getTargetName(UUID targetUUID) {
-        ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(targetUUID);
-        String targetName;
-        if (player != null) {
-            targetName = player.getGameProfile().getName();
-        } else {
-            GameProfile offlineProfile = Util.getOfflineProfile(targetUUID);
-            if (offlineProfile == null) {
-                targetName = "Not Found";
-            } else {
-                targetName = offlineProfile.getName();
-            }
-        }
-        return targetName;
     }
 
     public void onGuiClick(ItemStack selectedStack, PlayerTrackerGui gui) {
@@ -138,7 +173,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
         // Mark the player tracker as tracking and put in the expiration time
         nbt.putBoolean("isTracking", true);
         nbt.putLong("Expiration", Instant.now().plus(Duration.ofMinutes(CONFIG.trackerExpirationMinutes())).toEpochMilli());
-        
+
         gui.getPlayer().sendMessage(
                 Text.translatable("forf.tracker.tracking",
                         target.getGameProfile().getName(),
@@ -163,10 +198,10 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             long expiration = nbt.contains("Expiration") ? nbt.getLong("Expiration") : Instant.now().toEpochMilli();
             if (expiration <= Instant.now().toEpochMilli()) {
                 stack.setCount(0);
-                
+
                 Text name = Text.literal(getTargetName(stack.getNbt().getUuid("TrackedPlayer"))).formatted(Formatting.RED);
                 entity.sendMessage(Text.translatable("forf.tracker.expired", name));
-                
+
                 return;
             }
             // If it's not in the hand then update it
@@ -176,38 +211,5 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             }
             tickTillNext--;
         }
-    }
-    public static void updateTracker(ItemStack stack, World world) {
-        if (!(stack.getItem() instanceof PlayerTrackerItem)) return;
-        NbtCompound nbt = stack.getOrCreateNbt();
-        ServerPlayerEntity trackedPlayer = SERVER.getPlayerManager().getPlayer(NbtHelper.toUuid(Objects.requireNonNull(nbt.get("TrackedPlayer"))));
-        World targetWorld;
-        if (trackedPlayer != null) {
-            targetWorld = trackedPlayer.getWorld();
-        } else {
-            if (nbt.contains("LodestoneDimension")) {
-                nbt.remove("LodestoneDimension");
-            }
-            tickTillNext = CONFIG.trackerAutoUpdateDelay();
-            return;
-        }
-        BlockPos blockPos = null;
-        // Checks if the player holding the tracker isn't in the same dimension as the target
-        if (targetWorld.getRegistryKey() != world.getRegistryKey()) {
-            // If the neither of them is in the end
-            if (targetWorld.getRegistryKey() != World.END && world.getRegistryKey() != World.END) {
-                // Set the block pos to the nether portal that they used
-                blockPos = ((IGetPortalPos) trackedPlayer).getLastNetherPortalLocation();
-            } else {
-                // If one is in the end, set the world to target world and make the compass spin randomly
-                world = targetWorld;
-            }
-        } else {
-            blockPos = trackedPlayer.getBlockPos();
-        }
-
-        if (blockPos != null) nbt.put("LodestonePos", NbtHelper.fromBlockPos(blockPos));
-        nbt.putString("LodestoneDimension", world.getRegistryKey().getValue().toString());
-        tickTillNext = CONFIG.trackerAutoUpdateDelay();
     }
 }

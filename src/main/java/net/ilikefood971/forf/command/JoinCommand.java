@@ -39,7 +39,7 @@ import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class JoinCommand {
-    
+
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, RegistrationEnvironment environment) {
         dispatcher.register(
@@ -55,38 +55,40 @@ public class JoinCommand {
                         )
         );
     }
-    
+
+    @SuppressWarnings("SameReturnValue")
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         }
-        
+
         Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
-        
+
         for (ServerPlayerEntity player : players) {
             joinPlayer(player);
         }
         sendFeedback(context, Text.translatable("forf.commands.join.success.multiple", players.size()), true);
         return 1;
     }
-    
-    
+
+
+    @SuppressWarnings("SameReturnValue")
     private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
-        
+
         if (PERSISTENT_DATA.isStarted()) {
             throw new SimpleCommandExceptionType(
                     Text.translatable("forf.commands.join.exceptions.alreadyAdded", player.getGameProfile().getName())
             ).create();
         }
-        
-        
+
+
         joinPlayer(player);
         sendFeedback(context, Text.translatable("forf.commands.join.success.solo", player.getGameProfile().getName()), true);
-        
+
         return 1;
     }
-    
+
     private static void joinPlayer(ServerPlayerEntity player) throws CommandSyntaxException {
         if (Util.isForfPlayer(player)) {
             throw new SimpleCommandExceptionType(

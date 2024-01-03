@@ -45,14 +45,14 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 @SuppressWarnings("SameReturnValue")
 public class StartCommand {
-    
+
     public static final SimpleCommandExceptionType INSUFFICIENT_AMOUNT_PLAYERS = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.start.exceptions.insufficientAmountPlayers")
     );
     public static final SimpleCommandExceptionType INSUFFICIENT_AMOUNT_LIVES = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.start.exceptions.insufficientAmountLives")
     );
-    
+
     @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
@@ -64,10 +64,10 @@ public class StartCommand {
                         )
         );
     }
-    
+
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Map<UUID, Integer> playersAndLives = PERSISTENT_DATA.getPlayersAndLives();
-        
+
         // Check all conditions for failure
         if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
@@ -76,7 +76,7 @@ public class StartCommand {
         } else if (playersAndLives.isEmpty()) {
             throw INSUFFICIENT_AMOUNT_PLAYERS.create();
         }
-        
+
         // Send feedback to the command sender
         if (CONFIG.startingLives() > 1 && playersAndLives.size() > 1) {
             sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), playersAndLives.size()), true);
@@ -87,20 +87,20 @@ public class StartCommand {
         } else {
             sendFeedback(context, Text.translatable("forf.commands.start.single"), true);
         }
-        
+
         // Setup everything necessary for forf
         setupForf(context);
         return 1;
     }
-    
+
     public static void setupForf(CommandContext<ServerCommandSource> context) {
         PERSISTENT_DATA.setStarted(true);
         fakeScoreboard.setListSlot();
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getHeaderPacket());
-        
+
         Set<UUID> uuids = PERSISTENT_DATA.getPlayersAndLives().keySet();
         PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
-        
+
         // Set all lives
         for (UUID uuid : uuids) {
             ServerPlayerEntity player = playerManager.getPlayer(uuid);
@@ -110,7 +110,7 @@ public class StartCommand {
                 PERSISTENT_DATA.getPlayersAndLives().put(uuid, CONFIG.startingLives());
             }
         }
-        
+
         // Deal with all non forf players
         for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
             if (!Util.isForfPlayer(serverPlayerEntity)) {
@@ -121,7 +121,7 @@ public class StartCommand {
                 }
             }
         }
-        
+
         if (CONFIG.pvPTimer().enabled()) {
             PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, CONFIG.pvPTimer().maxRandomOffTime() * 60);
             SERVER.setPvpEnabled(false); // Just in case previous forf data was left behind

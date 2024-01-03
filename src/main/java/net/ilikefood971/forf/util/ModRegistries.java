@@ -41,26 +41,28 @@ public class ModRegistries {
         registerEvents();
         registerItems();
     }
-    
+
     private static void registerCommands() {
         CommandRegistrationCallback.EVENT.register(StartCommand::register);
         CommandRegistrationCallback.EVENT.register(StopCommand::register);
         CommandRegistrationCallback.EVENT.register(JoinCommand::register);
         CommandRegistrationCallback.EVENT.register(LeaveCommand::register);
-        
+
         CommandRegistrationCallback.EVENT.register(TimerCommands::register);
         CommandRegistrationCallback.EVENT.register(LivesCommands::register);
     }
+
     private static void registerEvents() {
         ServerLivingEntityEvents.AFTER_DEATH.register(new PlayerDeathEvent());
-        
+
         UseEntityCallback.EVENT.register(new PlayerUseEntity());
-        
+
         PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent();
         ServerPlayConnectionEvents.INIT.register(playerJoinEvent);
         ServerPlayConnectionEvents.JOIN.register(playerJoinEvent);
         ServerTickEvents.END_SERVER_TICK.register(new PvPTimer());
     }
+
     private static void registerItems() {
         Registry.register(Registries.ITEM, new Identifier(Util.MOD_ID, "player_tracker"), PlayerTrackerItem.PLAYER_TRACKER);
     }

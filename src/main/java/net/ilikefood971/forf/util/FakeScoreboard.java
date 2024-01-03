@@ -28,7 +28,7 @@ import net.minecraft.text.Text;
 
 public class FakeScoreboard extends Scoreboard {
     public final ScoreboardObjective livesObjective;
-    
+
     public FakeScoreboard() {
         super();
         this.livesObjective = this.addObjective(
@@ -40,12 +40,13 @@ public class FakeScoreboard extends Scoreboard {
                 , false,
                 null
                 //#endif
-                );
+        );
     }
 
     public NbtList toNbt() {
         return super.toNbt();
     }
+
     public void readNbt(NbtList list) {
         super.readNbt(list);
     }
@@ -55,14 +56,13 @@ public class FakeScoreboard extends Scoreboard {
                 Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective
         ));
     }
-    
+
     public void clearListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
                 Util.getScoreboardListSlot(), null
         ));
     }
-    
-    
+
     @Override
     public void updateScore(
             //#if MC >= 12003

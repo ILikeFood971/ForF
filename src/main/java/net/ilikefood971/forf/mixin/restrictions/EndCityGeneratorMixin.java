@@ -37,7 +37,7 @@ public abstract class EndCityGeneratorMixin extends SimpleStructurePiece {
     public EndCityGeneratorMixin(StructurePieceType type, int length, StructureTemplateManager structureTemplateManager, Identifier id, String template, StructurePlacementData placementData, BlockPos pos) {
         super(type, length, structureTemplateManager, id, template, placementData, pos);
     }
-    
+
     // Prevent the end city generator from actually putting any elytra item into the item frame.
     @WrapWithCondition(
             method = "handleMetadata",

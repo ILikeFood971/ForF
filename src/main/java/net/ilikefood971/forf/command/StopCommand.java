@@ -46,22 +46,22 @@ public class StopCommand {
                 )
         );
     }
-    
+
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         // Send a message that says stopping forf but only send to ops if forf has already started
         if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
         sendFeedback(context, Text.translatable("forf.commands.stop.stopping"), true);
-        
+
         PERSISTENT_DATA.setStarted(false);
-        
+
         // Remove the Header from the tablist
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
-        
+
         // Set all lives to 0
         PERSISTENT_DATA.getPlayersAndLives().clear();
-        
+
         SERVER.setPvpEnabled(((MinecraftDedicatedServer) SERVER).getProperties().pvp);
         fakeScoreboard.clearListSlot();
         return 1;
