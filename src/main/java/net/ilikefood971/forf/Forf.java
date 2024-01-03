@@ -20,16 +20,16 @@
 
 package net.ilikefood971.forf;
 
-import net.fabricmc.api.ModInitializer;
+import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ModRegistries;
 
 import static net.ilikefood971.forf.util.Util.*;
 
-public class Forf implements ModInitializer {
+public class Forf implements DedicatedServerModInitializer {
     @Override
-    public void onInitialize() {
+    public void onInitializeServer() {
         // This code runs as soon as Minecraft is in a mod-load-ready state.
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.

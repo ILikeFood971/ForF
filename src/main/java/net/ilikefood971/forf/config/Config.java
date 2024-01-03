@@ -45,12 +45,12 @@ public class Config {
 
     @Comment("Should players be able to go over the starting lives")
     private boolean overfill = false;
-    
+
     @Comment("The text to put at in the header of the tablist. Leave blank to remove")
     private String tablistHeader = "{\"text\":\"Friend or Foe\",\"color\":\"yellow\",\"bold\":true}";
     @Comment("What render type to use when a player looks at the lives in the tablist. Options are INTEGER or HEARTS")
     private ScoreboardCriterion.RenderType tablistLivesRenderType = ScoreboardCriterion.RenderType.INTEGER;
-    
+
     @Comment("Should the player tracker be craft-able and usable?")
     private boolean playerTracker = true;
     @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.")
@@ -63,14 +63,14 @@ public class Config {
     private PvPTimer pvPTimer = new PvPTimer();
     @Comment("Restrictions to prevent op things for this play-style")
     private Restrictions restrictions = new Restrictions();
-    
-    
+
+
     // Methods for Config
 
     public static Config loadFromFile() {
         return loadFromFile(FabricLoader.getInstance().getConfigDir().resolve("forf-config.json5").toFile());
     }
-    
+
     public static Config loadFromFile(File file) {
         if (!Files.exists(file.toPath())) {
             Config config = new Config();
@@ -108,7 +108,7 @@ public class Config {
             Util.LOGGER.error(e.toString());
         }
     }
-    
+
     // Getters
     public boolean spectators() {
         return spectators;
@@ -159,16 +159,16 @@ public class Config {
     public Restrictions restrictions() {
         return restrictions;
     }
-    
+
     // Tracker Options
-    
+
     public enum UpdateType {
         AUTOMATIC,
         USE
     }
-    
+
     // Nested Options
-    
+
     public static class PvPTimer {
         @Comment("Use this to disable the PvP Timer completely")
         private boolean enabled = true;
@@ -176,33 +176,33 @@ public class Config {
         private int minRandomOnTime = 20;
         @Comment("Same as before but for the maximum amount of minutes it can be on for")
         private int maxRandomOnTime = 20;
-        
+
         @Comment("The minimum time until the PvP Timer turns on again")
         private int minRandomOffTime = 10;
         @Comment("The maximum time until the PvP Timer turns on again")
         private int maxRandomOffTime = 30;
-        
+
         public boolean enabled() {
             return enabled;
         }
-        
+
         public int minRandomOnTime() {
             return minRandomOnTime;
         }
-        
+
         public int maxRandomOnTime() {
             return maxRandomOnTime;
         }
-        
+
         public int minRandomOffTime() {
             return minRandomOffTime;
         }
-        
+
         public int maxRandomOffTime() {
             return maxRandomOffTime;
         }
     }
-    
+
     @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     public static class Restrictions {
         private boolean totemDrops = false;
@@ -210,18 +210,19 @@ public class Config {
         private boolean goldenAppleCrafting = false;
         @Comment("Will only prevent elytras in generation\nIf the ship has been generated already elytra will still be there")
         private boolean elytraInEndShip = false;
+
         public boolean totemDrops() {
             return totemDrops;
         }
-        
+
         public boolean villagerTrading() {
             return villagerTrading;
         }
-        
+
         public boolean goldenAppleCrafting() {
             return goldenAppleCrafting;
         }
-        
+
         public boolean elytraInEndShip() {
             return elytraInEndShip;
         }
