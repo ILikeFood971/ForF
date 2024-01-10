@@ -21,30 +21,32 @@
 package net.ilikefood971.forf.mixin.restrictions;
 
 import net.ilikefood971.forf.util.Util;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.mob.EvokerEntity;
-import net.minecraft.entity.mob.SpellcastingIllagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EvokerEntity.class)
-public abstract class EvokerMixin extends SpellcastingIllagerEntity {
-    protected EvokerMixin(EntityType<? extends SpellcastingIllagerEntity> entityType, World world) {
-        super(entityType, world);
-    }
+public abstract class EvokerMixin extends EntityMixin {
 
-    // TODO Mixin inheritance
-    @Nullable
     @Override
-    public ItemEntity dropStack(ItemStack stack) {
+    protected void dropStack(ItemStack stack, float yOffset,CallbackInfoReturnable<ItemEntity> cir) {
         if (stack.isOf(Items.TOTEM_OF_UNDYING) && !Util.CONFIG.restrictions().totemDrops()) {
             Util.LOGGER.debug("Totem drop cancelled");
-            return null;
+            cir.setReturnValue(null);
         }
-        return super.dropStack(stack);
+    }
+}
+
+@Mixin(Entity.class)
+abstract class EntityMixin { // Used for more compatible Mixin inheritance
+    @SuppressWarnings("CancellableInjectionUsage")
+    @Inject(method = "dropStack(Lnet/minecraft/item/ItemStack;F)Lnet/minecraft/entity/ItemEntity;", at = @At("HEAD"), cancellable = true)
+    protected void dropStack(ItemStack stack, float yOffset, CallbackInfoReturnable<ItemEntity> cir) {
     }
 }

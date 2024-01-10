@@ -8,6 +8,7 @@
     "PlayerManagerMixin",
     "ScoreboardCommandMixin",
     "restrictions.EndCityGeneratorMixin",
+    "restrictions.EntityMixin",
     "restrictions.EvokerMixin",
     "restrictions.RecipeManagerMixin"
   ],
