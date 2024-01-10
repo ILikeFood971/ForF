@@ -95,7 +95,7 @@ public class StartCommand {
 
     public static void setupForf(CommandContext<ServerCommandSource> context) {
         PERSISTENT_DATA.setStarted(true);
-        fakeScoreboard.setListSlot();
+        FAKE_SCOREBOARD.setListSlot();
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getHeaderPacket());
 
         Set<UUID> uuids = PERSISTENT_DATA.getPlayersAndLives().keySet();

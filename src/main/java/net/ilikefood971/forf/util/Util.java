@@ -55,7 +55,7 @@ public class Util {
     public static final String MOD_ID = "forf";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Config CONFIG = Config.loadFromFile();
-    public static final FakeScoreboard fakeScoreboard = new FakeScoreboard();
+    public static final FakeScoreboard FAKE_SCOREBOARD = new FakeScoreboard();
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
 
@@ -83,10 +83,10 @@ public class Util {
 
     public static void setScore(ServerPlayerEntity player, int lives) {
         //#if MC >= 12003
-        ScoreAccess scoreAccess = fakeScoreboard.getOrCreateScore(player, fakeScoreboard.livesObjective);
+        ScoreAccess scoreAccess = FAKE_SCOREBOARD.getOrCreateScore(player, FAKE_SCOREBOARD.livesObjective);
         scoreAccess.setScore(lives);
         //#else
-        //$$ ScoreboardPlayerScore playerScore = fakeScoreboard.getPlayerScore(player.getEntityName(), fakeScoreboard.livesObjective);
+        //$$ ScoreboardPlayerScore playerScore = FAKE_SCOREBOARD.getPlayerScore(player.getEntityName(), FAKE_SCOREBOARD.livesObjective);
         //$$ playerScore.setScore(lives);
         //#endif
     }
@@ -104,7 +104,7 @@ public class Util {
                         //#else
                         //$$ ScoreboardPlayerScore
                         //#endif
-                        entry : fakeScoreboard.getScoreboardEntries(fakeScoreboard.livesObjective)) {
+                        entry : FAKE_SCOREBOARD.getScoreboardEntries(FAKE_SCOREBOARD.livesObjective)) {
             action.accept(entry);
         }
     }
@@ -119,15 +119,15 @@ public class Util {
         //#if MC >= 12003
         return new ScoreboardScoreUpdateS2CPacket(
                 score.owner(),
-                Util.fakeScoreboard.livesObjective.getName(),
+                Util.FAKE_SCOREBOARD.livesObjective.getName(),
                 score.value(),
-                Util.fakeScoreboard.livesObjective.getDisplayName(),
+                Util.FAKE_SCOREBOARD.livesObjective.getDisplayName(),
                 null
         );
         //#else
         //$$ return new ScoreboardPlayerUpdateS2CPacket(
         //$$         ServerScoreboard.UpdateMode.CHANGE,
-        //$$         Util.fakeScoreboard.livesObjective.getName(),
+        //$$         Util.FAKE_SCOREBOARD.livesObjective.getName(),
         //$$         score.getPlayerName(),
         //$$         score.getScore()
         //$$ );

@@ -35,13 +35,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class PlayerManagerMixin {
     @Inject(method = "sendScoreboard", at = @At("RETURN"))
     protected void sendScoreboardWithLivesList(ServerScoreboard scoreboard, ServerPlayerEntity player, CallbackInfo ci) {
-        player.networkHandler.sendPacket(new ScoreboardObjectiveUpdateS2CPacket(Util.fakeScoreboard.livesObjective, 0));
+        player.networkHandler.sendPacket(new ScoreboardObjectiveUpdateS2CPacket(Util.FAKE_SCOREBOARD.livesObjective, 0));
         Util.forEachValueInLivesObjective(scoreboardEntry ->
                 player.networkHandler.sendPacket(Util.getScoreboardUpdatePacket(scoreboardEntry)
                 ));
         if (Util.PERSISTENT_DATA.isStarted()) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
-                    Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective)
+                    Util.getScoreboardListSlot(), Util.FAKE_SCOREBOARD.livesObjective)
             );
         }
     }

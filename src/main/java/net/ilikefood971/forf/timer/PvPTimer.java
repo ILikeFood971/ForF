@@ -135,7 +135,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             ticksTillSecond--;
             return;
         }
-        Util.LOGGER.debug(secondsLeft + " seconds left with pvp " + pvPState);
+        Util.LOGGER.trace(secondsLeft + " seconds left with pvp " + pvPState);
         // Check to see if the timer has run out
         if (secondsLeft <= 0) {
             // Get the random seconds for the opposite of the current pvPState as it hasn't changed yet

@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EvokerMixin extends EntityMixin {
 
     @Override
-    protected void dropStack(ItemStack stack, float yOffset,CallbackInfoReturnable<ItemEntity> cir) {
+    protected void dropStack(ItemStack stack, float yOffset, CallbackInfoReturnable<ItemEntity> cir) {
         if (stack.isOf(Items.TOTEM_OF_UNDYING) && !Util.CONFIG.restrictions().totemDrops()) {
             Util.LOGGER.debug("Totem drop cancelled");
             cir.setReturnValue(null);

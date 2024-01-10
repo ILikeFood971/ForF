@@ -27,8 +27,6 @@ import eu.pb4.sgui.api.gui.SimpleGui;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -74,7 +72,7 @@ public class PlayerTrackerGui extends SimpleGui {
             Text name = Text.literal(playerName).formatted(Formatting.RED);
 
             GuiElementBuilder skullBuilder = new GuiElementBuilder();
-            skullBuilder.getOrCreateNbt().put("SkullOwner", NbtHelper.writeGameProfile(new NbtCompound(), player.getGameProfile()));
+            skullBuilder.setSkullOwner(player.getGameProfile(), Util.SERVER);
 
             skullBuilder.setItem(Items.PLAYER_HEAD);
             skullBuilder.addLoreLine(lore);

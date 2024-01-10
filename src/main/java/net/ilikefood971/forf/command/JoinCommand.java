@@ -71,7 +71,6 @@ public class JoinCommand {
         return 1;
     }
 
-
     @SuppressWarnings("SameReturnValue")
     private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();

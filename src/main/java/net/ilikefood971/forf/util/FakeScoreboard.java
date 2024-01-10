@@ -53,7 +53,7 @@ public class FakeScoreboard extends Scoreboard {
 
     public void setListSlot() {
         Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                Util.getScoreboardListSlot(), Util.fakeScoreboard.livesObjective
+                Util.getScoreboardListSlot(), this.livesObjective
         ));
     }
 
@@ -88,10 +88,10 @@ public class FakeScoreboard extends Scoreboard {
                                 objective.getDisplayName(),
                                 null
                                 //#else
-                                //$$ServerScoreboard.UpdateMode.CHANGE,
-                                //$$score.getObjective().getName(),
-                                //$$score.getPlayerName(),
-                                //$$score.getScore()
+                                //$$ ServerScoreboard.UpdateMode.CHANGE,
+                                //$$ score.getObjective().getName(),
+                                //$$ score.getPlayerName(),
+                                //$$ score.getScore()
                                 //#endif
                         )
                 );
