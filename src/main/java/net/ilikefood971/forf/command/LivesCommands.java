@@ -20,6 +20,7 @@
 
 package net.ilikefood971.forf.command;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -29,6 +30,7 @@ import net.ilikefood971.forf.util.Lives;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -63,7 +65,7 @@ public class LivesCommands {
                                         .then(
                                                 literal("set")
                                                         .then(
-                                                                argument("players", EntityArgumentType.players())
+                                                                argument("players", GameProfileArgumentType.gameProfile())
                                                                         .then(
                                                                                 argument("lives", IntegerArgumentType.integer(0))
                                                                                         .executes(LivesCommands::setPlayersLives)
@@ -92,20 +94,32 @@ public class LivesCommands {
         }
         int lives = IntegerArgumentType.getInteger(context, "lives");
 
-        for (ServerPlayerEntity player : EntityArgumentType.getPlayers(context, "players")) {
-            Lives playerLives = new Lives(player);
-            if (!Util.isForfPlayer(player)) {
+        for (GameProfile profile : GameProfileArgumentType.getProfileArgument(context, "players")) {
+            if (!Util.isForfPlayer(profile.getId())) {
                 throw new SimpleCommandExceptionType(
-                        Text.translatable("forf.commands.lives.exceptions.invalidTarget", player.getGameProfile().getName())
+                        Text.translatable("forf.commands.lives.exceptions.invalidTarget", profile.getName())
                 ).create();
             }
-            playerLives.set(lives);
+            ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(profile.getId());
+            int newLives;
+            if (player != null) {
+                Lives playerLives = new Lives(player);
+                playerLives.set(lives);
+                newLives = playerLives.get();
+            } else {
+                if (!CONFIG.overfill()) {
+                    // Prevent the player from going over if overfill is disabled
+                    lives = Math.min(lives, CONFIG.startingLives());
+                }
+                PERSISTENT_DATA.getPlayersAndLives().put(profile.getId(), lives);
+                newLives = lives;
+            }
 
             sendFeedback(
                     context,
                     Text.translatable("forf.commands.lives.success",
-                            player.getGameProfile().getName(),
-                            playerLives.get()
+                            profile.getName(),
+                            newLives
                     ),
                     true
             );

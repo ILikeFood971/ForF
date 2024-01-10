@@ -20,13 +20,14 @@
 
 package net.ilikefood971.forf.command;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -47,7 +48,7 @@ public class LeaveCommand {
                         .then(
                                 literal("leave")
                                         .then(
-                                                argument("players", EntityArgumentType.players())
+                                                argument("players", GameProfileArgumentType.gameProfile())
                                                         .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
                                                         .executes(LeaveCommand::run)
                                         )
@@ -62,12 +63,20 @@ public class LeaveCommand {
             throw ALREADY_STARTED.create();
         }
 
-        Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
-        for (ServerPlayerEntity player : players) {
-            leavePlayer(player);
+        Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(context, "players");
+        int changed = 0;
+        for (GameProfile profile : profiles) {
+            try {
+                leavePlayer(profile);
+                changed++;
+            } catch (CommandSyntaxException e) {
+                if (profiles.size() == 1) {
+                    throw e;
+                }
+            }
         }
 
-        sendFeedback(context, Text.translatable("forf.commands.leave.success.multiple", players.size()), true);
+        sendFeedback(context, Text.translatable("forf.commands.leave.success.multiple", changed), true);
         return 1;
     }
 
@@ -78,18 +87,18 @@ public class LeaveCommand {
         }
 
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
-        leavePlayer(player);
+        leavePlayer(player.getGameProfile());
 
         sendFeedback(context, Text.translatable("forf.commands.leave.success.solo", player.getGameProfile().getName()), true);
         return 1;
     }
 
-    private static void leavePlayer(ServerPlayerEntity player) throws CommandSyntaxException {
-        if (!Util.isForfPlayer(player)) {
+    private static void leavePlayer(GameProfile profile) throws CommandSyntaxException {
+        if (!Util.isForfPlayer(profile.getId())) {
             throw new SimpleCommandExceptionType(
-                    Text.translatable("forf.commands.leave.exceptions.alreadyLeft", player.getGameProfile().getName())
+                    Text.translatable("forf.commands.leave.exceptions.alreadyLeft", profile.getName())
             ).create();
         }
-        Util.removePlayer(player);
+        Util.removePlayer(profile.getId());
     }
 }

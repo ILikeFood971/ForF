@@ -59,16 +59,20 @@ public class Util {
     public static PersistentData PERSISTENT_DATA;
     public static MinecraftServer SERVER;
 
-    public static void addNewPlayer(ServerPlayerEntity player) {
-        PERSISTENT_DATA.getPlayersAndLives().put(player.getUuid(), 0);
+    public static void addNewPlayer(UUID uuid) {
+        PERSISTENT_DATA.getPlayersAndLives().put(uuid, 0);
     }
 
-    public static void removePlayer(ServerPlayerEntity player) {
-        PERSISTENT_DATA.getPlayersAndLives().remove(player.getUuid());
+    public static void removePlayer(UUID uuid) {
+        PERSISTENT_DATA.getPlayersAndLives().remove(uuid);
     }
 
     public static boolean isForfPlayer(ServerPlayerEntity player) {
-        return PERSISTENT_DATA.getPlayersAndLives().containsKey(player.getUuid());
+        return isForfPlayer(player.getUuid());
+    }
+
+    public static boolean isForfPlayer(UUID uuid) {
+        return PERSISTENT_DATA.getPlayersAndLives().containsKey(uuid);
     }
 
     // Version Utils
