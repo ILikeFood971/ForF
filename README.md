@@ -1,79 +1,152 @@
 # Friend or Foe for Fabric
+
 ![Latest Release](https://img.shields.io/github/v/tag/ILIkeFood971/forf?label=Latest%20Release)
-[![License](https://img.shields.io/github/license/ILIkeFood971/forf)](https://github.com/ILikeFood971/ForF/blob/1.20/LICENSE) 
+[![License](https://img.shields.io/github/license/ILIkeFood971/forf)](https://github.com/ILikeFood971/ForF/blob/1.20/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/ILikeFood971/forf)](https://github.com/ILikeFood971/ForF/issues)  
 [![Discord](https://img.shields.io/discord/1142919875300430015?logo=discord&label=discord)](https://discord.gg/ypyRwVEaBT)  
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/forf?logo=modrinth&label=Modrinth%20Downloads)](https://modrinth.com/mod/forf) 
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/forf?logo=modrinth&label=Modrinth%20Downloads)](https://modrinth.com/mod/forf)
 [![CurseForge Downloads](https://cf.way2muchnoise.eu/full_919008_CurseForge%20Downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/forf)
 
 ![Available Versions](https://cf.way2muchnoise.eu/versions/For%20MC_919008_all.svg)
 
-This fabric mod allows you to recreate almost everything in the Friend or Foe YouTube series that has 4 members: [SB737,](https://youtube.com/playlist?list=PLWJikipm2MTbCmHm6e9KV0bPmW6chk1j9) [ClownPierce,](https://www.youtube.com/@ClownPierce) [Quiff,](https://www.youtube.com/@QuiffYT) and [Mini](https://www.youtube.com/playlist?list=PLkUQm5HBzevSUv6iW8EMErAmIKPKD4uF7). They have some alterations that differ from the regular vanilla experience. The Friend or Foe mod, forf for short, aims to add those new features and gameplay changes for you to enjoy with your friends.
+This fabric mod allows you to recreate almost everything in the Friend or Foe YouTube series that has 4
+members: [SB737,](https://youtube.com/playlist?list=PLWJikipm2MTbCmHm6e9KV0bPmW6chk1j9) [ClownPierce,](https://www.youtube.com/@ClownPierce) [Quiff,](https://www.youtube.com/@QuiffYT)
+and [Mini](https://www.youtube.com/playlist?list=PLkUQm5HBzevSUv6iW8EMErAmIKPKD4uF7). They have some alterations that
+differ from the regular vanilla experience. The Friend or Foe mod, forf for short, aims to add those new features and
+gameplay changes for you to enjoy with your friends.
 
 ## What is included
 
 - Only required on the server
-  - Players do not need to install on their clients
+    - Players do not need to install on their clients
 - A config that allows you to customize much of what is added
+    - Can be found in your servers config folder. (Default: `config/forf-config.json5`)
 - A new player tracker item
-  - Expires automatically after configured time
+    - Expires automatically after configured time
 - Lives system that will decrease a life until player runs out
-  - Customize amount of lives
-    - Configure starting amounts as well as commands to change any player's lives
-  - Allow players who run out to spectate in a configurable gamemode after they run out
+    - Customize amount of lives
+        - Configure starting amounts as well as commands to change any player's lives
+    - Allow players who run out to spectate in a configurable gamemode after they run out
 - Restrictions
     - No villager trading
     - No golden apple recipes
     - No elytra in the end ships
     - No totems drop from evokers
+    - Explosions are nerfed
+        - Every player except the player who detonated will take a configured percentage less damage from the explosion
     - You can disable any of the restrictions from the config
 - PvP Timer that runs for random amounts of time
-  - Enable or disable it easily with commands
+    - Enable or disable it easily with commands
 
-This mod tries to follow everything written in the official Friend or Foe rules [written here](https://pastebin.com/X9j3ZsNb).
+This mod tries to follow everything written in the official Friend or Foe
+rules [written here](https://pastebin.com/X9j3ZsNb).
 
 ## How to use
 
-The mod is fairly simple to use. First you must start it up at least once to generate the config file. You can then change that according to how you like it.
+<details><summary>Super simple installation step by step</summary>
 
-Once everything has been set to what you like, save the file. After/while doing this, have every player you would like to play with log on and run the `/forf join` command. An op can also append the target player(s) at the end if desired (`/forf join [players]`). Once everyone has joined, you can then run the `/forf start` command (op level 4 required) to set everything up. If at anytime you need to stop forf, run the `/forf stop` command. 
+1. Set up a Minecraft server
+    1. You can use either a server host or host it yourself
+    2. If you are hosting it yourself, you can
+       use [this](https://help.minecraft.net/hc/en-us/articles/360058525452-How-to-Setup-a-Minecraft-Java-Edition-Server)
+       tutorial
+    3. Download and install the latest Fabric Loader for servers from [here](https://fabricmc.net/use/server/)
+        1. Most server hosts can do this automatically for you, if you need help installing on a server host look
+           through their documentation or look up how to install Fabric on your server host
+        2. If you're self-hosting it then replace the server jar you downloaded in step 1 with this new jar file
+2. Install Friend or Foe and it's dependencies
+    1. Download the latest Friend or Foe version for your Minecraft version
+       from [Modrinth](https://modrinth.com/mod/forf)
+       or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/forf/files/all)
+    2. Download the latest Fabric API version for your Minecraft version
+       from [Modrinth](https://modrinth.com/mod/fabric-api)
+       or [CurseForge](https://www.curseforge.com/minecraft/mc-mods/fabric-api/files/all)
+    3. Put the 2 jar files you downloaded in step 3 and 4 into your server's `mods` folder
+        1. If you are using a server host, you can usually do this through their file manager
+        2. If you are self-hosting, you can find the `mods` folder in the same folder as the server jar
+    4. Start up your server
+        1. If you are using a server host, you can usually do this through their control panel
+        2. If you are self-hosting, you can start it up by running the server jar file
+3. Edit your Friend or Foe config file
+    1. Stop your server
+    2. Open the config file in your favorite text editor or in your server host's file manager
+        1. You can find the config file in the same folder as the server jar
+    3. Carefully look through all the options and edit them however you want
+    4. Save the file
+4. Start Friend or Foe
+    1. Start up your server
+    2. Run the `/forf join` command on every player you want to play with
+        1. You can also append the target player(s) at the end if desired (`/forf join [players]`) (This works even with
+           player who are not online)
+    3. Run the `/forf start` command (op level 3 required) to set everything up
+        1. Either have an op run it or run it on the server console
+    4. Enjoy!
+
+</details>
+
+The mod is fairly simple to use. After installing, you must start it up at least once to generate the config file. You
+can then change that according to how you like it.
+
+Once everything in the config has been set to what you like, save the file. After/while doing this, have every player
+you would like to play with log on and run the `/forf join` command. An op can also append the target player(s) at the
+end if desired (`/forf join [players]`). Once everyone has joined, you can then run the `/forf start` command (op level
+4 required) to set everything up. If at anytime you need to stop Friend or Foe, run the `/forf stop`
+command. Run it with true if you'd like to keep all the lives and other forf related data or false to erase all data (
+resets everything).
 
 ### Timer
 
-You can set the randomness range in the config. The timer can also be disabled if so desired. It automatically starts after `/forf start` is run. To manually change it, you can use `forf pvp (on|off) [minutes]`. Without the minutes argument the timer will pick a random amount.
+You can set the randomness range in the config. The timer can also be disabled if so desired. It automatically starts
+after `/forf start` is run. To manually change it, you can use `/forf pvp (on|off) [minutes]`. Without the minutes
+argument the timer will pick a random amount.
 
 ### Lives
 
-Are stored per-player. You can set how many one will start with in the config. Every death will remove 1 life until you reach 0. A player on 0 lives will not be able to join unless spectators is enabled in the config. 
+Are stored per-player. You can set how many one will start with in the config. Every death will remove 1 life until you
+reach 0. A player on 0 lives will not be able to join unless spectators is enabled in the config.
 
 #### Lives Commands
 
 Format is as follows:  
-`/forf lives set <players> <amount>` - You must be an op level 3 or higher to run this command. This will set the players' lives to exactly the amount you set. (Useful for manual extra lives quest.)   
-`/forf lives give <player> <amount>` - Any player can run this command to give their lives to another player. This is useful for deals and such. (Like how SB737 gives a life to ClownPierce)
+`/forf lives set <players> <amount>` - You must be an op level 3 or higher to run this command. This will set the
+players' lives to exactly the amount you set. (Useful for manual extra lives quest.)   
+`/forf lives give <player> <amount>` - Any player can run this command to give their lives to another player. This is
+useful for deals and such (Like how SB737 gives a life to ClownPierce).
 
 ### Player Tracker
 
-The player tracker can be crafted using 4 diamonds, 2 emeralds, 2 eyes of ender, and 1 compass. It uses [this recipe.](https://gyazo.com/444fa8fc199afff4d1af3c8dd641fab4) By default, it will expire after 1 hour. It will track any player of your choice by right-clicking to open a selection GUI. After selecting a player it will update to the tracked players location when you right-click or when it is in another slot in your hotbar. (If I made it constantly update when in your hand it would bob and would be annoying. If you still wish for it to update in your hand, you can do so in the config.) If the tracked player goes offline, the compass will spin randomly. The player tracker works fully server-side by using the Polymer library.
+The player tracker can be crafted using 4 diamonds, 2 emeralds, 2 eyes of ender, and 1 compass. It
+uses [this recipe.](https://gyazo.com/444fa8fc199afff4d1af3c8dd641fab4) By default, it will expire after 1 hour. It will
+track any player of your choice by right-clicking to open a selection GUI. After selecting a player it will update to
+the tracked players location when you right-click or when it is in another slot in your hotbar. (If I made it constantly
+update when in your hand it would bob and would be annoying. If you still wish for it to update in your hand, you can do
+so in the config.) If the tracked player goes offline, the compass will spin randomly. The player tracker works fully
+server-side by using the Polymer library.
 
 #### Portals
 
-If the player you are tracking is in another dimension that is either the overworld or the nether, it will point towards their last player. If only you or the tracked player is in the end, the compass will spin randomly instead of pointing towards the end portal. 
+If the player you are tracking is in another dimension that is either the overworld or the nether, it will point towards
+their last player. If only you or the tracked player is in the end, the compass will spin randomly instead of pointing
+towards the end portal.
 
 ## Missing features
 
 - Extra lives quests - Not currently planned. You can do this manually with the `/forf lives set` command
-- Explosion debuffs - I have no idea how much of a debuff this is and how it's implemented in the official forf server as it isn't on the rules site. If anyone has any numbers/information, please file an issue and I could probably implement this fairly easily
-- Spawn Structure - I don't have the actual structure as well as it would take a lot of work to place it in the world. Just use [litematica](https://www.curseforge.com/minecraft/mc-mods/litematica) or creative mode if you need this
+- Spawn Structure - I don't have the actual structure as well as it would take a lot of work to place it in the world.
+  Just use [litematica](https://www.curseforge.com/minecraft/mc-mods/litematica) or creative mode if you need this
 - No Reloading Chunks - Not possible without a client mod
-- Forge and Plugin ports - If enough people request a port, then I **may** port this mod for other platforms. Not currently planned
-- A system to prevent players from logging on without all the forf players online (Stop people from grinding like it is in the real series) - May be added in the future
+- Forge and Plugin ports - If enough people request a port, then I **may** port this mod for other platforms. Not
+  currently planned
+- A system to prevent players from logging on without all the forf players online (Stop people from grinding like it is
+  in the real series) - May be added in the future
 
 ## Getting support and contributing
 
-Feel free to [file an issue](https://github.com/ILikeFood971/ForF/issues) or [pr](https://github.com/ILikeFood971/ForF/pulls). I would be happy to fix any bugs you may encounter. 
+Feel free to [file an issue](https://github.com/ILikeFood971/ForF/issues)
+or [pr](https://github.com/ILikeFood971/ForF/pulls). I would be happy to fix any bugs you may encounter.
 
-If you want you could make a [translation pr.](https://github.com/ILikeFood971/ForF/tree/main/src/main/resources/assets/forf/lang)
+If you want you could make
+a [translation pr.](https://github.com/ILikeFood971/ForF/tree/main/src/main/resources/assets/forf/lang)
 
 If you need any more help please join the [Discord Server](https://discord.gg/ypyRwVEaBT).
 

@@ -210,6 +210,8 @@ public class Config {
         private boolean goldenAppleCrafting = false;
         @Comment("Will only prevent elytras in generation\nIf the ship has been generated already elytra will still be there")
         private boolean elytraInEndShip = false;
+        @Comment("Explosions do this much percent less damage to players except for the player who detonated it\nSet to 0 to disable the nerf")
+        private int explosionNerf = 90;
 
         public boolean totemDrops() {
             return totemDrops;
@@ -225,6 +227,10 @@ public class Config {
 
         public boolean elytraInEndShip() {
             return elytraInEndShip;
+        }
+
+        public int getExplosionNerf() {
+            return explosionNerf;
         }
     }
 }

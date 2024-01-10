@@ -7,6 +7,7 @@
     "PlayerLoginMixin",
     "PlayerManagerMixin",
     "ScoreboardCommandMixin",
+    "ServerPlayerEntityMixin",
     "restrictions.EndCityGeneratorMixin",
     "restrictions.EntityMixin",
     "restrictions.EvokerMixin",
