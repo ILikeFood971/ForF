@@ -1,13 +1,13 @@
 plugins {
-	id 'fabric-loom' version '1.4.5' apply false
-	id 'com.github.hierynomus.license' version '0.16.1' apply false
+	id "fabric-loom" version "${loom_version}" apply false
+	id "com.github.hierynomus.license" version "${licence_version}" apply false
 
 	// https://github.com/ReplayMod/preprocessor
 	// https://github.com/Fallen-Breath/preprocessor
-	id 'com.replaymod.preprocess' version 'ce1aeb2b'
+	id "com.replaymod.preprocess" version "${preprocessor_version}"
 	// https://github.com/Fallen-Breath/yamlang
 	// https://github.com/ILikeFood971/yamlang
-	id 'me.fallenbreath.yamlang' version '7dd4765758' apply false
+	id "me.fallenbreath.yamlang" version "${yamlang_version}" apply false
 }
 
 preprocess {
