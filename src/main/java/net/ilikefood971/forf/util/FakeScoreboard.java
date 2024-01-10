@@ -20,7 +20,6 @@
 
 package net.ilikefood971.forf.util;
 
-import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
 import net.minecraft.scoreboard.*;
@@ -41,14 +40,6 @@ public class FakeScoreboard extends Scoreboard {
                 null
                 //#endif
         );
-    }
-
-    public NbtList toNbt() {
-        return super.toNbt();
-    }
-
-    public void readNbt(NbtList list) {
-        super.readNbt(list);
     }
 
     public void setListSlot() {

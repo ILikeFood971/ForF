@@ -84,9 +84,11 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
 
     @Override
     public void onPlayReady(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
+        ServerPlayerEntity player = handler.getPlayer();
         // Check to see if Friend or Foe has started
         if (PERSISTENT_DATA.isStarted()) {
             sender.sendPacket(getHeaderPacket());
         }
+        Util.setScore(player, Lives.get(player));
     }
 }

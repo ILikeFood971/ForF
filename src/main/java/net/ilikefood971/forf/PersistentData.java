@@ -21,7 +21,6 @@
 package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.timer.PvPTimer;
-import net.ilikefood971.forf.util.Util;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -57,8 +56,6 @@ public class PersistentData extends PersistentState {
         state.secondsLeft = tag.getInt("secondsLeft");
         state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
         state.playersAndLives = listToMap(tag.getList("livesMap", NbtElement.COMPOUND_TYPE));
-
-        Util.fakeScoreboard.readNbt(tag.getList("PlayerScores", NbtElement.COMPOUND_TYPE));
 
         /*
          * Used to migrate old data
@@ -128,8 +125,6 @@ public class PersistentData extends PersistentState {
         nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
         nbt.put("livesMap", mapToNbt(playersAndLives));
-
-        nbt.put("PlayerScores", Util.fakeScoreboard.toNbt());
 
         return nbt;
     }
