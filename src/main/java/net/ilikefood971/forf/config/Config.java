@@ -229,7 +229,7 @@ public class Config {
             return elytraInEndShip;
         }
 
-        public int getExplosionNerf() {
+        public int explosionNerf() {
             return explosionNerf;
         }
     }

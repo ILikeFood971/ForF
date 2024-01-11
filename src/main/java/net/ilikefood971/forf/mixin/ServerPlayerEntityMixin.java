@@ -45,7 +45,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     private boolean damage(ServerPlayerEntity instance, DamageSource source, float amount, Operation<Boolean> original) {
         Entity sourceEntity = source.getAttacker();
         if (source.getTypeRegistryEntry().matchesKey(DamageTypes.PLAYER_EXPLOSION) && sourceEntity != null && !sourceEntity.equals(instance)) {
-            amount -= amount * Util.CONFIG.restrictions().getExplosionNerf() / 100f;
+            amount -= amount * Util.CONFIG.restrictions().explosionNerf() / 100f;
         }
         return original.call(instance, source, amount);
     }

@@ -24,8 +24,8 @@ import com.mojang.authlib.GameProfile;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.ilikefood971.forf.config.Config;
+import net.ilikefood971.forf.mixin.IGetPortalPos;
 import net.ilikefood971.forf.util.Util;
-import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -98,7 +98,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             // If the neither of them is in the end
             if (targetWorld.getRegistryKey() != World.END && world.getRegistryKey() != World.END) {
                 // Set the block pos to the nether portal that they used
-                blockPos = ((IGetPortalPos) trackedPlayer).getLastNetherPortalLocation();
+                blockPos = ((IGetPortalPos) trackedPlayer).getLastNetherPortalPosition();
             } else {
                 // If one is in the end, set the world to target world and make the compass spin randomly
                 world = targetWorld;

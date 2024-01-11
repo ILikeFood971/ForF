@@ -20,10 +20,8 @@
 
 package net.ilikefood971.forf.mixin;
 
-import net.ilikefood971.forf.util.mixinInterfaces.IGetPortalPos;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,13 +32,8 @@ import java.util.UUID;
 
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
-@SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
-public abstract class EntityMixin implements IGetPortalPos {
-
-    // For the player tracker
-    @Shadow
-    protected BlockPos lastNetherPortalPosition;
+public abstract class EntityMixin {
 
     // Migrate old data format to new data format
     @Deprecated
@@ -53,9 +46,4 @@ public abstract class EntityMixin implements IGetPortalPos {
 
     @Shadow
     public abstract UUID getUuid();
-
-    @Override
-    public BlockPos getLastNetherPortalLocation() {
-        return this.lastNetherPortalPosition;
-    }
 }

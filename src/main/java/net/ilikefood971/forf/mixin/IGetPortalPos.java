@@ -18,10 +18,15 @@
  * along with Friend or Foe.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.ilikefood971.forf.util.mixinInterfaces;
+package net.ilikefood971.forf.mixin;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
+@Mixin(Entity.class)
 public interface IGetPortalPos {
-    BlockPos getLastNetherPortalLocation();
+    @Accessor
+    BlockPos getLastNetherPortalPosition();
 }
