@@ -212,6 +212,8 @@ public class Config {
         private boolean elytraInEndShip = false;
         @Comment("Explosions do this much percent less damage to players except for the player who detonated it\nSet to 0 to disable the nerf")
         private int explosionNerf = 90;
+        @Comment("The time in seconds that it takes for the pearl cooldown to reset. Set to 1 for vanilla behavior")
+        private int pearlCooldownTime = 7;
 
         public boolean totemDrops() {
             return totemDrops;
@@ -231,6 +233,10 @@ public class Config {
 
         public int explosionNerf() {
             return explosionNerf;
+        }
+
+        public int pearlCooldownTime() {
+            return pearlCooldownTime;
         }
     }
 }

@@ -3,6 +3,7 @@
   "package": "net.ilikefood971.forf.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "EnderPearlItemMixin",
     "EntityMixin",
     "IGetPortalPos",
     "PlayerLoginMixin",
