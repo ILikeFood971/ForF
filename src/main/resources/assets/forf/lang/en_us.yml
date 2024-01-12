@@ -57,7 +57,6 @@ forf:
     gui:
       title: "§c§lTracker Target§r"
       lore: "§eClick to track this player§r"
-
   mixin:
     ScoreboardCommand:
       noList: "You cannot set the list slot objective because Friend or Foe is using it to display lives!"
@@ -68,6 +67,7 @@ forf:
     death:
       spectator: "You have run out of lives! You are now a spectator"
       livesLeft: "Lives Left: %s"
+      firstKill: "%s killed %s! They get a mending book for the first kill"
 item:
   forf:
     player_tracker: "Player Tracker"

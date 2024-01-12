@@ -22,11 +22,18 @@ package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.ilikefood971.forf.util.Lives;
+import net.minecraft.enchantment.EnchantmentLevelEntry;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.EnchantedBookItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     // Remove one life from the player on death
@@ -39,11 +46,22 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
             // Remove the life
             if (lives.get() > 0) {
                 lives.decrement(1);
-                player.sendMessage(Text.translatable("forf.event.death.livesLeft",
-                                Text.literal(String.valueOf(lives.get()))
-                        ).formatted(Formatting.RED),
-                        false
-                );
+                player.sendMessage(Text.translatable(
+                        "forf.event.death.livesLeft",
+                        lives.get()
+                ).formatted(Formatting.RED), false);
+            }
+            if (damageSource.getAttacker() instanceof ServerPlayerEntity killer && PERSISTENT_DATA.isFirstKill() && CONFIG.firstKillMendingBook()) {
+                PERSISTENT_DATA.setFirstKill(false);
+
+                ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(Enchantments.MENDING, 1));
+
+                killer.giveItemStack(itemStack);
+                killer.sendMessage(Text.translatable(
+                        "forf.event.death.firstKill",
+                        killer.getName(),
+                        player.getName()
+                ).formatted(Formatting.RED), false);
             }
         }
     }

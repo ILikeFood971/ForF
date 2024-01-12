@@ -95,6 +95,7 @@ public class StartCommand {
 
     public static void setupForf(CommandContext<ServerCommandSource> context) {
         PERSISTENT_DATA.setStarted(true);
+        PERSISTENT_DATA.setFirstKill(true);
         FAKE_SCOREBOARD.setListSlot();
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getHeaderPacket());
 

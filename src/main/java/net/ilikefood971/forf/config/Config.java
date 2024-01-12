@@ -59,6 +59,8 @@ public class Config {
     private int trackerAutoUpdateDelay = 20;
     @Comment("The amount of time that the tracker lasts for before expiring")
     private int trackerExpirationMinutes = 60;
+    @Comment("Should the first kill give a mending book?")
+    private boolean firstKillMendingBook = true;
     @Comment("Timer that automatically turns PvP on and off")
     private PvPTimer pvPTimer = new PvPTimer();
     @Comment("Restrictions to prevent op things for this play-style")
@@ -150,6 +152,10 @@ public class Config {
 
     public int trackerExpirationMinutes() {
         return trackerExpirationMinutes;
+    }
+
+    public boolean firstKillMendingBook() {
+        return firstKillMendingBook;
     }
 
     public PvPTimer pvPTimer() {
