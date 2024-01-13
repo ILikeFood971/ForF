@@ -25,6 +25,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.util.Lives;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -33,9 +34,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
+import java.util.UUID;
 
-import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
+import static net.ilikefood971.forf.command.CommandUtil.getProfiles;
 import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
@@ -50,55 +51,38 @@ public class LeaveCommand {
                                         .then(
                                                 argument("players", GameProfileArgumentType.gameProfile())
                                                         .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
-                                                        .executes(LeaveCommand::run)
+                                                        .executes(context -> run(context, false, false))
+                                                        .then(
+                                                                literal("late")
+                                                                        .executes(context -> run(context, false, true))
+                                                        )
                                         )
-                                        .executes(LeaveCommand::runSolo)
+                                        .executes(context -> run(context, true, false))
                         )
         );
     }
 
     @SuppressWarnings("SameReturnValue")
-    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.isStarted()) {
-            throw ALREADY_STARTED.create();
-        }
+    private static int run(CommandContext<ServerCommandSource> context, boolean solo, boolean late) throws CommandSyntaxException {
+        Collection<GameProfile> profiles = getProfiles(context, solo, late);
 
-        Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(context, "players");
         int changed = 0;
         for (GameProfile profile : profiles) {
-            try {
-                leavePlayer(profile);
-                changed++;
-            } catch (CommandSyntaxException e) {
-                if (profiles.size() == 1) {
-                    throw e;
-                }
+            UUID id = profile.getId();
+            if (profiles.size() == 1 && !Util.isForfPlayer(id)) {
+                throw new SimpleCommandExceptionType(
+                        Text.translatable("forf.commands.leave.exceptions.alreadyLeft", profile.getName())
+                ).create();
             }
+            ServerPlayerEntity player = context.getSource().getServer().getPlayerManager().getPlayer(id);
+            if (late && player != null) {
+                Lives.set(player, 0);
+            }
+            Util.removePlayer(id);
+            changed++;
         }
 
         sendFeedback(context, Text.translatable("forf.commands.leave.success.multiple", changed), true);
         return 1;
-    }
-
-    @SuppressWarnings("SameReturnValue")
-    private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.isStarted()) {
-            throw ALREADY_STARTED.create();
-        }
-
-        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
-        leavePlayer(player.getGameProfile());
-
-        sendFeedback(context, Text.translatable("forf.commands.leave.success.solo", player.getGameProfile().getName()), true);
-        return 1;
-    }
-
-    private static void leavePlayer(GameProfile profile) throws CommandSyntaxException {
-        if (!Util.isForfPlayer(profile.getId())) {
-            throw new SimpleCommandExceptionType(
-                    Text.translatable("forf.commands.leave.exceptions.alreadyLeft", profile.getName())
-            ).create();
-        }
-        Util.removePlayer(profile.getId());
     }
 }

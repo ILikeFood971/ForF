@@ -22,9 +22,11 @@ package net.ilikefood971.forf.command;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.util.Lives;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -33,10 +35,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
+import java.util.UUID;
 
-import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
-import static net.ilikefood971.forf.util.Util.sendFeedback;
+import static net.ilikefood971.forf.command.CommandUtil.getProfiles;
+import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class JoinCommand {
@@ -50,58 +52,47 @@ public class JoinCommand {
                                         .then(
                                                 argument("players", GameProfileArgumentType.gameProfile())
                                                         .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
-                                                        .executes(JoinCommand::run)
+                                                        .executes(context -> run(context, false, false))
+                                                        .then(
+                                                                literal("late")
+                                                                        .then(
+                                                                                argument("lives", IntegerArgumentType.integer(0, CONFIG.startingLives()))
+                                                                                        .executes(context -> run(context, false, true))
+                                                                        )
+                                                        )
                                         )
-                                        .executes(JoinCommand::runSolo)
+                                        .executes(context -> run(context, true, false))
                         )
         );
     }
 
     @SuppressWarnings("SameReturnValue")
-    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.isStarted()) {
-            throw ALREADY_STARTED.create();
-        }
+    private static int run(CommandContext<ServerCommandSource> context, boolean solo, boolean late) throws CommandSyntaxException {
+        Collection<GameProfile> profiles = getProfiles(context, solo, late);
 
-        Collection<GameProfile> profiles = GameProfileArgumentType.getProfileArgument(context, "players");
         int changed = 0;
         for (GameProfile profile : profiles) {
-            try {
-                joinPlayer(profile);
-                changed++;
-            } catch (CommandSyntaxException e) {
-                if (profiles.size() == 1) {
-                    throw e;
+            UUID id = profile.getId();
+            if (profiles.size() == 1 && Util.isForfPlayer(id)) {
+                throw new SimpleCommandExceptionType(
+                        Text.translatable("forf.commands.join.exceptions.alreadyAdded", profile.getName())
+                ).create();
+            }
+            Util.addNewPlayer(id);
+            if (late) {
+                ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(id);
+                int lives = IntegerArgumentType.getInteger(context, "lives");
+                if (player != null) {
+                    Lives.set(player, lives);
+                } else {
+                    PERSISTENT_DATA.getPlayersAndLives().put(id, lives);
                 }
             }
+            changed++;
         }
-        sendFeedback(context, Text.translatable("forf.commands.join.success.multiple", changed), true);
+
+        String key = solo ? "forf.commands.join.success.solo" : "forf.commands.join.success.multiple";
+        sendFeedback(context, Text.translatable(key, changed), true);
         return 1;
-    }
-
-    @SuppressWarnings("SameReturnValue")
-    private static int runSolo(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
-
-        if (PERSISTENT_DATA.isStarted()) {
-            throw new SimpleCommandExceptionType(
-                    Text.translatable("forf.commands.join.exceptions.alreadyAdded", player.getGameProfile().getName())
-            ).create();
-        }
-
-
-        joinPlayer(player.getGameProfile());
-        sendFeedback(context, Text.translatable("forf.commands.join.success.solo", player.getGameProfile().getName()), true);
-
-        return 1;
-    }
-
-    private static void joinPlayer(GameProfile profile) throws CommandSyntaxException {
-        if (Util.isForfPlayer(profile.getId())) {
-            throw new SimpleCommandExceptionType(
-                    Text.translatable("forf.commands.join.exceptions.alreadyAdded", profile.getName())
-            ).create();
-        }
-        Util.addNewPlayer(profile.getId());
     }
 }

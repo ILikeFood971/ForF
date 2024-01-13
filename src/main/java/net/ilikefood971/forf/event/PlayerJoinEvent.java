@@ -30,6 +30,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.world.GameMode;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
@@ -60,10 +61,10 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         // If we get here, then we know started is true
         // If they are a player above 0 lives let them in (the get() method checks if they are a forf player)
         if (lives.get() > 0) {
-            // Update the scores to the correct amount
-            Util.setScore(player, lives.get());
+            player.changeGameMode(GameMode.DEFAULT); // In case they were a spectator before, but their lives got changed while they were offline
             return;
         }
+
         // If spectators are allowed, and we know it's started
         // Then check to see if they are a player, or they're 0 or fewer lives
         if (CONFIG.spectators() && (!Util.isForfPlayer(player) || lives.get() <= 0)) {
