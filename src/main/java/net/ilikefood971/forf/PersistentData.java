@@ -21,6 +21,7 @@
 package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.timer.PvPTimer;
+import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -40,7 +41,7 @@ public class PersistentData extends PersistentState {
     private static final Type<PersistentData> type = new Type<>(
             PersistentData::new, // If there's no 'PersistentData' yet create one
             PersistentData::createFromNbt, // If there is a 'PersistentData' NBT, parse it with 'createFromNbt'
-            null // Supposed to be an 'DataFixTypes' enum
+            DataFixTypes.LEVEL // Supposed to be an 'DataFixTypes' enum
     );
     //#endif
 
@@ -76,7 +77,7 @@ public class PersistentData extends PersistentState {
     public static PersistentData getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getOverworld().getPersistentStateManager();
 
-        PersistentData state = persistentStateManager.getOrCreate(
+        return persistentStateManager.getOrCreate(
                 //#if MC>=12002
                 type,
                 //#else
@@ -85,10 +86,6 @@ public class PersistentData extends PersistentState {
                 //#endif
                 MOD_ID
         );
-        // If state is not marked dirty, when Minecraft closes, 'writeNbt' won't be called and therefore nothing will be saved.
-        state.markDirty();
-
-        return state;
     }
 
     /**
@@ -166,5 +163,10 @@ public class PersistentData extends PersistentState {
 
     public void setFirstKill(boolean firstKill) {
         this.firstKill = firstKill;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return true;
     }
 }

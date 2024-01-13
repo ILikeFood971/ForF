@@ -85,14 +85,16 @@ public class Config {
         try {
             JsonObject configJson = jankson.load(file);
             // Convert the raw object into the POJO type
-            return jankson.fromJson(configJson, Config.class);
+            Config config = jankson.fromJson(configJson, Config.class);
+            config.save(file); // Save it in case there's new fields after mod update
+            return config;
         } catch (IOException | SyntaxError e) {
             Util.LOGGER.error(e.toString());
             return new Config(); // You could also throw a RuntimeException instead
         }
     }
 
-    // This only ever gets used to create the config
+    // This only ever gets used to create the config or update it to when new fields are added
     private void save(File file) {
         Jankson jankson = Jankson.builder().build();
         String result = jankson
