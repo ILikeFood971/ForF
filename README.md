@@ -27,6 +27,8 @@ gameplay changes for you to enjoy with your friends.
     - Customize amount of lives
         - Configure starting amounts as well as commands to change any player's lives
     - Allow players who run out to spectate in a configurable gamemode after they run out
+    - Rewards for the first kill
+        - The first player to get a kill earns a mending book
 - Restrictions
     - No villager trading
     - No golden apple recipes
@@ -34,6 +36,8 @@ gameplay changes for you to enjoy with your friends.
     - No totems drop from evokers
     - Explosions are nerfed
         - Every player except the player who detonated will take a configured percentage less damage from the explosion
+    - Ender Pearl cooldowns are increased
+        - The time taken to recharge an ender pearl is configurable (default is 7 seconds, vanilla is 1 second)
     - You can disable any of the restrictions from the config
 - PvP Timer that runs for random amounts of time
     - Enable or disable it easily with commands
@@ -89,10 +93,9 @@ can then change that according to how you like it.
 
 Once everything in the config has been set to what you like, save the file. After/while doing this, have every player
 you would like to play with log on and run the `/forf join` command. An op can also append the target player(s) at the
-end if desired (`/forf join [players]`). Once everyone has joined, you can then run the `/forf start` command (op level
-4 required) to set everything up. If at anytime you need to stop Friend or Foe, run the `/forf stop`
-command. Run it with true if you'd like to keep all the lives and other forf related data or false to erase all data (
-resets everything).
+end if desired (`/forf join [players]`) and the players do not need to be online. Once everyone has joined, you can then
+run the `/forf start` command (op level 4 required) to set everything up. If at anytime you need to stop Friend or Foe,
+run the `/forf stop` command.
 
 ### Timer
 
@@ -109,9 +112,10 @@ reach 0. A player on 0 lives will not be able to join unless spectators is enabl
 
 Format is as follows:  
 `/forf lives set <players> <amount>` - You must be an op level 3 or higher to run this command. This will set the
-players' lives to exactly the amount you set. (Useful for manual extra lives quest.)   
+players' lives to exactly the amount you set. (Useful for manual extra lives quest.) It will also work on offline
+players.  
 `/forf lives give <player> <amount>` - Any player can run this command to give their lives to another player. This is
-useful for deals and such (Like how SB737 gives a life to ClownPierce).
+useful for deals and such (Like how SB737 gives a life to ClownPierce). This command requires both players to be online.
 
 ### Player Tracker
 
