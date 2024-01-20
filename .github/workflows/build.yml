@@ -51,6 +51,16 @@ jobs:
           BUILD_ID: ${{ github.run_number }}
           BUILD_RELEASE: ${{ inputs.release }}
 
+      - name: Run unit tests
+        run: ./gradlew test
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            versions/*/build/test-results/**/*.xml
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
