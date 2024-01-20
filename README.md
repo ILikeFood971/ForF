@@ -93,9 +93,10 @@ can then change that according to how you like it.
 
 Once everything in the config has been set to what you like, save the file. After/while doing this, have every player
 you would like to play with log on and run the `/forf join` command. An op can also append the target player(s) at the
-end if desired (`/forf join [players]`) and the players do not need to be online. Once everyone has joined, you can then
-run the `/forf start` command (op level 4 required) to set everything up. If at anytime you need to stop Friend or Foe,
-run the `/forf stop` command.
+end if desired (`/forf join [players]`). If you would like to join a player after Friend or Foe has already started then
+run `/forf join [players] late <lives>` as an op and the players do not need to be online. Once everyone has joined, you
+can then run the `/forf start` command (op level 4 required) to set everything up. If at anytime you need to stop Friend
+or Foe, run the `/forf stop` command.
 
 ### Timer
 
