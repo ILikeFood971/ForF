@@ -44,9 +44,8 @@ dependencies {
     modImplementation include("eu.pb4:polymer-core:${project.polymer_core_version}")
 
     // Test
-    testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.mockito:mockito-core:5.+"
+    testImplementation "net.fabricmc:fabric-loader-junit:${project.fabric_loader_version}"
 }
 
 test {
