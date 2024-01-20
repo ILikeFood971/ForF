@@ -22,7 +22,7 @@ package net.ilikefood971.forf;
 
 import net.ilikefood971.forf.config.Config;
 import net.minecraft.world.GameMode;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -30,7 +30,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ConfigTest {
     @Test
