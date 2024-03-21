@@ -8,7 +8,7 @@
     "ILikeFood971"
   ],
   "contact": {
-    "homepage": "https://github.com/ILikeFood971",
+    "homepage": "https://modrinth.com/mod/forf",
     "sources": "https://github.com/ILikeFood971/forf",
     "issues": "https://github.com/ILikeFood971/forf/issues",
     "discord": "https://discord.gg/ypyRwVEaBT",
@@ -35,9 +35,6 @@
   },
   "recommends": {
     "server_translations_api": ">=${server_translations_version}"
-  },
-  "suggests": {
-    "voicechat": ">=${voicechat_version}"
   },
   "custom": {
     "mc-publish": {

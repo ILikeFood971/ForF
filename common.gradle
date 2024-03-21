@@ -127,7 +127,6 @@ processResources {
     inputs.property "fabric_api_version", fabric_api_version
     inputs.property "sgui_version", sgui_version
     inputs.property "minecraft_dependency", minecraft_dependency
-    inputs.property "voicechat_version", voicechat_version
     inputs.property "server_translations_version", server_translations_version
     inputs.property "polymer_core_version", polymer_core_version
 
@@ -141,7 +140,6 @@ processResources {
                 "fabric_api_version": project.fabric_api_version,
                 "sgui_version": project.sgui_version,
                 "minecraft_dependency": project.minecraft_dependency,
-                "voicechat_version": voicechat_version,
                 "server_translations_version": project.server_translations_version,
                 "polymer_core_version": project.polymer_core_version
     }
