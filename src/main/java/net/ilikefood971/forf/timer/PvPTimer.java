@@ -48,6 +48,7 @@ public class PvPTimer implements ServerTickEvents.EndTick {
     public static void serverStarted() {
         secondsLeft = PERSISTENT_DATA.getSecondsLeft();
         pvPState = PERSISTENT_DATA.getPvPState();
+        SERVER.setPvpEnabled(pvPState.getValue());
     }
 
     public static void changePvpTimer(int seconds) {
