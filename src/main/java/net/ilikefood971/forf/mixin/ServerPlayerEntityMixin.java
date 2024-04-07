@@ -26,9 +26,12 @@ import com.mojang.authlib.GameProfile;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTracker;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,5 +51,11 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
             amount -= amount * Util.CONFIG.restrictions().explosionNerf() / 100f;
         }
         return original.call(instance, source, amount);
+    }
+
+    @WrapOperation(method = "onDeath", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageTracker;getDeathMessage()Lnet/minecraft/text/Text;"))
+    private Text changeDeathMessage(DamageTracker instance, Operation<Text> original) {
+        Text originalMessage = original.call(instance);
+        return Util.CONFIG.redDeathMessage() ? originalMessage.copy().formatted(Formatting.RED) : originalMessage;
     }
 }
