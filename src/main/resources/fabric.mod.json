@@ -16,9 +16,9 @@
   },
   "license": "GPL-3.0",
   "icon": "assets/forf/icon.png",
-  "environment": "server",
+  "environment": "*",
   "entrypoints": {
-    "server": [
+    "main": [
       "net.ilikefood971.forf.Forf"
     ]
   },

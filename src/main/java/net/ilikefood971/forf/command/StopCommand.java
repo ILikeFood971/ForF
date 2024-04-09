@@ -62,7 +62,12 @@ public class StopCommand {
         // Set all lives to 0
         PERSISTENT_DATA.getPlayersAndLives().clear();
 
-        SERVER.setPvpEnabled(((MinecraftDedicatedServer) SERVER).getProperties().pvp);
+        boolean pvp;
+        if (SERVER instanceof MinecraftDedicatedServer) {
+            pvp = ((MinecraftDedicatedServer) SERVER).getProperties().pvp;
+        } else pvp = true;
+
+        SERVER.setPvpEnabled(pvp);
         FAKE_SCOREBOARD.clearListSlot();
         return 1;
     }
