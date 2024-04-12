@@ -20,7 +20,7 @@
 
 package net.ilikefood971.forf.mixin.restrictions;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ItemFrameEntity;

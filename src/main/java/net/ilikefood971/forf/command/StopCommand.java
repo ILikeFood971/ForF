@@ -63,8 +63,8 @@ public class StopCommand {
         PERSISTENT_DATA.getPlayersAndLives().clear();
 
         boolean pvp;
-        if (SERVER instanceof MinecraftDedicatedServer) {
-            pvp = ((MinecraftDedicatedServer) SERVER).getProperties().pvp;
+        if (SERVER instanceof MinecraftDedicatedServer dedicatedServer) {
+            pvp = dedicatedServer.getProperties().pvp;
         } else pvp = true;
 
         SERVER.setPvpEnabled(pvp);
