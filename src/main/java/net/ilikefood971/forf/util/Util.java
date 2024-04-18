@@ -30,7 +30,11 @@ import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.stat.ServerStatHandler;
+import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
+import net.minecraft.util.UserCache;
+import net.minecraft.util.WorldSavePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +51,10 @@ import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 //#endif
 
+import java.io.File;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class Util {
 
@@ -73,6 +79,20 @@ public class Util {
 
     public static boolean isForfPlayer(UUID uuid) {
         return PERSISTENT_DATA.getPlayersAndLives().containsKey(uuid);
+    }
+
+
+    public static int getKills(UUID uuid) {
+        GameProfile profile = getOfflineProfile(uuid);
+        ServerStatHandler serverStatHandler = Util.SERVER.getPlayerManager().statisticsMap.get(profile.getId());
+
+        if (serverStatHandler == null) {
+            File folder = Util.SERVER.getSavePath(WorldSavePath.STATS).toFile();
+            File statsFile = new File(folder, profile.getId() + ".json");
+            serverStatHandler = new ServerStatHandler(Util.SERVER, statsFile);
+        }
+
+        return serverStatHandler.getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAYER_KILLS));
     }
 
     // Version Utils
@@ -156,16 +176,19 @@ public class Util {
     }
 
     public static GameProfile getOfflineProfile(UUID uuid) {
-        //#if MC >= 12002
-        ProfileResult profileResult = SERVER.getSessionService().fetchProfile(uuid, false);
-        if (profileResult == null) {
-            throw new ProfileNotFoundException("Player Not Found: " + uuid);
-        } else {
-            return profileResult.profile();
-        }
-        //#else
-        //$$ return SERVER.getSessionService().fillProfileProperties(new GameProfile(uuid, null), false);
-        //#endif
+        GameProfile profile;
+        UserCache cache = SERVER.getUserCache();
+        Supplier<GameProfile> profileFetcher = () -> {
+            //#if MC >= 12002
+            ProfileResult profileResult = SERVER.getSessionService().fetchProfile(uuid, false);
+            return profileResult != null ? profileResult.profile() : null;
+            //#else
+            //$$ return SERVER.getSessionService().fillProfileProperties(new GameProfile(uuid, null), false);
+            //#endif
+        };
+        profile = cache != null ? cache.getByUuid(uuid).orElseGet(profileFetcher) : profileFetcher.get();
+        if (profile == null) throw new ProfileNotFoundException("Player Not Found: " + uuid);
+        return profile;
     }
 
 }

@@ -50,6 +50,7 @@ public class PersistentData extends PersistentState {
     private PvPTimer.PvPState pvPState = PvPTimer.PvPState.OFF;
     private Map<UUID, Integer> playersAndLives = new HashMap<>();
     private boolean firstKill = true;
+    private boolean tenKillsLifeQuest = true;
 
     private static PersistentData createFromNbt(NbtCompound tag) {
         PersistentData state = new PersistentData();
@@ -59,6 +60,7 @@ public class PersistentData extends PersistentState {
         state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
         state.playersAndLives = listToMap(tag.getList("livesMap", NbtElement.COMPOUND_TYPE));
         state.firstKill = tag.getBoolean("firstKill");
+        state.tenKillsLifeQuest = tag.getBoolean("tenKillsLifeQuest");
 
         /*
          * Used to migrate old data
@@ -125,6 +127,7 @@ public class PersistentData extends PersistentState {
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
         nbt.put("livesMap", mapToNbt(playersAndLives));
         nbt.putBoolean("firstKill", firstKill);
+        nbt.putBoolean("tenKillsLifeQuest", tenKillsLifeQuest);
 
         return nbt;
     }
@@ -163,6 +166,14 @@ public class PersistentData extends PersistentState {
 
     public void setFirstKill(boolean firstKill) {
         this.firstKill = firstKill;
+    }
+
+    public boolean isTenKillsLifeQuest() {
+        return tenKillsLifeQuest;
+    }
+
+    public void setTenKillsLifeQuest(boolean tenKillsLifeQuest) {
+        this.tenKillsLifeQuest = tenKillsLifeQuest;
     }
 
     @Override

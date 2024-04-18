@@ -22,6 +22,7 @@ package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.util.Util;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
@@ -32,8 +33,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import static net.ilikefood971.forf.util.Util.CONFIG;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.*;
 
 public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     // Remove one life from the player on death
@@ -51,17 +51,30 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
                         lives.get()
                 ).formatted(Formatting.RED), false);
             }
-            if (damageSource.getAttacker() instanceof ServerPlayerEntity killer && PERSISTENT_DATA.isFirstKill() && CONFIG.firstKillMendingBook()) {
-                PERSISTENT_DATA.setFirstKill(false);
+            if (damageSource.getAttacker() instanceof ServerPlayerEntity killer) {
+                if (PERSISTENT_DATA.isFirstKill() && CONFIG.firstKillMendingBook()) {
+                    PERSISTENT_DATA.setFirstKill(false);
 
-                ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(Enchantments.MENDING, 1));
+                    ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(Enchantments.MENDING, 1));
 
-                killer.giveItemStack(itemStack);
-                killer.sendMessage(Text.translatable(
-                        "forf.event.death.firstKill",
-                        killer.getName(),
-                        player.getName()
-                ).formatted(Formatting.RED), false);
+                    killer.giveItemStack(itemStack);
+                    SERVER.getPlayerManager().broadcast(Text.translatable(
+                            "forf.event.death.firstKill",
+                            killer.getName(),
+                            player.getName()
+                    ).formatted(Formatting.RED), false);
+                } else if (PERSISTENT_DATA.isTenKillsLifeQuest() && Util.getKills(killer.getUuid()) >= 10 && CONFIG.tenKillsLifeQuest()) {
+                    Lives killerLives = new Lives(killer);
+                    PERSISTENT_DATA.setTenKillsLifeQuest(false);
+                    int livesBefore = killerLives.get();
+                    Lives.increment(killer, 1);
+                    Text message;
+                    if (killerLives.get() != livesBefore) {
+                        message = Text.translatable("forf.event.death.tenKills.lifeAwarded", killer.getName()).formatted(Formatting.RED);
+                    } else
+                        message = Text.translatable("forf.event.death.tenKills.alreadyFull", killer.getName()).formatted(Formatting.RED);
+                    SERVER.getPlayerManager().broadcast(message, false);
+                }
             }
         }
     }

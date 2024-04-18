@@ -50,6 +50,8 @@ public class ModRegistries {
 
         CommandRegistrationCallback.EVENT.register(TimerCommands::register);
         CommandRegistrationCallback.EVENT.register(LivesCommands::register);
+
+        CommandRegistrationCallback.EVENT.register(KillsCommand::register);
     }
 
     private static void registerEvents() {

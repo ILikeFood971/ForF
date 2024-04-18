@@ -38,6 +38,8 @@ forf:
         notYourself: "You can't give yourself a life!"
         notEnoughLives: "You do not have enough lives to give!"
         tooManyLives: "You can't gift a player lives when it will go over the allowed amount of lives!"
+    kills:
+      header: "§2------- Kills -------§r"
   timer:
     actionBar:
       enabled: "§8PvP Enabled:§r %s§4§ls§r §8left§r"
@@ -68,6 +70,10 @@ forf:
       spectator: "You have run out of lives! You are now a spectator"
       livesLeft: "Lives Left: %s"
       firstKill: "%s killed %s! They get a mending book for the first kill"
+      tenKills:
+        lifeAwarded: "%s was the first player to get 10 player kills! They have earned an extra life!"
+        alreadyFull: "%s was the first player to get 10 player kills! Unfortunately they have the maximum number of lives so they didn't earn anything."
+
 item:
   forf:
     player_tracker: "Player Tracker"

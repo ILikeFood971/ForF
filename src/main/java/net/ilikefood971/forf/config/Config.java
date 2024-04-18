@@ -61,8 +61,10 @@ public class Config {
     private int trackerExpirationMinutes = 60;
     @Comment("Should the first kill give a mending book?")
     private boolean firstKillMendingBook = true;
-    @Comment("Should the player death messages be red")
+    @Comment("Should the player death messages be red?")
     private boolean redDeathMessage = true;
+    @Comment("Should the first player that gets 10 kill earn a life?")
+    private boolean tenKillsLifeQuest = true;
     @Comment("Timer that automatically turns PvP on and off")
     private PvPTimer pvPTimer = new PvPTimer();
     @Comment("Restrictions to prevent op things for this play-style")
@@ -164,6 +166,10 @@ public class Config {
 
     public boolean redDeathMessage() {
         return redDeathMessage;
+    }
+
+    public boolean tenKillsLifeQuest() {
+        return tenKillsLifeQuest;
     }
 
     public PvPTimer pvPTimer() {
