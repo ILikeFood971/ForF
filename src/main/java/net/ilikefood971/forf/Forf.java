@@ -27,7 +27,7 @@ import net.ilikefood971.forf.util.ModRegistries;
 
 import static net.ilikefood971.forf.util.Util.*;
 
-public class Forf implements DedicatedServerModInitializer {
+public class Forf implements ModInitializer {
     @Override
     public void onInitialize() {
         // This code runs as soon as Minecraft is in a mod-load-ready state.
