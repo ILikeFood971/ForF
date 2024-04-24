@@ -33,6 +33,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerTrackerGui extends SimpleGui {
@@ -61,7 +62,7 @@ public class PlayerTrackerGui extends SimpleGui {
     }
 
     private void getPlayerHeadsAndPutIntoInventory(ServerPlayerEntity excludedPlayer) {
-        List<ServerPlayerEntity> playerList = Util.SERVER.getPlayerManager().getPlayerList();
+        List<ServerPlayerEntity> playerList = new ArrayList<>(Util.SERVER.getPlayerManager().getPlayerList()); // Clone the player list so we don't mess up the PlayerManager
         playerList.remove(excludedPlayer);
 
         for (ServerPlayerEntity player : playerList) {
