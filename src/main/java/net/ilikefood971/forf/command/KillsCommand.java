@@ -45,6 +45,7 @@ public class KillsCommand {
         );
     }
 
+    @SuppressWarnings("SameReturnValue")
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (!Util.PERSISTENT_DATA.isStarted()) throw CommandUtil.NOT_STARTED.create();
         MutableText text = Text.translatable("forf.commands.kills.header");

@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+@SuppressWarnings("unused")
 @Mixin(EnderPearlItem.class)
 public abstract class EnderPearlItemMixin extends Item {
     public EnderPearlItemMixin(Settings settings) {

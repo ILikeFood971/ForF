@@ -69,11 +69,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem, Vanishable {
             targetName = player.getGameProfile().getName();
         } else {
             GameProfile offlineProfile = Util.getOfflineProfile(targetUUID);
-            if (offlineProfile == null) {
-                targetName = "Not Found";
-            } else {
-                targetName = offlineProfile.getName();
-            }
+            targetName = offlineProfile.getName();
         }
         return targetName;
     }

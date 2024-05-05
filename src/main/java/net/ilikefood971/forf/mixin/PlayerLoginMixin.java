@@ -34,7 +34,7 @@ import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 @Mixin(PlayerManager.class)
 public abstract class PlayerLoginMixin {
     @ModifyReturnValue(method = "checkCanJoin", at = @At("RETURN"))
-    private Text checkCanJoinWithForf(Text original, @Local GameProfile profile) {
+    private Text checkCanJoinWithForf(Text original, @Local(argsOnly = true) GameProfile profile) {
         if (original == null) {
             // When a player joins, make sure that they are allowed to join from the config
             // When checking if they're a player we can't use the Util method as we don't have a ServerPlayerEntity
