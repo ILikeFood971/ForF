@@ -84,9 +84,11 @@ public class Util {
 
     public static int getKills(UUID uuid) {
         GameProfile profile = getOfflineProfile(uuid);
-        ServerStatHandler serverStatHandler = Util.SERVER.getPlayerManager().statisticsMap.get(profile.getId());
-
-        if (serverStatHandler == null) {
+        ServerPlayerEntity player = Util.SERVER.getPlayerManager().getPlayer(profile.getId());
+        ServerStatHandler serverStatHandler;
+        if (player != null) {
+            serverStatHandler = player.getStatHandler();
+        } else {
             File folder = Util.SERVER.getSavePath(WorldSavePath.STATS).toFile();
             File statsFile = new File(folder, profile.getId() + ".json");
             serverStatHandler = new ServerStatHandler(Util.SERVER, statsFile);

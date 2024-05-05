@@ -22,6 +22,8 @@ package net.ilikefood971.forf.command;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -39,19 +41,22 @@ public class KillsCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("kills")
-                        .executes(context -> {
-                            MutableText text = Text.translatable("forf.commands.kills.header");
-                            for (UUID uuid : Util.PERSISTENT_DATA.getPlayersAndLives().keySet()) {
-                                GameProfile profile = Util.getOfflineProfile(uuid);
-                                String name = profile.getName();
-                                int kills = Util.getKills(uuid);
-
-                                text.append(Text.literal("\n" + name + ": ").formatted(Formatting.GRAY))
-                                        .append(Text.literal(String.valueOf(kills)).formatted(Formatting.YELLOW));
-                            }
-                            Util.sendFeedback(context, text, false);
-                            return 1;
-                        })
+                        .executes(KillsCommand::run)
         );
+    }
+
+    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        if (!Util.PERSISTENT_DATA.isStarted()) throw CommandUtil.NOT_STARTED.create();
+        MutableText text = Text.translatable("forf.commands.kills.header");
+        for (UUID uuid : Util.PERSISTENT_DATA.getPlayersAndLives().keySet()) {
+            GameProfile profile = Util.getOfflineProfile(uuid);
+            String name = profile.getName();
+            int kills = Util.getKills(uuid);
+
+            text.append(Text.literal("\n" + name + ": ").formatted(Formatting.GRAY))
+                    .append(Text.literal(String.valueOf(kills)).formatted(Formatting.YELLOW));
+        }
+        Util.sendFeedback(context, text, false);
+        return 1;
     }
 }
