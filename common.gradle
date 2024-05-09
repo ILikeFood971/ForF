@@ -42,29 +42,22 @@ dependencies {
     modImplementation include("eu.pb4:sgui:${project.sgui_version}")
     modImplementation include("xyz.nucleoid:server-translations-api:${project.server_translations_version}")
     modImplementation include("eu.pb4:polymer-core:${project.polymer_core_version}")
-
-    // Test
-    testImplementation "org.mockito:mockito-core:5.+"
-    testImplementation "net.fabricmc:fabric-loader-junit:${project.fabric_loader_version}"
 }
 
-test {
-    useJUnitPlatform()
-
-    testLogging {
-        events 'passed'
-    }
-}
-
+String MIXIN_CONFIG_PATH = 'forf.mixins.json'
 String LANG_DIR = 'assets/forf/lang'
 JavaVersion JAVA_COMPATIBILITY
-if (mcVersion >= 11800) {
+if (mcVersion >= 12005) {
+    JAVA_COMPATIBILITY = JavaVersion.VERSION_21
+} else if (mcVersion >= 11800) {
     JAVA_COMPATIBILITY = JavaVersion.VERSION_17
 } else if (mcVersion >= 11700) {
     JAVA_COMPATIBILITY = JavaVersion.VERSION_16
 } else {
     JAVA_COMPATIBILITY = JavaVersion.VERSION_1_8
 }
+
+JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 
 loom {
     accessWidenerPath = file("forf.accesswidener")
@@ -142,6 +135,9 @@ processResources {
                 "minecraft_dependency": project.minecraft_dependency,
                 "server_translations_version": project.server_translations_version,
                 "polymer_core_version": project.polymer_core_version
+    }
+    filesMatching(MIXIN_CONFIG_PATH) {
+        filter { s -> s.replace('{{COMPATIBILITY_LEVEL}}', "JAVA_${MIXIN_COMPATIBILITY_LEVEL.ordinal() + 1}") }
     }
 }
 

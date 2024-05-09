@@ -25,6 +25,8 @@ import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
 import com.mojang.brigadier.context.CommandContext;
 import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -32,11 +34,17 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.ServerStatHandler;
 import net.minecraft.stat.Stats;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.UserCache;
 import net.minecraft.util.WorldSavePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+//#if MC >= 12005
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+//#endif
 
 //#if MC >= 12003
 import net.minecraft.scoreboard.ScoreAccess;
@@ -52,6 +60,7 @@ import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 //#endif
 
 import java.io.File;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -147,8 +156,11 @@ public class Util {
                 score.owner(),
                 Util.FAKE_SCOREBOARD.livesObjective.getName(),
                 score.value(),
-                Util.FAKE_SCOREBOARD.livesObjective.getDisplayName(),
-                null
+                //#if MC >= 12005
+                Optional.empty(), Optional.empty()
+                //#else
+                //$$ null, null
+                //#endif
         );
         //#else
         //$$ return new ScoreboardPlayerUpdateS2CPacket(
@@ -191,6 +203,22 @@ public class Util {
         profile = cache != null ? cache.getByUuid(uuid).orElseGet(profileFetcher) : profileFetcher.get();
         if (profile == null) throw new ProfileNotFoundException("Player Not Found: " + uuid);
         return profile;
+    }
+
+    public static NbtCompound getNbt(ItemStack itemStack) {
+        //#if MC >= 12005
+        return itemStack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
+        //#else
+        //$$ return itemStack.getOrCreateNbt();
+        //#endif
+    }
+
+    public static MutableText fromJson(String json) {
+        //#if MC >= 12005
+        return Text.Serialization.fromJson(json, SERVER.getRegistryManager());
+        //#else
+        //$$ return Text.Serialization.fromJson(json);
+        //#endif
     }
 
 }

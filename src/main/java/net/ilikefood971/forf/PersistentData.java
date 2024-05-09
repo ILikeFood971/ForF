@@ -25,6 +25,7 @@ import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
@@ -52,7 +53,11 @@ public class PersistentData extends PersistentState {
     private boolean firstKill = true;
     private boolean tenKillsLifeQuest = true;
 
-    private static PersistentData createFromNbt(NbtCompound tag) {
+    private static PersistentData createFromNbt(NbtCompound tag
+                                                //#if MC >= 12005
+            , RegistryWrapper.WrapperLookup lookup
+                                                //#endif
+    ) {
         PersistentData state = new PersistentData();
 
         state.started = tag.getBoolean("started");
@@ -121,7 +126,11 @@ public class PersistentData extends PersistentState {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt) {
+    public NbtCompound writeNbt(NbtCompound nbt
+                                //#if MC >= 12005
+            , RegistryWrapper.WrapperLookup lookup
+                                //#endif
+    ) {
         nbt.putBoolean("started", started);
         nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());

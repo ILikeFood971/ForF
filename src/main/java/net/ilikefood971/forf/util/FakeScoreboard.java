@@ -25,6 +25,8 @@ import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
 import net.minecraft.scoreboard.*;
 import net.minecraft.text.Text;
 
+import java.util.Optional;
+
 public class FakeScoreboard extends Scoreboard {
     public final ScoreboardObjective livesObjective;
 
@@ -33,7 +35,7 @@ public class FakeScoreboard extends Scoreboard {
         this.livesObjective = this.addObjective(
                 "lives",
                 ScoreboardCriterion.DUMMY,
-                Text.of("lives"),
+                Text.literal("lives"),
                 Util.CONFIG.tablistLivesRenderType()
                 //#if MC >= 12003
                 , false,
@@ -76,8 +78,11 @@ public class FakeScoreboard extends Scoreboard {
                                 scoreHolder.getNameForScoreboard(),
                                 objective.getName(),
                                 score.getScore(),
-                                objective.getDisplayName(),
-                                null
+                                //#if MC >= 12005
+                                Optional.empty(), Optional.empty()
+                                //#else
+                                //$$ null, null
+                                //#endif
                                 //#else
                                 //$$ ServerScoreboard.UpdateMode.CHANGE,
                                 //$$ score.getObjective().getName(),

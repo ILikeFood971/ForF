@@ -32,13 +32,12 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 
-import static net.ilikefood971.forf.util.Util.CONFIG;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.*;
 
 public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerPlayConnectionEvents.Join {
 
     public static Packet<?> getHeaderPacket() {
-        return new PlayerListHeaderS2CPacket(Text.Serialization.fromJson(CONFIG.tablistHeader()), Text.literal(""));
+        return new PlayerListHeaderS2CPacket(Util.fromJson(CONFIG.tablistHeader()), Text.literal(""));
     }
 
     public static Packet<?> getEmptyHeaderPacket() {
