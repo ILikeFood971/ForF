@@ -44,6 +44,7 @@ dependencies {
 }
 
 String LANG_DIR = 'assets/forf/lang'
+String LANG_DIR_DATA = 'data/forf/lang'
 JavaVersion JAVA_COMPATIBILITY = JavaVersion.VERSION_21
 
 loom {
@@ -102,12 +103,11 @@ yamlang {
     inputDir = LANG_DIR
 }
 
-tasks.register("copyLangFiles") {
+tasks.register("copyLangFiles", Copy) {
     mustRunAfter("yamlangConvertMainResources")
-    basePath = sourceSets.main.resources.srcDirs[0].toPath()
+    def basePath = sourceSets.main.getOutput().getResourcesDir().toPath()
     from(basePath.resolve(LANG_DIR))
-    into(basePath.resolve("assets/${project.mod_id}/lang"))
-    include("*.json")
+    into(basePath.resolve(LANG_DIR_DATA))
 }
 
 // ensure that the encoding is set to UTF-8, no matter what the system default is
@@ -130,6 +130,7 @@ java {
 }
 
 jar {
+    dependsOn("copyLangFiles")
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${project.archives_base_name}" }
     }

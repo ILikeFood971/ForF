@@ -24,6 +24,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -39,13 +40,14 @@ public class TrackerData {
         stack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> currentNbt.put(KEY, data.toNbt())));
     }
 
-    public record PlayerTrackerComponent(UUID target, boolean tracking, long expiration) {
+    public record PlayerTrackerComponent(@Nullable UUID target, boolean tracking, long expiration) {
         private static final String UUID_KEY = "trackedPlayer";
         private static final String TRACKING_KEY = "tracking";
         private static final String EXPIRATION_KEY = "expiration";
 
         private static PlayerTrackerComponent fromNbt(NbtCompound compound) {
-            return new PlayerTrackerComponent(compound.getUuid(UUID_KEY), compound.getBoolean(TRACKING_KEY), compound.getLong(EXPIRATION_KEY));
+            UUID target = compound.containsUuid(UUID_KEY) ? compound.getUuid(UUID_KEY) : null;
+            return new PlayerTrackerComponent(target, compound.getBoolean(TRACKING_KEY), compound.getLong(EXPIRATION_KEY));
         }
 
         private NbtCompound toNbt() {
