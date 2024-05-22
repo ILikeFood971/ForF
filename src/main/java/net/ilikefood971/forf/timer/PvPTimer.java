@@ -127,11 +127,8 @@ public class PvPTimer implements ServerTickEvents.EndTick {
 
     @Override
     public void onEndTick(MinecraftServer server) {
-        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.isStarted()
-                //#if MC >= 12003
-                || !SERVER.getTickManager().shouldTick()
-            //#endif
-        ) return;
+        if (!CONFIG.pvPTimer().enabled() || !PERSISTENT_DATA.isStarted() || !SERVER.getTickManager().shouldTick())
+            return;
         if (ticksTillSecond != 0) {
             ticksTillSecond--;
             return;

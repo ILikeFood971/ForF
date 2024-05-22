@@ -157,8 +157,6 @@ If you need any more help please join the [Discord Server](https://discord.gg/yp
 
 ## Credits
 
-This GitHub repo is based on [Fallen Breath's mod template](https://github.com/Fallen-Breath/fabric-mod-template)
-
 **Requires [Fabric API](https://modrinth.com/mod/fabric-api)**  
 Forf utilizes the [sgui library](https://github.com/Patbox/sgui) for the player tracker gui  
 [Server Translations API](https://github.com/NucleoidMC/Server-Translations) is included  

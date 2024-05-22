@@ -36,61 +36,30 @@ public class FakeScoreboard extends Scoreboard {
                 "lives",
                 ScoreboardCriterion.DUMMY,
                 Text.literal("lives"),
-                Util.CONFIG.tablistLivesRenderType()
-                //#if MC >= 12003
-                , false,
+                Util.CONFIG.tablistLivesRenderType(),
+                false,
                 null
-                //#endif
         );
     }
 
     public void setListSlot() {
-        Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                Util.getScoreboardListSlot(), this.livesObjective
-        ));
+        Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(ScoreboardDisplaySlot.LIST, this.livesObjective));
     }
 
     public void clearListSlot() {
-        Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(
-                Util.getScoreboardListSlot(), null
-        ));
+        Util.SERVER.getPlayerManager().sendToAll(new ScoreboardDisplayS2CPacket(ScoreboardDisplaySlot.LIST, null));
     }
 
     @Override
-    public void updateScore(
-            //#if MC >= 12003
-            ScoreHolder scoreHolder,
-            ScoreboardObjective objective,
-            //#endif
-            ScoreboardScore score
-    ) {
-        super.updateScore(
-                //#if MC >= 12003
-                scoreHolder,
-                objective,
-                //#endif
-                score);
-        Util.SERVER
-                .getPlayerManager()
-                .sendToAll(
-                        new ScoreboardScoreUpdateS2CPacket(
-                                //#if MC >= 12003
-                                scoreHolder.getNameForScoreboard(),
-                                objective.getName(),
-                                score.getScore(),
-                                //#if MC >= 12005
-                                Optional.empty(), Optional.empty()
-                                //#else
-                                //$$ null, null
-                                //#endif
-                                //#else
-                                //$$ ServerScoreboard.UpdateMode.CHANGE,
-                                //$$ score.getObjective().getName(),
-                                //$$ score.getPlayerName(),
-                                //$$ score.getScore()
-                                //#endif
-                        )
-                );
+    public void updateScore(ScoreHolder scoreHolder, ScoreboardObjective objective, ScoreboardScore score) {
+        super.updateScore(scoreHolder, objective, score);
+        Util.SERVER.getPlayerManager().sendToAll(new ScoreboardScoreUpdateS2CPacket(
+                scoreHolder.getNameForScoreboard(),
+                objective.getName(),
+                score.getScore(),
+                Optional.empty(),
+                Optional.empty()
+        ));
         Util.LOGGER.debug("Scoreboard Update Packet sent");
     }
 }

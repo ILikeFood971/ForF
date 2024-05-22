@@ -1,5 +1,4 @@
 //file:noinspection GrUnresolvedAccess
-import groovy.json.JsonSlurper
 
 pluginManagement {
     repositories {
@@ -22,18 +21,10 @@ pluginManagement {
                     break
                 }
                 case "me.fallenbreath.yamlang": {
-                    useModule("com.github.ILikeFood971:yamlang:${requested.version}")
+                    useModule("com.github.Fallen-Breath:yamlang:${requested.version}")
                     break
                 }
             }
         }
     }
-}
-def settings = new JsonSlurper().parseText(file('settings.json').text)
-for (String version : settings.versions) {
-    include(":$version")
-
-    def proj = project(":$version")
-    proj.projectDir = file("versions/$version")
-    proj.buildFileName = "../../common.gradle"
 }

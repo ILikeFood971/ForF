@@ -57,7 +57,7 @@ public class KillsCommand {
             text.append(Text.literal("\n" + name + ": ").formatted(Formatting.GRAY))
                     .append(Text.literal(String.valueOf(kills)).formatted(Formatting.YELLOW));
         }
-        Util.sendFeedback(context, text, false);
+        context.getSource().sendFeedback(() -> text, false);
         return 1;
     }
 }

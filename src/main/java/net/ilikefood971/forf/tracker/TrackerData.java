@@ -20,14 +20,10 @@
 
 package net.ilikefood971.forf.tracker;
 
-import net.ilikefood971.forf.util.Util;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-
-//#if MC >= 12005
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
-//#endif
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 
 import java.util.UUID;
 
@@ -36,15 +32,11 @@ public class TrackerData {
     private static final String KEY = "trackerData";
 
     public static PlayerTrackerComponent getData(ItemStack stack) {
-        return PlayerTrackerComponent.fromNbt(Util.getNbt(stack));
+        return PlayerTrackerComponent.fromNbt(stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt());
     }
 
     public static void applyData(ItemStack stack, PlayerTrackerComponent data) {
-        //#if MC >= 12005
         stack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, comp -> comp.apply(currentNbt -> currentNbt.put(KEY, data.toNbt())));
-        //#else
-        //$$ Util.getNbt(stack).put(KEY, data.toNbt());
-        //#endif
     }
 
     public record PlayerTrackerComponent(UUID target, boolean tracking, long expiration) {

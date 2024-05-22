@@ -22,47 +22,21 @@ package net.ilikefood971.forf.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
-import com.mojang.brigadier.context.CommandContext;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
+import net.minecraft.scoreboard.ScoreAccess;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.ServerStatHandler;
 import net.minecraft.stat.Stats;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 import net.minecraft.util.UserCache;
 import net.minecraft.util.WorldSavePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//#if MC >= 12005
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-//#endif
-
-//#if MC >= 12003
-import net.minecraft.scoreboard.ScoreAccess;
-import net.minecraft.scoreboard.ScoreboardEntry;
-//#else
-//$$import net.minecraft.scoreboard.ScoreboardPlayerScore;
-//$$import net.minecraft.scoreboard.ServerScoreboard;
-//#endif
-
-//#if MC >= 12002
-import com.mojang.authlib.yggdrasil.ProfileResult;
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-//#endif
-
 import java.io.File;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Util {
@@ -106,119 +80,20 @@ public class Util {
         return serverStatHandler.getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAYER_KILLS));
     }
 
-    // Version Utils
-
-    public static void sendFeedback(CommandContext<ServerCommandSource> context, Text message, boolean broadcast) {
-        context.getSource().sendFeedback(
-                //#if MC >= 12000
-                () ->
-                        //#endif
-                        message, broadcast);
-    }
-
     public static void setScore(ServerPlayerEntity player, int lives) {
-        //#if MC >= 12003
         ScoreAccess scoreAccess = FAKE_SCOREBOARD.getOrCreateScore(player, FAKE_SCOREBOARD.livesObjective);
         scoreAccess.setScore(lives);
-        //#else
-        //$$ ScoreboardPlayerScore playerScore = FAKE_SCOREBOARD.getPlayerScore(player.getEntityName(), FAKE_SCOREBOARD.livesObjective);
-        //$$ playerScore.setScore(lives);
-        //#endif
-    }
-
-    public static void forEachValueInLivesObjective(Consumer<
-            //#if MC >= 12003
-            ScoreboardEntry
-            //#else
-            //$$ ScoreboardPlayerScore
-            //#endif
-            > action) {
-        for (
-            //#if MC >= 12003
-                ScoreboardEntry
-                        //#else
-                        //$$ ScoreboardPlayerScore
-                        //#endif
-                        entry : FAKE_SCOREBOARD.getScoreboardEntries(FAKE_SCOREBOARD.livesObjective)) {
-            action.accept(entry);
-        }
-    }
-
-    public static Packet<?> getScoreboardUpdatePacket(
-            //#if MC >= 12003
-            ScoreboardEntry
-                    //#else
-                    //$$ ScoreboardPlayerScore
-                    //#endif
-                    score) {
-        //#if MC >= 12003
-        return new ScoreboardScoreUpdateS2CPacket(
-                score.owner(),
-                Util.FAKE_SCOREBOARD.livesObjective.getName(),
-                score.value(),
-                //#if MC >= 12005
-                Optional.empty(), Optional.empty()
-                //#else
-                //$$ null, null
-                //#endif
-        );
-        //#else
-        //$$ return new ScoreboardPlayerUpdateS2CPacket(
-        //$$         ServerScoreboard.UpdateMode.CHANGE,
-        //$$         Util.FAKE_SCOREBOARD.livesObjective.getName(),
-        //$$         score.getPlayerName(),
-        //$$         score.getScore()
-        //$$ );
-        //#endif
-    }
-
-    @SuppressWarnings("SameReturnValue")
-    public static ScoreboardDisplaySlot getScoreboardListSlot() {
-        //#if MC >= 12002
-        return ScoreboardDisplaySlot.LIST;
-        //#else
-        //$$ return 0;
-        //#endif
-    }
-
-    public static boolean isListSlot(ScoreboardDisplaySlot slot) {
-        //#if MC >= 12002
-        return slot.equals(ScoreboardDisplaySlot.LIST);
-        //#else
-        //$$ return slot == 0;
-        //#endif
     }
 
     public static GameProfile getOfflineProfile(UUID uuid) {
         GameProfile profile;
         UserCache cache = SERVER.getUserCache();
         Supplier<GameProfile> profileFetcher = () -> {
-            //#if MC >= 12002
             ProfileResult profileResult = SERVER.getSessionService().fetchProfile(uuid, false);
             return profileResult != null ? profileResult.profile() : null;
-            //#else
-            //$$ return SERVER.getSessionService().fillProfileProperties(new GameProfile(uuid, null), false);
-            //#endif
         };
         profile = cache != null ? cache.getByUuid(uuid).orElseGet(profileFetcher) : profileFetcher.get();
         if (profile == null) throw new ProfileNotFoundException("Player Not Found: " + uuid);
         return profile;
     }
-
-    public static NbtCompound getNbt(ItemStack itemStack) {
-        //#if MC >= 12005
-        return itemStack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT).copyNbt();
-        //#else
-        //$$ return itemStack.getOrCreateNbt();
-        //#endif
-    }
-
-    public static MutableText fromJson(String json) {
-        //#if MC >= 12005
-        return Text.Serialization.fromJson(json, SERVER.getRegistryManager());
-        //#else
-        //$$ return Text.Serialization.fromJson(json);
-        //#endif
-    }
-
 }

@@ -37,7 +37,7 @@ import static net.ilikefood971.forf.util.Util.*;
 public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerPlayConnectionEvents.Join {
 
     public static Packet<?> getHeaderPacket() {
-        return new PlayerListHeaderS2CPacket(Util.fromJson(CONFIG.tablistHeader()), Text.literal(""));
+        return new PlayerListHeaderS2CPacket(Text.Serialization.fromJson(CONFIG.tablistHeader(), SERVER.getRegistryManager()), Text.literal(""));
     }
 
     public static Packet<?> getEmptyHeaderPacket() {

@@ -23,6 +23,9 @@ package net.ilikefood971.forf.mixin;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ScoreboardScoreUpdateS2CPacket;
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
+import net.minecraft.scoreboard.ScoreboardEntry;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,18 +34,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Optional;
+
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {
     @Inject(method = "sendScoreboard", at = @At("RETURN"))
     protected void sendScoreboardWithLivesList(ServerScoreboard scoreboard, ServerPlayerEntity player, CallbackInfo ci) {
         player.networkHandler.sendPacket(new ScoreboardObjectiveUpdateS2CPacket(Util.FAKE_SCOREBOARD.livesObjective, 0));
-        Util.forEachValueInLivesObjective(scoreboardEntry ->
-                player.networkHandler.sendPacket(Util.getScoreboardUpdatePacket(scoreboardEntry)
-                ));
+        for (ScoreboardEntry entry : Util.FAKE_SCOREBOARD.getScoreboardEntries(Util.FAKE_SCOREBOARD.livesObjective)) {
+            player.networkHandler.sendPacket(new ScoreboardScoreUpdateS2CPacket(
+                    entry.owner(),
+                    Util.FAKE_SCOREBOARD.livesObjective.getName(),
+                    entry.value(),
+                    Optional.empty(), Optional.empty()
+            ));
+        }
         if (Util.PERSISTENT_DATA.isStarted()) {
-            player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(
-                    Util.getScoreboardListSlot(), Util.FAKE_SCOREBOARD.livesObjective)
-            );
+            player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(ScoreboardDisplaySlot.LIST, Util.FAKE_SCOREBOARD.livesObjective));
         }
     }
 }

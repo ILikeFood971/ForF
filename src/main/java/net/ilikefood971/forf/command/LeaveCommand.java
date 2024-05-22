@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static net.ilikefood971.forf.command.CommandUtil.getProfiles;
-import static net.ilikefood971.forf.util.Util.sendFeedback;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LeaveCommand {
@@ -82,7 +81,8 @@ public class LeaveCommand {
             changed++;
         }
 
-        sendFeedback(context, Text.translatable("forf.commands.leave.success.multiple", changed), true);
+        Text feedback = solo ? Text.translatable("forf.commands.leave.success.solo", profiles.iterator().next().getName()) : Text.translatable("forf.commands.leave.success.multiple", changed);
+        context.getSource().sendFeedback(() -> feedback, true);
         return 1;
     }
 }

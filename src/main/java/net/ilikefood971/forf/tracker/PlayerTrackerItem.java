@@ -26,6 +26,8 @@ import net.ilikefood971.forf.config.Config;
 import net.ilikefood971.forf.mixin.IGetPortalPos;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -42,31 +44,16 @@ import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-//#if MC >= 12005
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LodestoneTrackerComponent;
-//#else
-//$$ import net.minecraft.nbt.NbtCompound;
-//$$ import net.minecraft.nbt.NbtHelper;
-//#endif
-
-//#if MC <= 12004
-//$$import net.minecraft.item.Vanishable;
-//#endif
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static net.ilikefood971.forf.util.Util.*;
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.SERVER;
 
-public class PlayerTrackerItem extends Item implements PolymerItem
-//#if MC <= 12004
-//$$ , Vanishable
-//#endif
-{
+public class PlayerTrackerItem extends Item implements PolymerItem {
     public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new Item.Settings());
     private static int tickTillNext = 20;
 
@@ -89,10 +76,6 @@ public class PlayerTrackerItem extends Item implements PolymerItem
     public static void updateTracker(ItemStack stack, World world) {
         if (!(stack.getItem() instanceof PlayerTrackerItem)) return;
 
-        //#if MC <= 12004
-        //$$ NbtCompound nbt = Util.getNbt(stack);
-        //#endif
-
         TrackerData.PlayerTrackerComponent data = TrackerData.getData(stack);
         ServerPlayerEntity trackedPlayer = SERVER.getPlayerManager().getPlayer(data.target());
 
@@ -101,13 +84,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem
             targetWorld = trackedPlayer.getWorld();
         } else {
             // The target player is offline
-            //#if MC >= 12005
             stack.set(DataComponentTypes.LODESTONE_TRACKER, new LodestoneTrackerComponent(Optional.empty(), true));
-            //#else
-            //$$ if (nbt.contains("LodestoneDimension")) {
-            //$$     nbt.remove("LodestoneDimension");
-            //$$ }
-            //#endif
             tickTillNext = CONFIG.trackerAutoUpdateDelay();
             return;
         }
@@ -126,13 +103,10 @@ public class PlayerTrackerItem extends Item implements PolymerItem
         } else {
             blockPos = trackedPlayer.getBlockPos();
         }
-        //#if MC >= 12005
+
         LodestoneTrackerComponent lodestoneTrackerComponent = new LodestoneTrackerComponent(Optional.of(GlobalPos.create(world.getRegistryKey(), blockPos)), true);
         stack.set(DataComponentTypes.LODESTONE_TRACKER, lodestoneTrackerComponent);
-        //#else
-        //$$ if (blockPos != null) nbt.put("LodestonePos", NbtHelper.fromBlockPos(blockPos));
-        //$$ nbt.putString("LodestoneDimension", world.getRegistryKey().getValue().toString());
-        //#endif
+
         tickTillNext = CONFIG.trackerAutoUpdateDelay();
     }
 
@@ -167,13 +141,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem
     }
 
     @Override
-    public void appendTooltip(
-            //#if MC >= 12005
-            ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type
-            //#else
-            //$$ ItemStack stack, World world, List<Text> tooltip, TooltipContext type
-            //#endif
-    ) {
+    public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type) {
         TrackerData.PlayerTrackerComponent data = TrackerData.getData(stack);
         if (data.tracking()) {
             String targetName = getName(data.target());
@@ -182,11 +150,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem
                     Formatting.RED, Formatting.BOLD
             )));
         } else {
-            //#if MC >= 12005
             boolean hasCustomName = stack.contains(DataComponentTypes.CUSTOM_NAME);
-            //#else
-            //$$ boolean hasCustomName = stack.hasCustomName();
-            //#endif
             if (!hasCustomName) {
                 tooltip.set(0, Text.translatable("item.forf.player_tracker").formatted(Formatting.GREEN));
             }

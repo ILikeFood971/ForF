@@ -23,6 +23,7 @@ package net.ilikefood971.forf.mixin;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.util.Util;
+import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.command.ScoreboardCommand;
 import net.minecraft.server.command.ServerCommandSource;
@@ -33,9 +34,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-//#if MC >= 12002
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-//#endif
 
 @Mixin(ScoreboardCommand.class)
 public abstract class ScoreboardCommandMixin {
@@ -52,7 +50,7 @@ public abstract class ScoreboardCommandMixin {
     ) throws CommandSyntaxException {
         // If we don't have this mixin, you can have weird behavior where the packet gets sent,
         // so it is in the list for a time, but then on a rejoin/restart it goes back to the livesObjective
-        if (Util.PERSISTENT_DATA.isStarted() && Util.isListSlot(slot)) {
+        if (Util.PERSISTENT_DATA.isStarted() && slot == ScoreboardDisplaySlot.LIST) {
             throw CANNOT_SET_LIST_SLOT_WITH_FORF.create();
         }
     }

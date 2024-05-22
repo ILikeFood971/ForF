@@ -52,7 +52,7 @@ public class StopCommand {
         if (!PERSISTENT_DATA.isStarted()) {
             throw NOT_STARTED.create();
         }
-        sendFeedback(context, Text.translatable("forf.commands.stop.stopping"), true);
+        context.getSource().sendFeedback(() -> Text.translatable("forf.commands.stop.stopping"), true);
 
         PERSISTENT_DATA.setStarted(false);
 

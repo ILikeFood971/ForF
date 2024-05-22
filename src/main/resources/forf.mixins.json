@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "net.ilikefood971.forf.mixin",
-  "compatibilityLevel": "{{COMPATIBILITY_LEVEL}}",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "EnderPearlItemMixin",
     "EntityMixin",

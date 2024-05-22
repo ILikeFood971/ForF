@@ -79,13 +79,13 @@ public class StartCommand {
 
         // Send feedback to the command sender
         if (CONFIG.startingLives() > 1 && playersAndLives.size() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), playersAndLives.size()), true);
+            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), playersAndLives.size()), true);
         } else if (playersAndLives.size() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.start.multiplePlayers", playersAndLives.size()), true);
+            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.multiplePlayers", playersAndLives.size()), true);
         } else if (CONFIG.startingLives() > 1) {
-            sendFeedback(context, Text.translatable("forf.commands.start.multipleLives", CONFIG.startingLives()), true);
+            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.multipleLives", CONFIG.startingLives()), true);
         } else {
-            sendFeedback(context, Text.translatable("forf.commands.start.single"), true);
+            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.single"), true);
         }
 
         // Setup everything necessary for forf

@@ -91,8 +91,8 @@ public class JoinCommand {
             changed++;
         }
 
-        String key = solo ? "forf.commands.join.success.solo" : "forf.commands.join.success.multiple";
-        sendFeedback(context, Text.translatable(key, changed), true);
+        Text feedback = solo ? Text.translatable("forf.commands.join.success.solo", profiles.iterator().next().getName()) : Text.translatable("forf.commands.join.success.multiple", changed);
+        context.getSource().sendFeedback(() -> feedback, true);
         return 1;
     }
 }

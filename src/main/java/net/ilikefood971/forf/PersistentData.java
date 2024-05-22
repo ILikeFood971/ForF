@@ -38,13 +38,11 @@ import static net.ilikefood971.forf.util.Util.MOD_ID;
 
 public class PersistentData extends PersistentState {
 
-    //#if MC>=12002
-    private static final Type<PersistentData> type = new Type<>(
-            PersistentData::new, // If there's no 'PersistentData' yet create one
+    private static final Type<PersistentData> type = new Type<>(PersistentData::new, // If there's no 'PersistentData' yet create one
             PersistentData::createFromNbt, // If there is a 'PersistentData' NBT, parse it with 'createFromNbt'
             DataFixTypes.LEVEL // Supposed to be an 'DataFixTypes' enum
     );
-    //#endif
+
 
     private boolean started = false;
     private int secondsLeft = 0;
@@ -53,11 +51,7 @@ public class PersistentData extends PersistentState {
     private boolean firstKill = true;
     private boolean tenKillsLifeQuest = true;
 
-    private static PersistentData createFromNbt(NbtCompound tag
-                                                //#if MC >= 12005
-            , RegistryWrapper.WrapperLookup lookup
-                                                //#endif
-    ) {
+    private static PersistentData createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup lookup) {
         PersistentData state = new PersistentData();
 
         state.started = tag.getBoolean("started");
@@ -84,15 +78,7 @@ public class PersistentData extends PersistentState {
     public static PersistentData getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getOverworld().getPersistentStateManager();
 
-        return persistentStateManager.getOrCreate(
-                //#if MC>=12002
-                type,
-                //#else
-                //$$ PersistentData::createFromNbt,
-                //$$ PersistentData::new,
-                //#endif
-                MOD_ID
-        );
+        return persistentStateManager.getOrCreate(type, MOD_ID);
     }
 
     /**
@@ -126,11 +112,7 @@ public class PersistentData extends PersistentState {
     }
 
     @Override
-    public NbtCompound writeNbt(NbtCompound nbt
-                                //#if MC >= 12005
-            , RegistryWrapper.WrapperLookup lookup
-                                //#endif
-    ) {
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         nbt.putBoolean("started", started);
         nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
         nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());

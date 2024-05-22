@@ -115,14 +115,7 @@ public class LivesCommands {
                 newLives = lives;
             }
 
-            sendFeedback(
-                    context,
-                    Text.translatable("forf.commands.lives.success",
-                            profile.getName(),
-                            newLives
-                    ),
-                    true
-            );
+            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.lives.success", profile.getName(), newLives), true);
         }
         return 1;
     }
@@ -160,11 +153,7 @@ public class LivesCommands {
         recipientLives.increment(giftedLives);
         executorLives.decrement(giftedLives);
 
-        sendFeedback(
-                context,
-                Text.translatable("forf.commands.lives.give", recipient.getGameProfile().getName(), giftedLives),
-                true
-        );
+        context.getSource().sendFeedback(() -> Text.translatable("forf.commands.lives.give", recipient.getGameProfile().getName(), giftedLives), true);
 
         return 1;
     }
