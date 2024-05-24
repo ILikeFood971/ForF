@@ -46,8 +46,9 @@ public class TrackerData {
         private static final String EXPIRATION_KEY = "expiration";
 
         private static PlayerTrackerComponent fromNbt(NbtCompound compound) {
-            UUID target = compound.containsUuid(UUID_KEY) ? compound.getUuid(UUID_KEY) : null;
-            return new PlayerTrackerComponent(target, compound.getBoolean(TRACKING_KEY), compound.getLong(EXPIRATION_KEY));
+            NbtCompound trackerData = compound.contains(KEY) ? compound.getCompound(KEY) : new NbtCompound();
+            UUID target = trackerData.containsUuid(UUID_KEY) ? trackerData.getUuid(UUID_KEY) : null;
+            return new PlayerTrackerComponent(target, trackerData.getBoolean(TRACKING_KEY), trackerData.getLong(EXPIRATION_KEY));
         }
 
         private NbtCompound toNbt() {

@@ -24,6 +24,7 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.elements.GuiElementInterface;
 import eu.pb4.sgui.api.gui.SimpleGui;
+import net.ilikefood971.forf.data.PlayerData;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -66,7 +67,9 @@ public class PlayerTrackerGui extends SimpleGui {
         playerList.remove(excludedPlayer);
 
         for (ServerPlayerEntity player : playerList) {
-
+            if (Util.PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid()).getPlayerType() != PlayerData.PlayerType.PLAYER) {
+                continue;
+            }
             String playerName = player.getGameProfile().getName();
 
             Text lore = Text.translatable("forf.tracker.gui.lore");
