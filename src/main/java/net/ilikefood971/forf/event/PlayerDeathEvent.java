@@ -21,7 +21,7 @@
 package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.Enchantments;
@@ -41,7 +41,7 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     public void afterDeath(LivingEntity entity, DamageSource damageSource) {
         // Check that they are actually a player as this gets called for all entity deaths
         if (entity instanceof ServerPlayerEntity player) {
-            Lives lives = new Lives(player);
+            LivesHelper lives = new LivesHelper(player);
 
             // Remove the life
             if (lives.get() > 0) {
@@ -64,10 +64,10 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
                             player.getName()
                     ).formatted(Formatting.RED), false);
                 } else if (PERSISTENT_DATA.isTenKillsLifeQuest() && Util.getKills(killer.getUuid()) >= 10 && CONFIG.tenKillsLifeQuest()) {
-                    Lives killerLives = new Lives(killer);
+                    LivesHelper killerLives = new LivesHelper(killer);
                     PERSISTENT_DATA.setTenKillsLifeQuest(false);
                     int livesBefore = killerLives.get();
-                    Lives.increment(killer, 1);
+                    LivesHelper.increment(killer, 1);
                     Text message;
                     if (killerLives.get() != livesBefore) {
                         message = Text.translatable("forf.event.death.tenKills.lifeAwarded", killer.getName()).formatted(Formatting.RED);

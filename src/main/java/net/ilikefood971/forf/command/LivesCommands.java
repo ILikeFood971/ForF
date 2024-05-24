@@ -26,7 +26,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -103,7 +104,7 @@ public class LivesCommands {
             ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(profile.getId());
             int newLives;
             if (player != null) {
-                Lives playerLives = new Lives(player);
+                LivesHelper playerLives = new LivesHelper(player);
                 playerLives.set(lives);
                 newLives = playerLives.get();
             } else {
@@ -111,7 +112,7 @@ public class LivesCommands {
                     // Prevent the player from going over if overfill is disabled
                     lives = Math.min(lives, CONFIG.startingLives());
                 }
-                PERSISTENT_DATA.getPlayersAndLives().put(profile.getId(), lives);
+                PERSISTENT_DATA.getPlayerDataSet().get(profile.getId()).setLives(lives);
                 newLives = lives;
             }
 
@@ -129,17 +130,19 @@ public class LivesCommands {
         ServerPlayerEntity executor = context.getSource().getPlayerOrThrow();
         ServerPlayerEntity recipient = EntityArgumentType.getPlayer(context, "recipient");
 
-        Lives executorLives = new Lives(executor);
-        Lives recipientLives = new Lives(recipient);
+        LivesHelper executorLives = new LivesHelper(executor);
+        LivesHelper recipientLives = new LivesHelper(recipient);
+        PlayerData executorData = PERSISTENT_DATA.getPlayerDataSet().get(executor.getUuid());
+        PlayerData recipientData = PERSISTENT_DATA.getPlayerDataSet().get(recipient.getUuid());
 
         int giftedLives = IntegerArgumentType.getInteger(context, "amount");
 
         // Check all the cases that aren't allowed
         if (executor.equals(recipient)) {
             throw NOT_YOURSELF.create();
-        } else if (!Util.isForfPlayer(executor)) {
+        } else if (executorData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
             throw INVALID_EXECUTOR.create();
-        } else if (!Util.isForfPlayer(recipient)) {
+        } else if (recipientData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
             throw new SimpleCommandExceptionType(
                     Text.translatable("forf.commands.lives.exceptions.invalidTarget", recipient.getGameProfile().getName())
             ).create();

@@ -11,10 +11,7 @@ forf:
       exceptions:
         insufficientAmountPlayers: "You can't start Friend or Foe without any players!"
         insufficientAmountLives: "You can't start Friend or Foe with less than 1 life!"
-      multiplePlayersAndLives: "Setting up Friend or Foe with %s lives and %s players"
-      multiplePlayers: "Setting up Friend or Foe with 1 life and %s players"
-      multipleLives: "Setting up Friend or Foe with %s lives and 1 player"
-      single: "Setting up Friend or Foe with 1 life and 1 player"
+      starting: "Setting up Friend or Foe with %s lives"
     stop:
       stopping: "Stopping Friend or Foe"
     leave:

@@ -39,8 +39,8 @@ public abstract class EntityMixin {
     @Deprecated
     @Inject(method = "readNbt", at = @At("HEAD"))
     protected void injectReadMethod(NbtCompound nbt, CallbackInfo info) {
-        if (nbt.contains("forf.data") && PERSISTENT_DATA.getPlayersAndLives().containsKey(this.getUuid())) {
-            PERSISTENT_DATA.getPlayersAndLives().put(this.getUuid(), nbt.getCompound("forf.data").getInt("lives"));
+        if (nbt.contains("forf.data")) {
+            PERSISTENT_DATA.getPlayerDataSet().get(this.getUuid()).setLives(nbt.getCompound("forf.data").getInt("lives"));
         }
     }
 

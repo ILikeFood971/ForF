@@ -7,8 +7,6 @@
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/forf?logo=modrinth&label=Modrinth%20Downloads)](https://modrinth.com/mod/forf)
 [![CurseForge Downloads](https://cf.way2muchnoise.eu/full_919008_CurseForge%20Downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/forf)
 
-![Available Versions](https://cf.way2muchnoise.eu/versions/For%20MC_919008_all.svg)
-
 This fabric mod allows you to recreate almost everything in the Friend or Foe YouTube series that has 4
 members: [SB737,](https://youtube.com/playlist?list=PLWJikipm2MTbCmHm6e9KV0bPmW6chk1j9) [ClownPierce,](https://www.youtube.com/@ClownPierce) [Quiff,](https://www.youtube.com/@QuiffYT)
 and [Mini](https://www.youtube.com/playlist?list=PLkUQm5HBzevSUv6iW8EMErAmIKPKD4uF7). They have some alterations that
@@ -144,6 +142,7 @@ towards the end portal.
   currently planned
 - A system to prevent players from logging on without all the forf players online (Stop people from grinding like it is
   in the real series) - May be added in the future
+- Server Assassin - In development
 
 ## Getting support and contributing
 

@@ -23,6 +23,7 @@ package net.ilikefood971.forf.mixin;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
+import net.ilikefood971.forf.data.PlayerData;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,7 +39,7 @@ public abstract class PlayerLoginMixin {
         if (original == null) {
             // When a player joins, make sure that they are allowed to join from the config
             // When checking if they're a player we can't use the Util method as we don't have a ServerPlayerEntity
-            if (PERSISTENT_DATA.isStarted() && !PERSISTENT_DATA.getPlayersAndLives().containsKey(profile.getId()) && !CONFIG.spectators()) {
+            if (PERSISTENT_DATA.isStarted() && (PERSISTENT_DATA.getPlayerDataSet().get(profile.getId()).getPlayerType() != PlayerData.PlayerType.PLAYER) && !CONFIG.spectators()) {
                 // Unfortunately we can't make this translatable on the server side because it is too early in the process
                 return Text.literal("You must be a Friend or Foe member to join because spectators aren't allowed!");
             }

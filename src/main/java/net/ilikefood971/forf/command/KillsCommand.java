@@ -49,7 +49,7 @@ public class KillsCommand {
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         if (!Util.PERSISTENT_DATA.isStarted()) throw CommandUtil.NOT_STARTED.create();
         MutableText text = Text.translatable("forf.commands.kills.header");
-        for (UUID uuid : Util.PERSISTENT_DATA.getPlayersAndLives().keySet()) {
+        for (UUID uuid : Util.PERSISTENT_DATA.getPlayerDataSet().getDataSet().keySet()) {
             GameProfile profile = Util.getOfflineProfile(uuid);
             String name = profile.getName();
             int kills = Util.getKills(uuid);

@@ -24,10 +24,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.data.PlayerData;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.timer.PvPTimer;
-import net.ilikefood971.forf.util.Lives;
-import net.ilikefood971.forf.util.Util;
+import net.ilikefood971.forf.util.LivesHelper;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
@@ -35,7 +35,6 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -66,27 +65,17 @@ public class StartCommand {
     }
 
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Map<UUID, Integer> playersAndLives = PERSISTENT_DATA.getPlayersAndLives();
-
         // Check all conditions for failure
         if (PERSISTENT_DATA.isStarted()) {
             throw ALREADY_STARTED.create();
         } else if (CONFIG.startingLives() <= 0) {
             throw INSUFFICIENT_AMOUNT_LIVES.create();
-        } else if (playersAndLives.isEmpty()) {
+        } else if (PERSISTENT_DATA.getPlayerDataSet().getDataSet().isEmpty()) {
             throw INSUFFICIENT_AMOUNT_PLAYERS.create();
         }
 
         // Send feedback to the command sender
-        if (CONFIG.startingLives() > 1 && playersAndLives.size() > 1) {
-            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.multiplePlayersAndLives", CONFIG.startingLives(), playersAndLives.size()), true);
-        } else if (playersAndLives.size() > 1) {
-            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.multiplePlayers", playersAndLives.size()), true);
-        } else if (CONFIG.startingLives() > 1) {
-            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.multipleLives", CONFIG.startingLives()), true);
-        } else {
-            context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.single"), true);
-        }
+        context.getSource().sendFeedback(() -> Text.translatable("forf.commands.start.starting", CONFIG.startingLives()), true);
 
         // Setup everything necessary for forf
         setupForf(context);
@@ -100,25 +89,29 @@ public class StartCommand {
         FAKE_SCOREBOARD.setListSlot();
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getHeaderPacket());
 
-        Set<UUID> uuids = PERSISTENT_DATA.getPlayersAndLives().keySet();
+        Set<UUID> uuids = PERSISTENT_DATA.getPlayerDataSet().getDataSet().keySet();
         PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
 
         // Set all lives
         for (UUID uuid : uuids) {
+            PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(uuid);
+            if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) continue;
             ServerPlayerEntity player = playerManager.getPlayer(uuid);
             if (player != null) { // Online Players
-                Lives.set(player, CONFIG.startingLives());
+                LivesHelper.set(player, CONFIG.startingLives());
             } else { // Offline Players
-                PERSISTENT_DATA.getPlayersAndLives().put(uuid, CONFIG.startingLives());
+                playerData.setLives(CONFIG.startingLives());
             }
         }
 
         // Deal with all non forf players
         for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
-            if (!Util.isForfPlayer(serverPlayerEntity)) {
+            PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(serverPlayerEntity.getUuid());
+            if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
                 if (!CONFIG.spectators()) {
                     serverPlayerEntity.networkHandler.disconnect(Text.translatable("forf.disconnect.noSpectators"));
                 } else if (CONFIG.spectators()) {
+                    playerData.setPlayerType(PlayerData.PlayerType.SPECTATOR);
                     serverPlayerEntity.changeGameMode(CONFIG.spectatorGamemode());
                 }
             }

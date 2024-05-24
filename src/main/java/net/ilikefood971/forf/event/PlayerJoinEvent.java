@@ -22,7 +22,7 @@ package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
@@ -51,7 +51,7 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         // Because the PlayerLoginMixin has already run, we can be sure that either forf hasn't started, they are an allowed player, or spectators are allowed
         // What we don't know is whether they are out of lives
         ServerPlayerEntity player = handler.getPlayer();
-        Lives lives = new Lives(player);
+        LivesHelper lives = new LivesHelper(player);
 
         // If forf hasn't stated, let them in
         if (!PERSISTENT_DATA.isStarted()) {
@@ -89,6 +89,6 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         if (PERSISTENT_DATA.isStarted()) {
             sender.sendPacket(getHeaderPacket());
         }
-        Util.setScore(player, Lives.get(player));
+        Util.setScore(player, LivesHelper.get(player));
     }
 }

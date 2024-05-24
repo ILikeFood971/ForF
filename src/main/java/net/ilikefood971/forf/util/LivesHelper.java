@@ -20,34 +20,30 @@
 
 package net.ilikefood971.forf.util;
 
+import net.ilikefood971.forf.data.PlayerData;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 
-import java.util.Map;
-import java.util.UUID;
-
 import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
-public class Lives {
+public class LivesHelper {
     private final ServerPlayerEntity player;
 
-    public Lives(ServerPlayerEntity player) {
+    public LivesHelper(ServerPlayerEntity player) {
         this.player = player;
     }
 
-    private static Map<UUID, Integer> getPlayerLivesMap() {
-        return Util.PERSISTENT_DATA.getPlayersAndLives();
-    }
-
     public static int get(ServerPlayerEntity player) {
-        if (!Util.isForfPlayer(player)) {
+        PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid());
+        if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
             return 0;
-        }
-        return getPlayerLivesMap().get(player.getUuid());
+        } else return playerData.getLives();
     }
 
     public static void set(ServerPlayerEntity player, int lives) {
+        PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid());
         if (!CONFIG.overfill()) {
             // Prevent the player from going over if overfill is disabled
             lives = Math.min(lives, CONFIG.startingLives());
@@ -64,14 +60,15 @@ public class Lives {
                 player.networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));
             } else {
                 // If spectators allowed, switch the players gamemode
+                playerData.setPlayerType(PlayerData.PlayerType.SPECTATOR);
                 player.changeGameMode(CONFIG.spectatorGamemode());
                 player.sendMessage(Text.translatable("forf.event.death.spectator"));
             }
-        } else if (get(player) == 0) { // If old lives is 0 then change the gamemode back to default
+        } else if (playerData.getPlayerType() == PlayerData.PlayerType.SPECTATOR) { // If they were a spectator then update that
+            playerData.setPlayerType(PlayerData.PlayerType.PLAYER);
             player.changeGameMode(GameMode.DEFAULT);
         }
-
-        getPlayerLivesMap().put(player.getUuid(), lives);
+        playerData.setLives(lives);
     }
 
     public static void increment(ServerPlayerEntity player, int amount) {

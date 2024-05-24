@@ -23,8 +23,9 @@ package net.ilikefood971.forf.util;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
 import com.mojang.authlib.yggdrasil.ProfileResult;
-import net.ilikefood971.forf.PersistentData;
 import net.ilikefood971.forf.config.Config;
+import net.ilikefood971.forf.data.DataHandler;
+import net.ilikefood971.forf.data.PlayerData;
 import net.minecraft.scoreboard.ScoreAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -45,23 +46,15 @@ public class Util {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Config CONFIG = Config.loadFromFile();
     public static final FakeScoreboard FAKE_SCOREBOARD = new FakeScoreboard();
-    public static PersistentData PERSISTENT_DATA;
+    public static DataHandler PERSISTENT_DATA;
     public static MinecraftServer SERVER;
-
-    public static void addNewPlayer(UUID uuid) {
-        PERSISTENT_DATA.getPlayersAndLives().put(uuid, 0);
-    }
-
-    public static void removePlayer(UUID uuid) {
-        PERSISTENT_DATA.getPlayersAndLives().remove(uuid);
-    }
 
     public static boolean isForfPlayer(ServerPlayerEntity player) {
         return isForfPlayer(player.getUuid());
     }
 
     public static boolean isForfPlayer(UUID uuid) {
-        return PERSISTENT_DATA.getPlayersAndLives().containsKey(uuid);
+        return PERSISTENT_DATA.getPlayerDataSet().get(uuid).getPlayerType() == PlayerData.PlayerType.PLAYER;
     }
 
 

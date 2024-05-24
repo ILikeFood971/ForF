@@ -22,6 +22,7 @@ package net.ilikefood971.forf;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.ModRegistries;
 
@@ -36,7 +37,7 @@ public class Forf implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register((instance) -> {
             SERVER = instance;
-            PERSISTENT_DATA = PersistentData.getServerState(SERVER);
+            PERSISTENT_DATA = DataHandler.getServerState(SERVER);
             PvPTimer.serverStarted();
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {

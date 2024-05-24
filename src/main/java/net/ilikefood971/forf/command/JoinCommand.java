@@ -26,7 +26,8 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.ilikefood971.forf.util.Lives;
+import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -78,14 +79,14 @@ public class JoinCommand {
                         Text.translatable("forf.commands.join.exceptions.alreadyAdded", profile.getName())
                 ).create();
             }
-            Util.addNewPlayer(id);
+            PERSISTENT_DATA.getPlayerDataSet().add(new PlayerData(id, 0, PlayerData.PlayerType.PLAYER));
             if (late) {
                 ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(id);
                 int lives = IntegerArgumentType.getInteger(context, "lives");
                 if (player != null) {
-                    Lives.set(player, lives);
+                    LivesHelper.set(player, lives);
                 } else {
-                    PERSISTENT_DATA.getPlayersAndLives().put(id, lives);
+                    PERSISTENT_DATA.getPlayerDataSet().get(id).setLives(lives);
                 }
             }
             changed++;

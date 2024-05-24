@@ -23,6 +23,7 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.ilikefood971.forf.data.PlayerData;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -60,7 +61,10 @@ public class StopCommand {
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
 
         // Set all lives to 0
-        PERSISTENT_DATA.getPlayersAndLives().clear();
+        PERSISTENT_DATA.getPlayerDataSet().getDataSet().forEach((uuid, playerData) -> {
+            playerData.setLives(0);
+            playerData.setPlayerType(PlayerData.PlayerType.UNKNOWN);
+        });
 
         boolean pvp;
         if (SERVER instanceof MinecraftDedicatedServer dedicatedServer) {
