@@ -3,7 +3,7 @@ name: Release
 # release: <default> (release title)
 # dispatch: Manual release for $target_release_tag
 run-name: |-
-  ${{ github.event_name == 'workflow_dispatch' && format('Manual release for {0}{1}', inputs.target_release_tag || '') || '' }}
+  ${{ github.event_name == 'workflow_dispatch' && format('Manual release for {0}', inputs.target_release_tag || '') || '' }}
 
 on:
   release:
@@ -41,7 +41,7 @@ jobs:
           tag: ${{ github.event.inputs.target_release_tag }}
 
   build:
-    uses: ./.github/workflows/build.YML
+    uses: ./.github/workflows/build.yml
     secrets: inherit
     needs:
       - validate_release
@@ -107,7 +107,7 @@ jobs:
         id: file_info
         run: |
           shopt -s extglob
-          FILE_PATHS=$(ls ${{ format('build-artifacts/{0}/build/libs/!(*-@(dev|sources)).jar') }})
+          FILE_PATHS=$(ls ${{ format('build-artifacts/!(*-@(dev|sources)).jar') }})
           if (( ${#FILE_PATHS[@]} != 1 )); then
               echo "Error: Found ${#FILE_PATHS[@]} files, expected exactly 1"
               exit 1
@@ -161,7 +161,7 @@ jobs:
           version-type: release
 
           loaders: fabric
-          game-versions: ${{ steps.properties_g.outputs.mod_version }}
+          game-versions: ${{ steps.properties_g.outputs.minecraft_version }}
           game-version-filter: any
 
           github-changelog: ${{ format('{0}{1}', github.event.release.body, steps.get_release.outputs.body) }}

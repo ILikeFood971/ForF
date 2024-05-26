@@ -45,5 +45,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Artifacts
+          name: build-artifacts
           path: build/libs/
