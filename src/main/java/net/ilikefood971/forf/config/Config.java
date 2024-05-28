@@ -42,6 +42,8 @@ public class Config {
     private GameMode spectatorGamemode = GameMode.SPECTATOR;
     @Comment("When you start forf, how many lives should everyone start with")
     private int startingLives = 10;
+    @Comment("How many lives should the server assassin start out with")
+    private int assassinStartingLives = 1;
 
     @Comment("Should players be able to go over the starting lives")
     private boolean overfill = false;
@@ -128,6 +130,10 @@ public class Config {
 
     public int startingLives() {
         return startingLives;
+    }
+
+    public int assassinStartingLives() {
+        return assassinStartingLives;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

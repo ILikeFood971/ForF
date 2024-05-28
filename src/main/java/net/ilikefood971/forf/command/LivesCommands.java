@@ -26,7 +26,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
@@ -38,7 +40,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
-import static net.ilikefood971.forf.util.Util.*;
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.SERVER;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -90,7 +93,7 @@ public class LivesCommands {
 
     @SuppressWarnings("SameReturnValue")
     private static int setPlayersLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (!PERSISTENT_DATA.isStarted()) {
+        if (!DataHandler.getInstance().isStarted()) {
             throw NOT_STARTED.create();
         }
         int lives = IntegerArgumentType.getInteger(context, "lives");
@@ -112,7 +115,7 @@ public class LivesCommands {
                     // Prevent the player from going over if overfill is disabled
                     lives = Math.min(lives, CONFIG.startingLives());
                 }
-                PERSISTENT_DATA.getPlayerDataSet().get(profile.getId()).setLives(lives);
+                PlayerDataSet.getInstance().get(profile.getId()).setLives(lives);
                 newLives = lives;
             }
 
@@ -123,7 +126,7 @@ public class LivesCommands {
 
     @SuppressWarnings("SameReturnValue")
     private static int givePlayerLives(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (!PERSISTENT_DATA.isStarted()) {
+        if (!DataHandler.getInstance().isStarted()) {
             throw NOT_STARTED.create();
         }
 
@@ -132,8 +135,8 @@ public class LivesCommands {
 
         LivesHelper executorLives = new LivesHelper(executor);
         LivesHelper recipientLives = new LivesHelper(recipient);
-        PlayerData executorData = PERSISTENT_DATA.getPlayerDataSet().get(executor.getUuid());
-        PlayerData recipientData = PERSISTENT_DATA.getPlayerDataSet().get(recipient.getUuid());
+        PlayerData executorData = PlayerDataSet.getInstance().get(executor.getUuid());
+        PlayerData recipientData = PlayerDataSet.getInstance().get(recipient.getUuid());
 
         int giftedLives = IntegerArgumentType.getInteger(context, "amount");
 
@@ -146,7 +149,7 @@ public class LivesCommands {
             throw new SimpleCommandExceptionType(
                     Text.translatable("forf.commands.lives.exceptions.invalidTarget", recipient.getGameProfile().getName())
             ).create();
-        } else if (executorLives.get() - recipientLives.get() <= 0) {
+        } else if (executorLives.get() - giftedLives <= 0) {
             throw NOT_ENOUGH_LIVES.create();
         } else if (recipientLives.get() + giftedLives > CONFIG.startingLives() && !CONFIG.overfill()) {
             throw TOO_MANY_LIVES.create();

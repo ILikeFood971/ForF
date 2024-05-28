@@ -26,6 +26,7 @@ forf:
         multiple: "Added %s players to Friend or Foe"
       exceptions:
         alreadyAdded: "%s is already added to Friend or Foe!"
+        assassinMultiple: "You can't have multiple server assassins!"
     lives:
       success: "Set %s to %s lives"
       give: "Gave %s %s lives"
@@ -35,6 +36,9 @@ forf:
         notYourself: "You can't give yourself a life!"
         notEnoughLives: "You do not have enough lives to give!"
         tooManyLives: "You can't gift a player lives when it will go over the allowed amount of lives!"
+    assassin:
+      set: "Set %s as server assassin"
+      clear: "Cleared the server assassin"
     kills:
       header: "§2------- Kills -------§r"
   timer:
@@ -42,6 +46,7 @@ forf:
       enabled: "§8PvP Enabled:§r %s§4§ls§r §8left§r"
       enabledMoreThanMinute: "§8PvP Enabled:§r %s§4§lm§r %s§4§ls§r §8left§r"
       disabled: "§aPvP disabled§r"
+      assassin: "§8PvP Enabled:§r %s §8is online§r"
     chat:
       disabled: "§ePvP is now§r §c§lOFF§r"
       enabled: "§ePvP is now§r §a§lON§r"
@@ -70,6 +75,8 @@ forf:
       tenKills:
         lifeAwarded: "%s was the first player to get 10 player kills! They have earned an extra life!"
         alreadyFull: "%s was the first player to get 10 player kills! Unfortunately they have the maximum number of lives so they didn't earn anything."
+  assassin:
+    youAreAssassin: "You are the server assassin! Try to kill as many players as you can and cause lots of chaos!"
 
 item:
   forf:

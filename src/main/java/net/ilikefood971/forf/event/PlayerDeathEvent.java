@@ -21,6 +21,7 @@
 package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
@@ -33,7 +34,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import static net.ilikefood971.forf.util.Util.*;
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.SERVER;
 
 public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
     // Remove one life from the player on death
@@ -52,8 +54,8 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
                 ).formatted(Formatting.RED), false);
             }
             if (damageSource.getAttacker() instanceof ServerPlayerEntity killer) {
-                if (PERSISTENT_DATA.isFirstKill() && CONFIG.firstKillMendingBook()) {
-                    PERSISTENT_DATA.setFirstKill(false);
+                if (DataHandler.getInstance().isFirstKill() && CONFIG.firstKillMendingBook()) {
+                    DataHandler.getInstance().setFirstKill(false);
 
                     ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(Enchantments.MENDING, 1));
 
@@ -63,9 +65,9 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
                             killer.getName(),
                             player.getName()
                     ).formatted(Formatting.RED), false);
-                } else if (PERSISTENT_DATA.isTenKillsLifeQuest() && Util.getKills(killer.getUuid()) >= 10 && CONFIG.tenKillsLifeQuest()) {
+                } else if (DataHandler.getInstance().isTenKillsLifeQuest() && Util.getKills(killer.getUuid()) >= 10 && CONFIG.tenKillsLifeQuest()) {
                     LivesHelper killerLives = new LivesHelper(killer);
-                    PERSISTENT_DATA.setTenKillsLifeQuest(false);
+                    DataHandler.getInstance().setTenKillsLifeQuest(false);
                     int livesBefore = killerLives.get();
                     LivesHelper.increment(killer, 1);
                     Text message;

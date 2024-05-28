@@ -93,7 +93,7 @@ Once everything in the config has been set to what you like, save the file. Afte
 you would like to play with log on and run the `/forf join` command. An op can also append the target player(s) at the
 end if desired (`/forf join [players]`). If you would like to join a player after Friend or Foe has already started then
 run `/forf join [players] late <lives>` as an op and the players do not need to be online. Once everyone has joined, you
-can then run the `/forf start` command (op level 4 required) to set everything up. If at anytime you need to stop Friend
+can then run the `/forf start` command (op level 3 required) to set everything up. If at anytime you need to stop Friend
 or Foe, run the `/forf stop` command.
 
 ### Timer
@@ -131,6 +131,13 @@ server-side by using the Polymer library.
 If the player you are tracking is in another dimension that is either the overworld or the nether, it will point towards
 their last player. If only you or the tracked player is in the end, the compass will spin randomly instead of pointing
 towards the end portal.
+
+### Server Assassin
+
+You can set a player to be the server assassin by running `/forf assassin set <player>`. The assassin will change the
+pvp mode to online whenever they join. They will also start out with a different number of lives (default is 1, you can
+change this in the config). Other players cannot give lives to the assassin. If you would like to clear the server
+assassin, run `/forf assassin clear`.
 
 ## Missing features
 

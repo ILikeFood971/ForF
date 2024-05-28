@@ -24,14 +24,13 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.data.DataHandler;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
 import java.util.List;
-
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 
 public class CommandUtil {
     public static final SimpleCommandExceptionType NOT_STARTED = new SimpleCommandExceptionType(
@@ -42,7 +41,7 @@ public class CommandUtil {
     );
 
     public static Collection<GameProfile> getProfiles(CommandContext<ServerCommandSource> context, boolean solo, boolean late) throws CommandSyntaxException {
-        if (PERSISTENT_DATA.isStarted() && !late) {
+        if (DataHandler.getInstance().isStarted() && !late) {
             throw ALREADY_STARTED.create();
         }
 

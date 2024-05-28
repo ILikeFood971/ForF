@@ -24,6 +24,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.ilikefood971.forf.data.DataHandler;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -47,10 +49,10 @@ public class KillsCommand {
 
     @SuppressWarnings("SameReturnValue")
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if (!Util.PERSISTENT_DATA.isStarted()) throw CommandUtil.NOT_STARTED.create();
+        if (!DataHandler.getInstance().isStarted()) throw CommandUtil.NOT_STARTED.create();
         MutableText text = Text.translatable("forf.commands.kills.header");
-        for (UUID uuid : Util.PERSISTENT_DATA.getPlayerDataSet().getDataSet().keySet()) {
-            GameProfile profile = Util.getOfflineProfile(uuid);
+        for (UUID uuid : PlayerDataSet.getInstance().getDataSet().keySet()) {
+            GameProfile profile = Util.getProfile(uuid);
             String name = profile.getName();
             int kills = Util.getKills(uuid);
 

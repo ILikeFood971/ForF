@@ -26,12 +26,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
@@ -74,11 +74,8 @@ public class LeaveCommand {
                         Text.translatable("forf.commands.leave.exceptions.alreadyLeft", profile.getName())
                 ).create();
             }
-            ServerPlayerEntity player = context.getSource().getServer().getPlayerManager().getPlayer(id);
-            if (late && player != null) {
-                LivesHelper.set(player, 0);
-            }
-            Util.PERSISTENT_DATA.getPlayerDataSet().get(id).setPlayerType(PlayerData.PlayerType.UNKNOWN);
+            LivesHelper.set(id, 0);
+            PlayerDataSet.getInstance().get(id).setPlayerType(PlayerData.PlayerType.UNKNOWN);
             changed++;
         }
 

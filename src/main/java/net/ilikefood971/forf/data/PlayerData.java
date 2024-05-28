@@ -78,6 +78,11 @@ public class PlayerData {
     public enum PlayerType {
         PLAYER,
         SPECTATOR,
-        UNKNOWN
+        ASSASSIN,
+        UNKNOWN;
+
+        public boolean isForfPlayer() {
+            return this == PLAYER || this == ASSASSIN;
+        }
     }
 }

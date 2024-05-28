@@ -37,12 +37,12 @@ public class Forf implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register((instance) -> {
             SERVER = instance;
-            PERSISTENT_DATA = DataHandler.getServerState(SERVER);
+            DataHandler.getServerState(SERVER);
             PvPTimer.serverStarted();
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(instance -> {
-            PERSISTENT_DATA.setSecondsLeft(PvPTimer.getSecondsLeft());
-            PERSISTENT_DATA.setPvPState(PvPTimer.getPvPState());
+            DataHandler.getInstance().setSecondsLeft(PvPTimer.getSecondsLeft());
+            DataHandler.getInstance().setPvPState(PvPTimer.getPvPState());
         });
 
         ModRegistries.registerModStuff();

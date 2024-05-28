@@ -67,7 +67,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem {
         if (player != null) {
             targetName = player.getGameProfile().getName();
         } else {
-            GameProfile offlineProfile = Util.getOfflineProfile(targetUUID);
+            GameProfile offlineProfile = Util.getProfile(targetUUID);
             targetName = offlineProfile.getName();
         }
         return targetName;

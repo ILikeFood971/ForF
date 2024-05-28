@@ -52,6 +52,7 @@ public class ModRegistries {
         CommandRegistrationCallback.EVENT.register(LivesCommands::register);
 
         CommandRegistrationCallback.EVENT.register(KillsCommand::register);
+        CommandRegistrationCallback.EVENT.register(AssassinCommand::register);
     }
 
     private static void registerEvents() {

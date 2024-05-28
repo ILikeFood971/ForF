@@ -25,13 +25,13 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class TimerCommands {
@@ -95,9 +95,9 @@ public class TimerCommands {
     }
 
     private static void checkCanRun() throws CommandSyntaxException {
-        if (!PERSISTENT_DATA.isStarted() && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
+        if (!DataHandler.getInstance().isStarted() && !net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
             throw DISABLED_AND_NOT_STARTED.create();
-        } else if (!PERSISTENT_DATA.isStarted()) {
+        } else if (!DataHandler.getInstance().isStarted()) {
             throw NOT_STARTED.create();
         } else if (!net.ilikefood971.forf.util.Util.CONFIG.pvPTimer().enabled()) {
             throw DISABLED.create();

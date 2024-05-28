@@ -20,6 +20,7 @@
 
 package net.ilikefood971.forf.mixin;
 
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.s2c.play.ScoreboardDisplayS2CPacket;
 import net.minecraft.network.packet.s2c.play.ScoreboardObjectiveUpdateS2CPacket;
@@ -49,7 +50,7 @@ public abstract class PlayerManagerMixin {
                     Optional.empty(), Optional.empty()
             ));
         }
-        if (Util.PERSISTENT_DATA.isStarted()) {
+        if (DataHandler.getInstance().isStarted()) {
             player.networkHandler.sendPacket(new ScoreboardDisplayS2CPacket(ScoreboardDisplaySlot.LIST, Util.FAKE_SCOREBOARD.livesObjective));
         }
     }

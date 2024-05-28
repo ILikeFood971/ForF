@@ -24,8 +24,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import net.ilikefood971.forf.config.Config;
-import net.ilikefood971.forf.data.DataHandler;
-import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.minecraft.scoreboard.ScoreAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -46,7 +45,6 @@ public class Util {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Config CONFIG = Config.loadFromFile();
     public static final FakeScoreboard FAKE_SCOREBOARD = new FakeScoreboard();
-    public static DataHandler PERSISTENT_DATA;
     public static MinecraftServer SERVER;
 
     public static boolean isForfPlayer(ServerPlayerEntity player) {
@@ -54,12 +52,12 @@ public class Util {
     }
 
     public static boolean isForfPlayer(UUID uuid) {
-        return PERSISTENT_DATA.getPlayerDataSet().get(uuid).getPlayerType() == PlayerData.PlayerType.PLAYER;
+        return PlayerDataSet.getInstance().get(uuid).getPlayerType().isForfPlayer();
     }
 
 
     public static int getKills(UUID uuid) {
-        GameProfile profile = getOfflineProfile(uuid);
+        GameProfile profile = getProfile(uuid);
         ServerPlayerEntity player = Util.SERVER.getPlayerManager().getPlayer(profile.getId());
         ServerStatHandler serverStatHandler;
         if (player != null) {
@@ -78,7 +76,11 @@ public class Util {
         scoreAccess.setScore(lives);
     }
 
-    public static GameProfile getOfflineProfile(UUID uuid) {
+    public static GameProfile getProfile(UUID uuid) {
+        ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(uuid);
+        if (player != null) {
+            return player.getGameProfile();
+        }
         GameProfile profile;
         UserCache cache = SERVER.getUserCache();
         Supplier<GameProfile> profileFetcher = () -> {

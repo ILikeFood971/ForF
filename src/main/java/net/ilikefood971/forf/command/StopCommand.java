@@ -23,7 +23,10 @@ package net.ilikefood971.forf.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.ilikefood971.forf.assassin.AssassinHandler;
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -32,7 +35,8 @@ import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
-import static net.ilikefood971.forf.util.Util.*;
+import static net.ilikefood971.forf.util.Util.FAKE_SCOREBOARD;
+import static net.ilikefood971.forf.util.Util.SERVER;
 import static net.minecraft.server.command.CommandManager.literal;
 
 @SuppressWarnings("SameReturnValue")
@@ -50,21 +54,24 @@ public class StopCommand {
 
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         // Send a message that says stopping forf but only send to ops if forf has already started
-        if (!PERSISTENT_DATA.isStarted()) {
+        if (!DataHandler.getInstance().isStarted()) {
             throw NOT_STARTED.create();
         }
         context.getSource().sendFeedback(() -> Text.translatable("forf.commands.stop.stopping"), true);
 
-        PERSISTENT_DATA.setStarted(false);
+        DataHandler dataHandler = DataHandler.getInstance();
+        dataHandler.setStarted(false);
 
         // Remove the Header from the tablist
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
 
         // Set all lives to 0
-        PERSISTENT_DATA.getPlayerDataSet().getDataSet().forEach((uuid, playerData) -> {
+        PlayerDataSet.getInstance().getDataSet().forEach((uuid, playerData) -> {
             playerData.setLives(0);
             playerData.setPlayerType(PlayerData.PlayerType.UNKNOWN);
         });
+
+        AssassinHandler.getInstance().setAssassin(null);
 
         boolean pvp;
         if (SERVER instanceof MinecraftDedicatedServer dedicatedServer) {

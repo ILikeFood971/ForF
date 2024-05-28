@@ -22,7 +22,7 @@ package net.ilikefood971.forf.mixin;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.ilikefood971.forf.util.Util;
+import net.ilikefood971.forf.data.DataHandler;
 import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.server.command.ScoreboardCommand;
@@ -50,7 +50,7 @@ public abstract class ScoreboardCommandMixin {
     ) throws CommandSyntaxException {
         // If we don't have this mixin, you can have weird behavior where the packet gets sent,
         // so it is in the list for a time, but then on a rejoin/restart it goes back to the livesObjective
-        if (Util.PERSISTENT_DATA.isStarted() && slot == ScoreboardDisplaySlot.LIST) {
+        if (DataHandler.getInstance().isStarted() && slot == ScoreboardDisplaySlot.LIST) {
             throw CANNOT_SET_LIST_SLOT_WITH_FORF.create();
         }
     }

@@ -27,19 +27,19 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import java.util.Collection;
 import java.util.UUID;
 
 import static net.ilikefood971.forf.command.CommandUtil.getProfiles;
-import static net.ilikefood971.forf.util.Util.*;
+import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class JoinCommand {
@@ -79,15 +79,10 @@ public class JoinCommand {
                         Text.translatable("forf.commands.join.exceptions.alreadyAdded", profile.getName())
                 ).create();
             }
-            PERSISTENT_DATA.getPlayerDataSet().add(new PlayerData(id, 0, PlayerData.PlayerType.PLAYER));
+            PlayerDataSet.getInstance().add(new PlayerData(id, 0, PlayerData.PlayerType.PLAYER));
             if (late) {
-                ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(id);
                 int lives = IntegerArgumentType.getInteger(context, "lives");
-                if (player != null) {
-                    LivesHelper.set(player, lives);
-                } else {
-                    PERSISTENT_DATA.getPlayerDataSet().get(id).setLives(lives);
-                }
+                LivesHelper.set(id, lives);
             }
             changed++;
         }

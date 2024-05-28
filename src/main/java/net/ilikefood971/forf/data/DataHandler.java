@@ -20,6 +20,7 @@
 
 package net.ilikefood971.forf.data;
 
+import net.ilikefood971.forf.assassin.AssassinHandler;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
@@ -40,12 +41,10 @@ public class DataHandler extends PersistentState {
             DataHandler::createFromNbt, // If there is a 'PersistentData' NBT, parse it with 'createFromNbt'
             DataFixTypes.LEVEL // Supposed to be an 'DataFixTypes' enum
     );
-
-
+    private static DataHandler instance;
     private boolean started = false;
     private int secondsLeft = 0;
     private PvPTimer.PvPState pvPState = PvPTimer.PvPState.OFF;
-    private PlayerDataSet playerDataSet = new PlayerDataSet();
     private boolean firstKill = true;
     private boolean tenKillsLifeQuest = true;
 
@@ -54,10 +53,12 @@ public class DataHandler extends PersistentState {
 
         state.started = tag.getBoolean("started");
         state.secondsLeft = tag.getInt("secondsLeft");
-        state.pvPState = PvPTimer.PvPState.convertToBoolean(tag.getBoolean("pvPState"));
-        state.playerDataSet = PlayerDataSet.createFromNbt(tag.getList("playerDataSet", NbtElement.COMPOUND_TYPE));
+        state.pvPState = PvPTimer.PvPState.convertFromBool(tag.getBoolean("pvPState"));
         state.firstKill = tag.getBoolean("firstKill");
         state.tenKillsLifeQuest = tag.getBoolean("tenKillsLifeQuest");
+
+        PlayerDataSet.readNbt(tag.getList("playerDataSet", NbtElement.COMPOUND_TYPE));
+        AssassinHandler.readNbt(tag.getCompound("assassinHandler"));
 
         /*
          * Used to migrate old data
@@ -66,27 +67,36 @@ public class DataHandler extends PersistentState {
         if (tag.contains("livesMap")) {
             NbtList list = tag.getList("livesMap", NbtElement.COMPOUND_TYPE);
             for (NbtElement element : list) {
-                state.playerDataSet.get(UUID.fromString(element.asString())); // Assume 0 lives but will be edited by EntityMixin
+                PlayerDataSet.getInstance().get(UUID.fromString(element.asString())); // Assume 0 lives but will be edited by EntityMixin
             }
         }
 
         return state;
     }
 
-    public static DataHandler getServerState(MinecraftServer server) {
+    public static void getServerState(MinecraftServer server) {
         PersistentStateManager persistentStateManager = server.getOverworld().getPersistentStateManager();
 
-        return persistentStateManager.getOrCreate(type, MOD_ID);
+        instance = persistentStateManager.getOrCreate(type, MOD_ID);
+    }
+
+    public static DataHandler getInstance() {
+        if (instance == null) {
+            instance = new DataHandler();
+        }
+        return instance;
     }
 
     @Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
         nbt.putBoolean("started", started);
-        nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
-        nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
-        nbt.put("playerDataSet", playerDataSet.toNbt());
         nbt.putBoolean("firstKill", firstKill);
         nbt.putBoolean("tenKillsLifeQuest", tenKillsLifeQuest);
+
+        nbt.putInt("secondsLeft", PvPTimer.getSecondsLeft());
+        nbt.put("playerDataSet", PlayerDataSet.getInstance().toNbt());
+        nbt.putBoolean("pvPState", PvPTimer.getPvPState().getValue());
+        nbt.put("assassinHandler", AssassinHandler.getInstance().toNbt());
 
         return nbt;
     }
@@ -113,10 +123,6 @@ public class DataHandler extends PersistentState {
 
     public void setPvPState(PvPTimer.PvPState pvPState) {
         this.pvPState = pvPState;
-    }
-
-    public PlayerDataSet getPlayerDataSet() {
-        return playerDataSet;
     }
 
     public boolean isFirstKill() {

@@ -23,6 +23,7 @@ package net.ilikefood971.forf.data;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,18 +33,26 @@ import java.util.stream.Collectors;
 
 public class PlayerDataSet {
 
+    private static PlayerDataSet instance;
+
     private final Map<UUID, PlayerData> dataSet = new HashMap<>();
 
-    protected static PlayerDataSet createFromNbt(NbtList nbt) {
-        PlayerDataSet playerDataSet = new PlayerDataSet();
-        playerDataSet.dataSet.putAll(nbt.stream().map(PlayerData::createFromNbt).collect(Collectors.toMap(PlayerData::getUuid, playerData -> playerData)));
-        return playerDataSet;
+    protected static void readNbt(NbtList nbt) {
+        getInstance().dataSet.putAll(nbt.stream().map(PlayerData::createFromNbt).collect(Collectors.toMap(PlayerData::getUuid, playerData -> playerData)));
+    }
+
+    public static PlayerDataSet getInstance() {
+        if (instance == null) {
+            instance = new PlayerDataSet();
+        }
+        return instance;
     }
 
     public void add(PlayerData playerData) {
         dataSet.put(playerData.getUuid(), playerData);
     }
 
+    @NotNull
     public PlayerData get(UUID uuid) {
         return dataSet.getOrDefault(uuid, new PlayerData(uuid, 0, PlayerData.PlayerType.UNKNOWN));
     }

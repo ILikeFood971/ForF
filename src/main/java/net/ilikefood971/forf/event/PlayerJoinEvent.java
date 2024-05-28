@@ -22,7 +22,10 @@ package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.assassin.AssassinHandler;
+import net.ilikefood971.forf.data.DataHandler;
+import net.ilikefood971.forf.data.PlayerDataSet;
+import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.Packet;
@@ -33,7 +36,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 
-import static net.ilikefood971.forf.util.Util.*;
+import static net.ilikefood971.forf.util.Util.CONFIG;
+import static net.ilikefood971.forf.util.Util.SERVER;
 
 public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerPlayConnectionEvents.Join {
 
@@ -55,7 +59,7 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         LivesHelper lives = new LivesHelper(player);
 
         // If forf hasn't stated, let them in
-        if (!PERSISTENT_DATA.isStarted()) {
+        if (!DataHandler.getInstance().isStarted()) {
             return;
         }
         // If we get here, then we know forf is started
@@ -85,14 +89,20 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
     public void onPlayReady(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         ServerPlayerEntity player = handler.getPlayer();
         // Check to see if Friend or Foe has started
-        if (PERSISTENT_DATA.isStarted()) {
+        if (DataHandler.getInstance().isStarted()) {
             sender.sendPacket(getHeaderPacket());
         }
         Util.setScore(player, LivesHelper.get(player));
-        if (PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid()).getPlayerType() == PlayerData.PlayerType.PLAYER) {
+
+        if (PlayerDataSet.getInstance().get(player.getUuid()).getPlayerType().isForfPlayer()) {
             player.changeGameMode(GameMode.DEFAULT); // In case they were a spectator before, but their lives got changed while they were offline
-        } else {
+        } else if (DataHandler.getInstance().isStarted()) {
             player.changeGameMode(CONFIG.spectatorGamemode());
+        }
+
+        if (player.getUuid().equals(AssassinHandler.getInstance().getAssassin())) {
+            player.sendMessage(Text.translatable("forf.assassin.youAreAssassin"), false);
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.ASSASSIN, 0);
         }
     }
 }

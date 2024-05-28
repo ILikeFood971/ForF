@@ -20,13 +20,17 @@
 
 package net.ilikefood971.forf.util;
 
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 
+import java.util.UUID;
+
 import static net.ilikefood971.forf.util.Util.CONFIG;
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
+import static net.ilikefood971.forf.util.Util.SERVER;
 
 public class LivesHelper {
     private final ServerPlayerEntity player;
@@ -35,15 +39,22 @@ public class LivesHelper {
         this.player = player;
     }
 
+    public static void set(UUID uuid, int lives) {
+        ServerPlayerEntity player = SERVER.getPlayerManager().getPlayer(uuid);
+        if (player != null) {
+            set(player, lives);
+        } else PlayerDataSet.getInstance().get(uuid).setLives(lives);
+    }
+
     public static int get(ServerPlayerEntity player) {
-        PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid());
-        if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
+        PlayerData playerData = PlayerDataSet.getInstance().get(player.getUuid());
+        if (!playerData.getPlayerType().isForfPlayer()) {
             return 0;
         } else return playerData.getLives();
     }
 
     public static void set(ServerPlayerEntity player, int lives) {
-        PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid());
+        PlayerData playerData = PlayerDataSet.getInstance().get(player.getUuid());
         if (!CONFIG.overfill()) {
             // Prevent the player from going over if overfill is disabled
             lives = Math.min(lives, CONFIG.startingLives());
@@ -54,7 +65,7 @@ public class LivesHelper {
         Util.setScore(player, lives);
 
         // Check to see if the player ran out of lives
-        if (lives == 0 && Util.PERSISTENT_DATA.isStarted()) {
+        if (lives == 0 && DataHandler.getInstance().isStarted()) {
             // Kick the player if spectators are not allowed
             if (!CONFIG.spectators()) {
                 player.networkHandler.disconnect(Text.translatable("forf.disconnect.outOfLives"));

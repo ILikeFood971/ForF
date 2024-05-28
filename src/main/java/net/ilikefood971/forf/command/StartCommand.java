@@ -24,12 +24,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.ilikefood971.forf.assassin.AssassinHandler;
+import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.data.PlayerData;
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.ilikefood971.forf.event.PlayerJoinEvent;
 import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -42,7 +44,7 @@ import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
-@SuppressWarnings("SameReturnValue")
+@SuppressWarnings({"SameReturnValue", "unused"})
 public class StartCommand {
 
     public static final SimpleCommandExceptionType INSUFFICIENT_AMOUNT_PLAYERS = new SimpleCommandExceptionType(
@@ -52,7 +54,6 @@ public class StartCommand {
             Text.translatable("forf.commands.start.exceptions.insufficientAmountLives")
     );
 
-    @SuppressWarnings("unused")
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("forf")
@@ -66,11 +67,11 @@ public class StartCommand {
 
     private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         // Check all conditions for failure
-        if (PERSISTENT_DATA.isStarted()) {
+        if (DataHandler.getInstance().isStarted()) {
             throw ALREADY_STARTED.create();
         } else if (CONFIG.startingLives() <= 0) {
             throw INSUFFICIENT_AMOUNT_LIVES.create();
-        } else if (PERSISTENT_DATA.getPlayerDataSet().getDataSet().isEmpty()) {
+        } else if (PlayerDataSet.getInstance().getDataSet().isEmpty()) {
             throw INSUFFICIENT_AMOUNT_PLAYERS.create();
         }
 
@@ -83,31 +84,30 @@ public class StartCommand {
     }
 
     public static void setupForf(CommandContext<ServerCommandSource> context) {
-        PERSISTENT_DATA.setStarted(true);
-        PERSISTENT_DATA.setFirstKill(true);
-        PERSISTENT_DATA.setTenKillsLifeQuest(true);
+        DataHandler.getInstance().setStarted(true);
+        DataHandler.getInstance().setFirstKill(true);
+        DataHandler.getInstance().setTenKillsLifeQuest(true);
         FAKE_SCOREBOARD.setListSlot();
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getHeaderPacket());
 
-        Set<UUID> uuids = PERSISTENT_DATA.getPlayerDataSet().getDataSet().keySet();
-        PlayerManager playerManager = context.getSource().getServer().getPlayerManager();
+        Set<UUID> uuids = PlayerDataSet.getInstance().getDataSet().keySet();
 
         // Set all lives
         for (UUID uuid : uuids) {
-            PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(uuid);
-            if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) continue;
-            ServerPlayerEntity player = playerManager.getPlayer(uuid);
-            if (player != null) { // Online Players
-                LivesHelper.set(player, CONFIG.startingLives());
-            } else { // Offline Players
-                playerData.setLives(CONFIG.startingLives());
+            PlayerData playerData = PlayerDataSet.getInstance().get(uuid);
+            if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
+                if (playerData.getPlayerType() == PlayerData.PlayerType.ASSASSIN) {
+                    LivesHelper.set(uuid, CONFIG.assassinStartingLives());
+                }
+                continue;
             }
+            LivesHelper.set(uuid, CONFIG.startingLives());
         }
 
         // Deal with all non forf players
         for (ServerPlayerEntity serverPlayerEntity : SERVER.getPlayerManager().getPlayerList()) {
-            PlayerData playerData = PERSISTENT_DATA.getPlayerDataSet().get(serverPlayerEntity.getUuid());
-            if (playerData.getPlayerType() != PlayerData.PlayerType.PLAYER) {
+            PlayerData playerData = PlayerDataSet.getInstance().get(serverPlayerEntity.getUuid());
+            if (!playerData.getPlayerType().isForfPlayer()) {
                 if (!CONFIG.spectators()) {
                     serverPlayerEntity.networkHandler.disconnect(Text.translatable("forf.disconnect.noSpectators"));
                 } else if (CONFIG.spectators()) {
@@ -120,6 +120,9 @@ public class StartCommand {
         if (CONFIG.pvPTimer().enabled()) {
             PvPTimer.changePvpTimer(PvPTimer.PvPState.OFF, CONFIG.pvPTimer().maxRandomOffTime() * 60);
             SERVER.setPvpEnabled(false); // Just in case previous forf data was left behind
+        }
+        if (AssassinHandler.getInstance().isAssassinOnline()) {
+            PvPTimer.changePvpTimer(PvPTimer.PvPState.ASSASSIN, 0);
         }
     }
 }

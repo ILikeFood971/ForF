@@ -20,6 +20,7 @@
 
 package net.ilikefood971.forf.mixin;
 
+import net.ilikefood971.forf.data.PlayerDataSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,8 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-import static net.ilikefood971.forf.util.Util.PERSISTENT_DATA;
-
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
@@ -40,7 +39,7 @@ public abstract class EntityMixin {
     @Inject(method = "readNbt", at = @At("HEAD"))
     protected void injectReadMethod(NbtCompound nbt, CallbackInfo info) {
         if (nbt.contains("forf.data")) {
-            PERSISTENT_DATA.getPlayerDataSet().get(this.getUuid()).setLives(nbt.getCompound("forf.data").getInt("lives"));
+            PlayerDataSet.getInstance().get(this.getUuid()).setLives(nbt.getCompound("forf.data").getInt("lives"));
         }
     }
 
