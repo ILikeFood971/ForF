@@ -22,6 +22,7 @@ package net.ilikefood971.forf.event;
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.ilikefood971.forf.data.PlayerData;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.network.packet.Packet;
@@ -57,18 +58,16 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
         if (!PERSISTENT_DATA.isStarted()) {
             return;
         }
-        // If we get here, then we know started is true
+        // If we get here, then we know forf is started
         // If they are a player above 0 lives let them in (the get() method checks if they are a forf player)
         if (lives.get() > 0) {
-            player.changeGameMode(GameMode.DEFAULT); // In case they were a spectator before, but their lives got changed while they were offline
             return;
         }
 
         // If spectators are allowed, and we know it's started
         // Then check to see if they are a player, or they're 0 or fewer lives
         if (CONFIG.spectators() && (!Util.isForfPlayer(player) || lives.get() <= 0)) {
-            // If so then make them spectator gamemode and set them to 0 lives
-            player.changeGameMode(CONFIG.spectatorGamemode());
+            // If so then set them to 0 lives
             lives.set(0);
             return;
         }
@@ -90,5 +89,10 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Init, ServerP
             sender.sendPacket(getHeaderPacket());
         }
         Util.setScore(player, LivesHelper.get(player));
+        if (PERSISTENT_DATA.getPlayerDataSet().get(player.getUuid()).getPlayerType() == PlayerData.PlayerType.PLAYER) {
+            player.changeGameMode(GameMode.DEFAULT); // In case they were a spectator before, but their lives got changed while they were offline
+        } else {
+            player.changeGameMode(CONFIG.spectatorGamemode());
+        }
     }
 }
