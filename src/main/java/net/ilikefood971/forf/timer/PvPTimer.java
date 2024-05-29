@@ -34,11 +34,9 @@ import net.minecraft.util.Formatting;
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.SERVER;
 
-@SuppressWarnings("UnusedReturnValue")
 public class PvPTimer implements ServerTickEvents.EndTick {
     private static int secondsLeft;
     private static PvPState pvPState;
-    private byte ticksTillSecond = 0;
 
     public static int getSecondsLeft() {
         return secondsLeft;
@@ -116,18 +114,14 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             maxTime = CONFIG.pvPTimer().maxRandomOffTime();
         }
         int seconds = Util.SERVER.getOverworld().random.nextBetween(minTime * 60, maxTime * 60);
-        Util.LOGGER.debug("For pvp " + pvPState + " returning " + seconds + "s between " + minTime + "m  and " + maxTime + "m");
+        Util.LOGGER.debug("For pvp {} returning {}s between {}m  and {}m", pvPState, seconds, minTime, maxTime);
         return seconds;
     }
 
     @Override
     public void onEndTick(MinecraftServer server) {
-        if (!CONFIG.pvPTimer().enabled() || !DataHandler.getInstance().isStarted() || !SERVER.getTickManager().shouldTick())
+        if (!CONFIG.pvPTimer().enabled() || !DataHandler.getInstance().isStarted() || !SERVER.getTickManager().shouldTick() || server.getTicks() % 20 != 0)
             return;
-        if (ticksTillSecond != 0) {
-            ticksTillSecond--;
-            return;
-        }
 
         Util.LOGGER.trace("{} seconds left with pvp {}", secondsLeft, pvPState);
         // Check to see if the timer has run out
@@ -137,12 +131,9 @@ public class PvPTimer implements ServerTickEvents.EndTick {
             // Now the pvPState has changed so plan accordingly
             Util.LOGGER.debug("PvP has been changed with {} seconds left and pvp {}", secondsLeft, pvPState);
         } else secondsLeft--;
-        ticksTillSecond = 20;
 
-        if (pvPState == PvPState.ASSASSIN) {
-            if (!AssassinHandler.getInstance().isAssassinOnline()) {
-                changePvpTimer(PvPState.OFF);
-            }
+        if (pvPState == PvPState.ASSASSIN && !AssassinHandler.getInstance().isAssassinOnline()) {
+            changePvpTimer(PvPState.OFF);
         }
         if (pvPState == PvPState.OFF) return;
 
