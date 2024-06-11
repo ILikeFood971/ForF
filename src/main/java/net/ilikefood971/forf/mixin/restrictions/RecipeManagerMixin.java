@@ -41,11 +41,11 @@ public class RecipeManagerMixin {
         // Check config first
         if (!Util.CONFIG.restrictions().goldenAppleCrafting()) {
             // Remove the golden_apple recipe from the list of recipes to be registered
-            map.remove(new Identifier("minecraft:golden_apple"));
+            map.remove(Identifier.of("minecraft:golden_apple"));
         }
         if (!Util.CONFIG.playerTracker()) {
             // If player tracker disabled just don't load it
-            map.remove(new Identifier("forf:player_tracker"));
+            map.remove(Identifier.of("forf:player_tracker"));
         }
     }
 }

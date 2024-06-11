@@ -21,6 +21,7 @@ gameplay changes for you to enjoy with your friends.
     - Can be found in your servers config folder. (Default: `config/forf-config.json5`)
 - A new player tracker item
     - Expires automatically after configured time
+  - Points to the targeted player or the portal they went through in the current dimension
 - Lives system that will decrease a life until player runs out
     - Customize amount of lives
         - Configure starting amounts as well as commands to change any player's lives
@@ -39,6 +40,10 @@ gameplay changes for you to enjoy with your friends.
     - You can disable any of the restrictions from the config
 - PvP Timer that runs for random amounts of time
     - Enable or disable it easily with commands
+- Server Assassin
+    - A player that will start with a different number of lives
+    - Automatically changes the pvp mode to online when on the server
+    - Cannot receive lives from other players
 
 This mod tries to follow everything written in the official Friend or Foe
 rules [written here](https://pastebin.com/X9j3ZsNb).
@@ -121,16 +126,10 @@ useful for deals and such (Like how SB737 gives a life to ClownPierce). This com
 The player tracker can be crafted using 4 diamonds, 2 emeralds, 2 eyes of ender, and 1 compass. It
 uses [this recipe.](https://gyazo.com/444fa8fc199afff4d1af3c8dd641fab4) By default, it will expire after 1 hour. It will
 track any player of your choice by right-clicking to open a selection GUI. After selecting a player it will update to
-the tracked players location when you right-click or when it is in another slot in your hotbar. (If I made it constantly
-update when in your hand it would bob and would be annoying. If you still wish for it to update in your hand, you can do
-so in the config.) If the tracked player goes offline, the compass will spin randomly. The player tracker works fully
-server-side by using the Polymer library.
-
-#### Portals
-
-If the player you are tracking is in another dimension that is either the overworld or the nether, it will point towards
-their last player. If only you or the tracked player is in the end, the compass will spin randomly instead of pointing
-towards the end portal.
+the tracked players location or the position of the portal they last used in your current dimension (Technically it
+points to their last known position in that dimension so if they get teleported or die it will point to the position
+where they were when that happened). If the tracked player goes offline, the compass will spin randomly. The player
+tracker works fully server-side by using the Polymer library.
 
 ### Server Assassin
 

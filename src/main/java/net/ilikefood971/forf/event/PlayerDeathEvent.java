@@ -24,12 +24,15 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.ilikefood971.forf.data.DataHandler;
 import net.ilikefood971.forf.util.LivesHelper;
 import net.ilikefood971.forf.util.Util;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -57,7 +60,12 @@ public class PlayerDeathEvent implements ServerLivingEntityEvents.AfterDeath {
                 if (DataHandler.getInstance().isFirstKill() && CONFIG.firstKillMendingBook()) {
                     DataHandler.getInstance().setFirstKill(false);
 
-                    ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(Enchantments.MENDING, 1));
+                    RegistryEntry<Enchantment> entry = SERVER
+                            .getRegistryManager()
+                            .get(RegistryKeys.ENCHANTMENT)
+                            .getEntry(Enchantments.MENDING)
+                            .orElseThrow();
+                    ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(entry, 1));
 
                     killer.giveItemStack(itemStack);
                     SERVER.getPlayerManager().broadcast(Text.translatable(

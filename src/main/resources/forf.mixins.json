@@ -5,7 +5,6 @@
   "mixins": [
     "EnderPearlItemMixin",
     "EntityMixin",
-    "IGetPortalPos",
     "PlayerLoginMixin",
     "PlayerManagerMixin",
     "ScoreboardCommandMixin",

@@ -79,7 +79,7 @@ public class JoinCommand {
                         Text.translatable("forf.commands.join.exceptions.alreadyAdded", profile.getName())
                 ).create();
             }
-            PlayerDataSet.getInstance().add(new PlayerData(id, 0, PlayerData.PlayerType.PLAYER));
+            PlayerDataSet.getInstance().set(new PlayerData(id, 0, PlayerData.PlayerType.PLAYER));
             if (late) {
                 int lives = IntegerArgumentType.getInteger(context, "lives");
                 LivesHelper.set(id, lives);

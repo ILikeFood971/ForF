@@ -67,6 +67,6 @@ public class ModRegistries {
     }
 
     private static void registerItems() {
-        Registry.register(Registries.ITEM, new Identifier(Util.MOD_ID, "player_tracker"), PlayerTrackerItem.PLAYER_TRACKER);
+        Registry.register(Registries.ITEM, Identifier.of(Util.MOD_ID, "player_tracker"), PlayerTrackerItem.PLAYER_TRACKER);
     }
 }

@@ -55,10 +55,8 @@ public class Config {
 
     @Comment("Should the player tracker be craft-able and usable?")
     private boolean playerTracker = true;
-    @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every x ticks with x being specified by trackerAutoUpdateDelay\nIf you're using AUTOMATIC, the item will bob in the hand everytime the item is updated so set it to either something high or use USE.")
-    private UpdateType trackerUpdateType = UpdateType.USE;
-    @Comment("If the update type is AUTOMATIC, how many ticks should there be in between updates")
-    private int trackerAutoUpdateDelay = 20;
+    @Comment("If player trackers are enabled, when should they update.\nAUTOMATIC means to update every tick\nIf you're using AUTOMATIC, the item will bob in the hand every time the item is updated.")
+    private UpdateType trackerUpdateType = UpdateType.AUTOMATIC;
     @Comment("The amount of time that the tracker lasts for before expiring")
     private int trackerExpirationMinutes = 60;
     @Comment("Should the first kill give a mending book?")
@@ -156,10 +154,6 @@ public class Config {
 
     public UpdateType trackerUpdateType() {
         return trackerUpdateType;
-    }
-
-    public int trackerAutoUpdateDelay() {
-        return trackerAutoUpdateDelay;
     }
 
     public int trackerExpirationMinutes() {

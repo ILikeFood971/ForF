@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "net.ilikefood971.forf.Forf"
+    ],
+    "fabric-datagen": [
+      "net.ilikefood971.forf.datagen.ForfDataGenerator"
     ]
   },
   "mixins": [
@@ -27,7 +30,7 @@
   ],
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
-    "minecraft": "${minecraft_version}",
+    "minecraft": ">=1.21- <1.21.1",
     "java": ">=${java_version}",
     "fabric-api": ">=${fabric_api_version}",
     "sgui": ">=${sgui_version}",

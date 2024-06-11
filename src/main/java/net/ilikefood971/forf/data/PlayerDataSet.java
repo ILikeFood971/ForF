@@ -48,7 +48,7 @@ public class PlayerDataSet {
         return instance;
     }
 
-    public void add(PlayerData playerData) {
+    public void set(PlayerData playerData) {
         dataSet.put(playerData.getUuid(), playerData);
     }
 

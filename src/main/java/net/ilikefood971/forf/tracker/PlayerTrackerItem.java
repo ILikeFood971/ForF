@@ -21,11 +21,10 @@
 package net.ilikefood971.forf.tracker;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.Codec;
 import eu.pb4.polymer.core.api.item.PolymerItem;
 import net.ilikefood971.forf.config.Config;
-import net.ilikefood971.forf.mixin.IGetPortalPos;
 import net.ilikefood971.forf.util.Util;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.entity.Entity;
@@ -33,6 +32,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -46,16 +47,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.SERVER;
 
 public class PlayerTrackerItem extends Item implements PolymerItem {
-    public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new Item.Settings());
-    private static int tickTillNext = 20;
+    public static final Item PLAYER_TRACKER = new PlayerTrackerItem(new Settings());
 
     public PlayerTrackerItem(Settings settings) {
         super(settings);
@@ -85,29 +83,21 @@ public class PlayerTrackerItem extends Item implements PolymerItem {
         } else {
             // The target player is offline
             stack.set(DataComponentTypes.LODESTONE_TRACKER, new LodestoneTrackerComponent(Optional.empty(), true));
-            tickTillNext = CONFIG.trackerAutoUpdateDelay();
             return;
         }
 
-        BlockPos blockPos = null;
+        BlockPos blockPos;
         // Checks if the player holding the tracker isn't in the same dimension as the target
-        if (targetWorld.getRegistryKey() != world.getRegistryKey()) {
-            // If the neither of them is in the end
-            if (targetWorld.getRegistryKey() != World.END && world.getRegistryKey() != World.END) {
-                // Set the block pos to the nether portal that they used
-                blockPos = ((IGetPortalPos) trackedPlayer).getLastNetherPortalPosition();
-            } else {
-                // If one is in the end, set the world to target world and make the compass spin randomly
-                world = targetWorld;
-            }
+        if (targetWorld.getRegistryKey() != world.getRegistryKey() && trackedPlayer instanceof WorldLocationHistory locationHistory) {
+            // Set the block pos to the portal that they used
+            blockPos = locationHistory.locationHistory.get(world.getRegistryKey());
         } else {
             blockPos = trackedPlayer.getBlockPos();
         }
+        var blockPos1 = blockPos == null ? null : GlobalPos.create(world.getRegistryKey(), blockPos);
 
-        LodestoneTrackerComponent lodestoneTrackerComponent = new LodestoneTrackerComponent(Optional.of(GlobalPos.create(world.getRegistryKey(), blockPos)), true);
+        LodestoneTrackerComponent lodestoneTrackerComponent = new LodestoneTrackerComponent(Optional.ofNullable(blockPos1), true);
         stack.set(DataComponentTypes.LODESTONE_TRACKER, lodestoneTrackerComponent);
-
-        tickTillNext = CONFIG.trackerAutoUpdateDelay();
     }
 
     @Override
@@ -141,7 +131,7 @@ public class PlayerTrackerItem extends Item implements PolymerItem {
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, Item.TooltipContext context, List<Text> tooltip, TooltipType type) {
+    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
         TrackerData.PlayerTrackerComponent data = TrackerData.getData(stack);
         if (data.tracking()) {
             String targetName = getName(data.target());
@@ -201,10 +191,15 @@ public class PlayerTrackerItem extends Item implements PolymerItem {
             }
             // If it's not in the hand then update it
             boolean isInHand = entity instanceof ServerPlayerEntity player && (player.getMainHandStack().equals(stack) || player.getOffHandStack().equals(stack));
-            if (!isInHand || (tickTillNext == 0 && CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC)) {
+            if (!isInHand || CONFIG.trackerUpdateType() == Config.UpdateType.AUTOMATIC) {
                 updateTracker(stack, world);
             }
-            tickTillNext--;
         }
+    }
+
+    public interface WorldLocationHistory {
+        Codec<List<GlobalPos>> CODEC = GlobalPos.CODEC.listOf();
+
+        Map<RegistryKey<World>, BlockPos> locationHistory = new HashMap<>(3);
     }
 }

@@ -65,13 +65,14 @@ public class StopCommand {
         // Remove the Header from the tablist
         SERVER.getPlayerManager().sendToAll(PlayerJoinEvent.getEmptyHeaderPacket());
 
+        AssassinHandler.getInstance().setAssassin(null);
+
         // Set all lives to 0
         PlayerDataSet.getInstance().getDataSet().forEach((uuid, playerData) -> {
             playerData.setLives(0);
             playerData.setPlayerType(PlayerData.PlayerType.UNKNOWN);
         });
 
-        AssassinHandler.getInstance().setAssassin(null);
 
         boolean pvp;
         if (SERVER instanceof MinecraftDedicatedServer dedicatedServer) {
