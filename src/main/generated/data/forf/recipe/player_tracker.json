@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": {
+      "item": "minecraft:ender_eye"
+    },
+    "C": {
+      "item": "minecraft:compass"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "E": {
+      "item": "minecraft:emerald"
+    }
+  },
+  "pattern": [
+    "DED",
+    "#C#",
+    "DED"
+  ],
+  "result": {
+    "count": 1,
+    "id": "forf:player_tracker"
+  }
+}
