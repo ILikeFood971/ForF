@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static net.ilikefood971.forf.command.CommandUtil.ALREADY_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.ilikefood971.forf.util.Util.*;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -59,7 +60,7 @@ public class StartCommand {
                 literal("forf")
                         .then(
                                 literal("start")
-                                        .requires(source -> source.hasPermissionLevel(3))
+                                        .requires(permission("start", 3))
                                         .executes(StartCommand::run)
                         )
         );

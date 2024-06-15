@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static net.ilikefood971.forf.command.CommandUtil.getProfiles;
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LeaveCommand {
@@ -50,13 +51,15 @@ public class LeaveCommand {
                                 literal("leave")
                                         .then(
                                                 argument("players", GameProfileArgumentType.gameProfile())
-                                                        .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+                                                        .requires(permission("leave.others", 3))
                                                         .executes(context -> run(context, false, false))
                                                         .then(
                                                                 literal("late")
+                                                                        .requires(permission("leave.others.late", 3))
                                                                         .executes(context -> run(context, false, true))
                                                         )
                                         )
+                                        .requires(permission("leave.self", 0))
                                         .executes(context -> run(context, true, false))
                         )
         );

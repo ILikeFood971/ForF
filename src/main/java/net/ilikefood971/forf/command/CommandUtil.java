@@ -24,6 +24,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.loader.api.FabricLoader;
 import net.ilikefood971.forf.data.DataHandler;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -31,6 +33,7 @@ import net.minecraft.text.Text;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class CommandUtil {
     public static final SimpleCommandExceptionType NOT_STARTED = new SimpleCommandExceptionType(
@@ -39,6 +42,16 @@ public class CommandUtil {
     public static final SimpleCommandExceptionType ALREADY_STARTED = new SimpleCommandExceptionType(
             Text.translatable("forf.commands.exceptions.alreadyStarted")
     );
+
+    private static final boolean FABRIC_PERMISSIONS_API_V0 = FabricLoader.getInstance().isModLoaded("fabric-permissions-api-v0");
+
+    public static Predicate<ServerCommandSource> permission(String path, int opLevel) {
+        if (FABRIC_PERMISSIONS_API_V0) {
+            return Permissions.require("forf.command." + path, opLevel);
+        } else {
+            return source -> source.hasPermissionLevel(opLevel);
+        }
+    }
 
     public static Collection<GameProfile> getProfiles(CommandContext<ServerCommandSource> context, boolean solo, boolean late) throws CommandSyntaxException {
         if (DataHandler.getInstance().isStarted() && !late) {

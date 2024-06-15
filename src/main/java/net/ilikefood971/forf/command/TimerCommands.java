@@ -32,6 +32,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class TimerCommands {
@@ -55,6 +56,7 @@ public class TimerCommands {
                                                                 argument("minutes", IntegerArgumentType.integer(1))
                                                                         .executes(TimerCommands::turnPvpOn)
                                                         )
+                                                        .requires(permission("pvp.on", 3))
                                                         .executes(TimerCommands::turnPvpOn)
                                         )
                                         .then(
@@ -63,9 +65,10 @@ public class TimerCommands {
                                                                 argument("minutes", IntegerArgumentType.integer(1))
                                                                         .executes(TimerCommands::turnPvpOff)
                                                         )
+                                                        .requires(permission("pvp.off", 3))
                                                         .executes(TimerCommands::turnPvpOff)
                                         )
-                                        .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+                                        .requires(permission("pvp", 3)) // Needed so an empty pvp command doesn't appear to those without permission
                         )
         );
     }

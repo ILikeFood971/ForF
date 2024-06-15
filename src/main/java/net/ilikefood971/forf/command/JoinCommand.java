@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import static net.ilikefood971.forf.command.CommandUtil.getProfiles;
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.minecraft.server.command.CommandManager.*;
 
@@ -52,7 +53,7 @@ public class JoinCommand {
                                 literal("join")
                                         .then(
                                                 argument("players", GameProfileArgumentType.gameProfile())
-                                                        .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+                                                        .requires(permission("join.others", 3))
                                                         .executes(context -> run(context, false, false))
                                                         .then(
                                                                 literal("late")
@@ -60,8 +61,10 @@ public class JoinCommand {
                                                                                 argument("lives", IntegerArgumentType.integer(0, CONFIG.startingLives()))
                                                                                         .executes(context -> run(context, false, true))
                                                                         )
+                                                                        .requires(permission("join.others.late", 3))
                                                         )
                                         )
+                                        .requires(permission("join.self", 0))
                                         .executes(context -> run(context, true, false))
                         )
         );

@@ -40,6 +40,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.ilikefood971.forf.util.Util.CONFIG;
 import static net.ilikefood971.forf.util.Util.SERVER;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -75,7 +76,7 @@ public class LivesCommands {
                                                                                         .executes(LivesCommands::setPlayersLives)
                                                                         )
                                                         )
-                                                        .requires(serverCommandSource -> serverCommandSource.hasPermissionLevel(3))
+                                                        .requires(permission("lives.set", 3))
                                         )
                                         .then(
                                                 literal("give")
@@ -86,6 +87,7 @@ public class LivesCommands {
                                                                                         .executes(LivesCommands::givePlayerLives)
                                                                         )
                                                         )
+                                                        .requires(permission("lives.give", 0))
                                         )
                         )
         );

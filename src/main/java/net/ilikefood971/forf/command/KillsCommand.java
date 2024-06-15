@@ -36,6 +36,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.UUID;
 
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class KillsCommand {
@@ -43,6 +44,7 @@ public class KillsCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess access, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("kills")
+                        .requires(permission("kills", 0))
                         .executes(KillsCommand::run)
         );
     }

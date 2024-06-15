@@ -37,6 +37,7 @@ import net.minecraft.text.Text;
 
 import java.util.Collection;
 
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -53,17 +54,20 @@ public class AssassinCommand {
                                                                 argument("player", GameProfileArgumentType.gameProfile())
                                                                         .executes(AssassinCommand::run)
                                                         )
+                                                        .requires(permission("assassin.set", 3))
                                         )
                                         .then(
                                                 literal("clear")
+                                                        .requires(permission("assassin.clear", 3))
                                                         .executes(context -> {
                                                             AssassinHandler.getInstance().setAssassin(null);
                                                             context.getSource().sendFeedback(() -> Text.translatable("forf.commands.assassin.clear"), false);
                                                             return 0;
                                                         })
                                         )
-                                        .requires(source -> source.hasPermissionLevel(3))
+                                        .requires(permission("assassin", 3)) // Needed so an empty assassin command doesn't appear to those without permission
                         )
+                        .requires(permission("forf", 0)) // Make the root forf command disable-able
         );
     }
 

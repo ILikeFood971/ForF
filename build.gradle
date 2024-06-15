@@ -38,6 +38,9 @@ dependencies {
     // Fabric API.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
+    // Command permissions
+    modImplementation "me.lucko:fabric-permissions-api:${project.fabric_permissions_version}"
+
     // Config Json handler
     api include("blue.endless:jankson:${project.jankson_version}")
 
@@ -82,6 +85,7 @@ processResources {
     inputs.property "java_version", java_version
     inputs.property "fabric_loader_version", fabric_loader_version
     inputs.property "fabric_api_version", fabric_api_version
+    inputs.property "fabric_permissions_version", fabric_permissions_version
     inputs.property "sgui_version", sgui_version
     inputs.property "server_translations_version", server_translations_version
     inputs.property "polymer_core_version", polymer_core_version
@@ -96,7 +100,8 @@ processResources {
                 "fabric_api_version": fabric_api_version,
                 "sgui_version": sgui_version,
                 "server_translations_version": server_translations_version,
-                "polymer_core_version": polymer_core_version
+                "polymer_core_version": polymer_core_version,
+                "fabric_permissions_version": fabric_permissions_version
     }
 }
 

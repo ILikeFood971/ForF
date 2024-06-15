@@ -35,6 +35,7 @@ import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.text.Text;
 
 import static net.ilikefood971.forf.command.CommandUtil.NOT_STARTED;
+import static net.ilikefood971.forf.command.CommandUtil.permission;
 import static net.ilikefood971.forf.util.Util.FAKE_SCOREBOARD;
 import static net.ilikefood971.forf.util.Util.SERVER;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -46,7 +47,7 @@ public class StopCommand {
         dispatcher.register(literal("forf")
                 .then(
                         literal("stop")
-                                .requires(source -> source.hasPermissionLevel(3))
+                                .requires(permission("stop", 3))
                                 .executes(StopCommand::run)
                 )
         );

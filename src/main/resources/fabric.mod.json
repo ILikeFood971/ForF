@@ -39,10 +39,14 @@
   "recommends": {
     "server_translations_api": ">=${server_translations_version}"
   },
+  "suggests": {
+    "fabric-permissions-api-v0": ">=${fabric_permissions_version}"
+  },
   "custom": {
     "mc-publish": {
       "dependencies": [
-        "polymer-core@${polymer_core_version}(embedded){modrinth:xGdtZczs}"
+        "polymer-core@${polymer_core_version}(embedded){modrinth:xGdtZczs}{curseforge:551890}",
+        "fabric-permissions-api-v0@${fabric_permissions_version}(optional){modrinth:lzVo0Dll}"
       ]
     }
   }
