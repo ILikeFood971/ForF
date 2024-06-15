@@ -62,6 +62,7 @@ public class AssassinCommand {
                                                             return 0;
                                                         })
                                         )
+                                        .requires(source -> source.hasPermissionLevel(3))
                         )
         );
     }
