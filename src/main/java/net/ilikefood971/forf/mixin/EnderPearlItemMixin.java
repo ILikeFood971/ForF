@@ -20,6 +20,7 @@
 
 package net.ilikefood971.forf.mixin;
 
+import net.ilikefood971.forf.timer.PvPTimer;
 import net.ilikefood971.forf.util.Util;
 import net.minecraft.item.EnderPearlItem;
 import net.minecraft.item.Item;
@@ -36,6 +37,8 @@ public abstract class EnderPearlItemMixin extends Item {
 
     @ModifyArg(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/ItemCooldownManager;set(Lnet/minecraft/item/Item;I)V"), index = 1)
     private int modifyEnderPearlCooldown(int original) {
-        return Util.CONFIG.restrictions().pearlCooldownTime() * 20;
+        if (PvPTimer.getPvPState().getValue()) { // Only increase the cooldown time when PvP is enabled
+            return Util.CONFIG.restrictions().pearlCooldownTime() * 20;
+        } else return original;
     }
 }
